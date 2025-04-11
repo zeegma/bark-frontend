@@ -2,8 +2,8 @@
   import Layout from "../components/layout/Layout.svelte";
 </script>
 
-<Layout>
-  <div class="p-4">
-    <h1 class="text-2xl font-semibold">Items</h1>
+<Layout title="Items">
+  <div class="p-2">
+    <h1>Content</h1>
   </div>
 </Layout>
