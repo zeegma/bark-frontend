@@ -1,9 +1,7 @@
 <script lang="ts">
 </script>
 
-<div
-  class="flex w-[710px] h-[63px] rounded-2xl overflow-hidden fixed top-12 right-12 z-50"
->
+<div class="flex w-[710px] h-[63px] rounded-2xl overflow-hidden fixed z-50">
   <input
     type="text"
     placeholder="Search"
