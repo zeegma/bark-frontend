@@ -15,6 +15,7 @@
   };
 </script>
 
-<main class="w-full h-full p-6">
+<!-- Iwan ko muna as white yung bg para visible yung nav -->
+<main class="w-full h-full text-[#1E1E1E]">
   <Router {routes} />
 </main>
