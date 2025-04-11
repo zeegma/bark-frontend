@@ -16,7 +16,6 @@
 </script>
 
 <!-- Iwan ko muna as white yung bg para visible yung nav -->
-<!-- <main class="w-full h-full bg-[#80000]"> -->
-<main class="w-full h-full">
+<main class="w-full h-full text-[#1E1E1E]">
   <Router {routes} />
 </main>
