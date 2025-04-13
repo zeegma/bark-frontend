@@ -1,13 +1,16 @@
 <script lang="ts">
   import { BarsOutline, GridOutline } from "flowbite-svelte-icons";
+  import { viewStore, type ViewType } from "../../stores/viewStore";
 
-  type ViewType = "list" | "grid";
+  // Subscribe to the viewStore
+  let view: ViewType;
 
-  let view: ViewType = "list";
+  viewStore.subscribe((value) => {
+    view = value;
+  });
 
   function handleToggle(selectedView: ViewType): void {
-    view = selectedView;
-    // Toggle logic TBA (A as in added)
+    viewStore.set(selectedView);
     console.log(`Switched to ${selectedView} view`);
   }
 </script>
