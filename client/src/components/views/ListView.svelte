@@ -8,7 +8,6 @@
     <tbody>
       {#each items as item (item.id)}
         <tr class="bg-white border border-stone-500 rounded-xl">
-          
           <!-- Icon, Name, and Description -->
           <td class="max-w-34 py-4">
             <div class="flex items-center gap-6 max-w-240">
@@ -66,7 +65,9 @@
           <!-- Action Button -->
           <td class="max-w-24 text-end">
             <a
-              href={item.status === "UC" ? "#/claim" : "#/appeal"}
+              href={item.status === "UC"
+                ? `#/claim?id=${item.id}`
+                : `#/appeal?id=${item.id}`}
               class="min-w-48 inline-block py-4 text-center text-white bg-[#800000] rounded-lg text-base font-medium"
             >
               {item.status === "UC" ? "File Claim" : "Appeal Claim"}

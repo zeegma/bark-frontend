@@ -1,7 +1,7 @@
 <script lang="ts">
   import { categoryOptions } from "../../lib/constants/filters";
-  import timeIcon from "../../assets/icons/time-icon.svg";
-  import locationIcon from "../../assets/icons/location-icon.svg";
+  import timeIcon from "/icons/time-icon.svg";
+  import locationIcon from "/icons/location-icon.svg";
 
   export let items: any[];
 
@@ -13,7 +13,7 @@
   };
 </script>
 
-<section class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 p-4">
+<section class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
   {#each items as item (item.id)}
     <div class="px-6 py-6 border border-stone-300 rounded-2xl bg-white">
       <div class="flex justify-between">
@@ -45,11 +45,14 @@
       <img
         src={item.photo_url}
         alt={item.name}
-        class="object-cover w-full h-48 mt-4 mb-4 border border-stone-200 rounded-xl"
+        title={item.description}
+        class="object-cover w-full h-48 mt-5 mb-5 border border-stone-200 rounded-xl"
       />
 
       <!-- Date and Time Found -->
-      <div class="flex items-center gap-2 mb-1 text-xs font-medium text-stone-600">
+      <div
+        class="flex items-center gap-2 mb-2 text-xs font-medium text-stone-600"
+      >
         <img src={timeIcon} alt="Location Icon" class="w-5 h-5" />
         <p class="font-semibold text-stone-500">Found on</p>
         <p class="font-medium text-stone-400">
@@ -62,15 +65,18 @@
         <img src={locationIcon} alt="Location Icon" class="w-5 h-5" />
         <p class="font-semibold text-stone-500">Last Seen</p>
         <p class="font-medium text-stone-400">
-          {item.date_found} at {formatTime(item.time_found)}
+          {item.location_found}
         </p>
       </div>
 
+      <!-- Action Button -->
       <a
-        href="#/claim"
-        class="flex justify-center mt-4 px-4 py-3 bg-[#800000] rounded-lg"
+        href={item.status === "UC"
+          ? `#/claim?id=${item.id}`
+          : `#/appeal?id=${item.id}`}
+        class="flex justify-center mt-5 px-4 py-3 text-white font-medium bg-[#800000] rounded-lg"
       >
-        <p class="text-white font-medium">File a Claim</p>
+        {item.status === "UC" ? "File Claim" : "Appeal Claim"}
       </a>
     </div>
   {/each}
