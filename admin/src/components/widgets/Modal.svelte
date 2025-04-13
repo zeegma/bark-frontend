@@ -1,24 +1,22 @@
 <script lang="ts">
+  import DatePicker from "../common/DatePicker.svelte";
+  import TimePicker from "../common/TimePicker.svelte";
+  import Category from "../common/Category.svelte";
+  import Status from "../common/Status.svelte";
+  import { Textarea } from "flowbite-svelte";
+  import ClaimantsList from "../common/ClaimantsList.svelte";
+  import {
+    PlusOutline,
+    EditSolid,
+    InfoCircleOutline,
+  } from "flowbite-svelte-icons";
+
   export let mode: "add" | "view" | "edit" = "add";
 
   let showModal = false;
 
   const openModal = () => (showModal = true);
   const closeModal = () => (showModal = false);
-
-  const statusOptions = ["Unclaimed", "Claimed"];
-  const categoryOptions = [
-    "Bags & Backpacks",
-    "Electronics",
-    "Eyewear",
-    "Footwear",
-    "IDs & Cards",
-    "Keys",
-    "Miscellaneous",
-    "Mobile Devices",
-    "Wallets & Purses",
-    "Watches & Jewelries",
-  ];
 
   $: title =
     mode === "add" ? "Add Item" : mode === "edit" ? "Edit Item" : "View Item";
@@ -32,14 +30,31 @@
   };
 </script>
 
-<!-- If statement depending on the mode as edit and view uses icons -->
-<button on:click={openModal} class="btn capitalize">{mode} Item</button>
+<button on:click={openModal} class="btn capitalize"
+  >{#if mode === "add"}
+    <div
+      class="bg-red-900 text-white px-4 py-2 flex items-center gap-2 rounded-lg"
+    >
+      Add Item <PlusOutline />
+    </div>
+  {:else if mode === "edit"}
+    <div>
+      <EditSolid />
+    </div>
+  {:else}
+    <div>
+      <InfoCircleOutline />
+    </div>
+  {/if}</button
+>
 
 {#if showModal}
   <div
     class="overflow-y-auto fixed inset-0 z-50 flex justify-center items-center w-screen h-screen max-h-full backdrop-blur-sm bg-black/50"
   >
-    <div class="bg-white rounded-2xl w-full max-w-6xl shadow-md">
+    <div
+      class={`bg-white rounded-2xl w-full max-w-6xl shadow-md ${mode === "view" ? "h-[60vh]" : ""}`}
+    >
       <div
         class="flex justify-between items-center px-6 py-4 border-b border-gray-300"
       >
@@ -73,8 +88,8 @@
         on:submit|preventDefault={handleSubmit}
       >
         <!-- Item Name -->
-        <div class="col-span-3">
-          <label for="name" class="block text-sm font-medium text-gray-800"
+        <div class={`col-span-${mode === "add" ? 3 : 2}`}>
+          <label for="name" class="block text-sm font-medium text-gray-800 mb-1"
             >Item Name</label
           >
           <input
@@ -87,34 +102,20 @@
 
         <!-- Status -->
         <div class="col-span-2">
-          <label for="status" class="block text-sm font-medium text-gray-800"
-            >Status</label
+          <label
+            for="status"
+            class="block text-sm font-medium text-gray-800 mb-1">Status</label
           >
-          <select
-            class="w-full p-2.5 border border-gray-300 rounded-lg text-sm"
-            disabled={isDisabled}
-          >
-            {#if mode === "add"}<option value="">Status</option>{/if}
-            {#each statusOptions as option}
-              <option value={option}>{option}</option>
-            {/each}
-          </select>
+          <Status {mode} />
         </div>
 
         <!-- Category -->
-        <div class={`col-span-${mode === "add" ? 3 : 2}`}>
-          <label for="category" class="block text-sm font-medium text-gray-800"
-            >Category</label
+        <div class="col-span-3">
+          <label
+            for="category"
+            class="block text-sm font-medium text-gray-800 mb-1">Category</label
           >
-          <select
-            class="w-full p-2.5 border border-gray-300 rounded-lg text-sm"
-            disabled={isDisabled}
-          >
-            {#if mode === "add"}<option value="">Category</option>{/if}
-            {#each categoryOptions as option}
-              <option value={option}>{option}</option>
-            {/each}
-          </select>
+          <Category {mode} />
         </div>
 
         <!-- Claimant -->
@@ -122,29 +123,15 @@
           <div class="col-span-2">
             <label
               for="claimant"
-              class="block text-sm font-medium text-gray-800">Claimant</label
+              class="block text-sm font-medium text-gray-800 mb-1"
+              >Claimant</label
             >
-            {#if mode === "view"}
-              <input
-                type="text"
-                class="w-full p-2.5 border border-gray-300 rounded-lg text-sm"
-                disabled
-              />
-            {:else}
-              <select
-                class="w-full p-2.5 border border-gray-300 rounded-lg text-sm"
-              >
-                <option value="">Select Claimant</option>
-                <option value="Claimant 1">Claimant 1</option>
-                <option value="Claimant 2">Claimant 2</option>
-                <option value="Claimant 3">Claimant 3</option>
-              </select>
-            {/if}
+            <ClaimantsList {mode} />
           </div>
         {/if}
 
         <!-- Image -->
-        <div class="col-span-4 row-span-3">
+        <div class={`col-span-${mode === "add" ? 4 : 3} row-span-3`}>
           <label
             for="image"
             class="block mb-1 text-sm font-medium text-[#1E1E1E]">Image</label
@@ -159,54 +146,57 @@
         </div>
 
         <!-- Description -->
-        <div class="col-span-8">
+        <div class={mode === "add" ? "col-span-8" : "col-span-9"}>
           <label
             for="description"
-            class="block text-sm font-medium text-gray-800">Description</label
+            class="block text-sm font-medium text-gray-800 mb-1"
+            >Description</label
           >
-          <textarea
-            rows="4"
-            class="w-full p-2.5 border border-gray-300 rounded-lg text-sm"
-            placeholder={!isDisabled ? "Describe the item" : ""}
+          <Textarea
+            id="textarea-id"
+            placeholder="Your message"
+            rows={4}
+            name="message"
             disabled={isDisabled}
-          ></textarea>
+            class="bg-white border border-red-500 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+          />
         </div>
 
         <!-- Date Lost -->
         <div class="col-span-3">
-          <label for="dateLost" class="block text-sm font-medium text-gray-800"
+          <label
+            for="dateLost"
+            class="block text-sm font-medium text-gray-800 mb-1"
             >Date Lost</label
           >
-          <input
-            type="date"
-            class="w-full p-2.5 border border-gray-300 rounded-lg text-sm"
-            disabled={isDisabled}
-          />
+          <div class="w-full">
+            <DatePicker {mode} />
+          </div>
         </div>
 
         <!-- Time Lost -->
         <div class="col-span-2">
-          <label for="timeLost" class="block text-sm font-medium text-gray-800"
+          <label
+            for="timeLost"
+            class="block text-sm font-medium text-gray-800 mb-1"
             >Time Lost</label
           >
-          <input
-            type="time"
-            class="w-full p-2.5 border border-gray-300 rounded-lg text-sm"
-            disabled={isDisabled}
-          />
+          <div class="w-full">
+            <TimePicker {mode} />
+          </div>
         </div>
 
         <!-- Last Known Location -->
-        <div class="col-span-3">
+        <div class={mode === "add" ? "col-span-3" : "col-span-4"}>
           <label
             for="lastKnownLocation"
-            class="block text-sm font-medium text-gray-800"
+            class="block text-sm font-medium text-gray-800 mb-1"
             >Last Known Location</label
           >
           <div class="relative">
             <input
               type="text"
-              class="w-full p-2.5 pr-10 border border-gray-300 rounded-lg text-sm"
+              class="w-full p-2.5 pr-10 border border-gray-300 rounded-lg text-sm focus:ring-red-500 focus:ring-2"
               placeholder={!isDisabled ? "Location" : ""}
               disabled={isDisabled}
             />
