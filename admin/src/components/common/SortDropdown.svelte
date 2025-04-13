@@ -10,7 +10,7 @@
 <div class="relative inline-block text-left">
   <Button
     color="light"
-    class="border border-gray-300 bg-white text-gray-700 hover:bg-gray-100 rounded-xl"
+    class="justify-start border rounded-xl h-11 focus:ring-2 focus:ring-red-600 focus:border-gray"
   >
     Sort by
     <ChevronDownOutline class="w-5 h-5 ms-2 text-gray-600" />
