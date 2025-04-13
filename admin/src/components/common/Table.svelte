@@ -36,13 +36,20 @@
         <TableBodyCell class="p-4">
           <Checkbox color="red" />
         </TableBodyCell>
-        <TableBodyCell class="p-2">{claim.id}</TableBodyCell>
-        <TableBodyCell class="p-2 truncate">{claim.name}</TableBodyCell>
-        <TableBodyCell class="p-2">{claim.phone}</TableBodyCell>
-        <TableBodyCell class="p-2">{claim.facebook}</TableBodyCell>
-        <TableBodyCell class="p-2">{claim.dateFiled}</TableBodyCell>
-        <TableBodyCell class="p-2">{claim.itemId}</TableBodyCell>
-        <TableBodyCell class="p-2 truncate">{claim.itemRequested}</TableBodyCell
+        <TableBodyCell class="p-2 text-gray-600">{claim.id}</TableBodyCell>
+        <TableBodyCell class="p-2 text-gray-600 truncate"
+          >{claim.name}</TableBodyCell
+        >
+        <TableBodyCell class="p-2 text-gray-600">{claim.phone}</TableBodyCell>
+        <TableBodyCell class="p-2 text-gray-600 truncate"
+          >{claim.facebook}</TableBodyCell
+        >
+        <TableBodyCell class="p-2 text-gray-600"
+          >{claim.dateFiled}</TableBodyCell
+        >
+        <TableBodyCell class="p-2 text-gray-600">{claim.itemId}</TableBodyCell>
+        <TableBodyCell class="p-2 text-gray-600 truncate"
+          >{claim.itemRequested}</TableBodyCell
         >
         <TableBodyCell class="p-4 flex gap-2 justify-center">
           <button
