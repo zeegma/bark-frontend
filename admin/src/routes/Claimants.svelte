@@ -2,6 +2,7 @@
   import Layout from "../components/layout/Layout.svelte";
   import SortDropdown from "../components/common/SortDropdown.svelte";
   import DatePicker from "../components/common/DatePicker.svelte";
+  import Toggle from "../components/common/Toggle.svelte";
 </script>
 
 <Layout title="Claimants">
@@ -10,6 +11,7 @@
     <div class="flex gap-4">
       <SortDropdown />
       <DatePicker />
+      <Toggle />
     </div>
   </div>
 </Layout>
