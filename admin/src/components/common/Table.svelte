@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   import {
     Table,
     TableBody,
@@ -10,8 +10,54 @@
   } from "flowbite-svelte";
   import { InfoCircleOutline, TrashBinSolid } from "flowbite-svelte-icons";
   import { claimsData } from "../../lib/mockData";
+  import { sortStore, type SortOptions } from "../../stores/sortStore";
 
-  const claims = claimsData;
+  type ClaimItem = {
+    id: string;
+    name: string;
+    phone: string;
+    facebook: string;
+    dateFiled: string;
+    itemId: string;
+    itemRequested: string;
+    hasImage?: boolean;
+  };
+
+  // Create a local copy of the claims data to sort
+  let claims: ClaimItem[] = [...claimsData];
+  let currentSortOptions: SortOptions;
+
+  sortStore.subscribe((options) => {
+    currentSortOptions = options;
+    applySorting();
+  });
+
+  // Function to sort the claims data
+  function applySorting() {
+    claims = [...claimsData].sort((a: ClaimItem, b: ClaimItem) => {
+      const { sortBy, sortOrder } = currentSortOptions;
+      const multiplier = sortOrder === "Ascending" ? 1 : -1;
+
+      // Handle diff field types for sorting
+      switch (sortBy) {
+        case "name":
+          return a.name.localeCompare(b.name) * multiplier;
+        case "itemRequested":
+          return a.itemRequested.localeCompare(b.itemRequested) * multiplier;
+        case "facebook":
+          return a.facebook.localeCompare(b.facebook) * multiplier;
+        case "dateFiled":
+          return a.dateFiled.localeCompare(b.dateFiled) * multiplier;
+        case "id":
+          return a.id.localeCompare(b.id) * multiplier;
+        default:
+          return 0;
+      }
+    });
+  }
+
+  // Initial sort
+  applySorting();
 </script>
 
 <Table hoverable={true} class="w-full table-fixed text-center overflow-auto">
