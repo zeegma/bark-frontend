@@ -3,8 +3,8 @@
   import { ChevronDownOutline } from "flowbite-svelte-icons";
 
   // Track selected options
-  let sortBy = "Name";
-  let sortOrder = "Ascending";
+  let sortBy: string = "Name";
+  let sortOrder: string = "Ascending";
 </script>
 
 <div class="relative inline-block text-left">
