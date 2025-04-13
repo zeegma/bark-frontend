@@ -11,9 +11,9 @@
 <div class="flex min-h-screen bg-[#800000]">
   <Navbar />
   <main class="flex-1 overflow-auto p-7">
-    <div class="bg-white rounded-4xl p-7 h-full">
+    <div class="bg-white rounded-3xl p-7 h-full">
       {#if showSearchBar}
-        <div class="flex mb-8 justify-between">
+        <div class="flex mb-5 justify-between">
           <div class="p-2">
             <h1 class={`text-5xl font-semibold`}>{title}</h1>
           </div>
