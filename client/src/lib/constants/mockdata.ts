@@ -1,4 +1,4 @@
-import viteLogo from "/vite.svg";
+import viteLogo from "/queen.png";
 
 export const mockdata = [
   {
@@ -36,7 +36,7 @@ export const mockdata = [
   },
   {
     id: 4,
-    name: "key",
+    name: "Motor Key",
     description: "Motor key nakita ko sa parking ng PUP sa may oval",
     category: "KY",
     date_found: "2025-03-17",
@@ -80,9 +80,9 @@ export const mockdata = [
   },
   {
     id: 8,
-    name: "MS",
+    name: "Yellow notebook",
     description: "Yellow notebook with IT notes found at South Wing 5th floor",
-    category: "PB",
+    category: "MS",
     date_found: "2025-03-22",
     time_found: "10:12:13",
     location_found: "South Wing 5th Floor",
@@ -91,9 +91,9 @@ export const mockdata = [
   },
   {
     id: 9,
-    name: "MS",
+    name: "Thesis Document",
     description: "Research proposals ng BSCS 3-5 para sa COSC 304",
-    category: "PB",
+    category: "MS",
     date_found: "2025-03-24",
     time_found: "14:23:25",
     location_found: "Near S512",
