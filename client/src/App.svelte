@@ -10,6 +10,4 @@
 
 </script>
 
-<main>
-  <Router {routes} />
-</main>
+<Router {routes} />
