@@ -38,7 +38,9 @@
     <!-- Filter section -->
     <div class="flex gap-4 mb-7">
       <SortDropdown />
-      <DatePicker />
+      <div class="w-1/4">
+        <DatePicker />
+      </div>
       <Toggle />
 
       <div class="flex flex-1 justify-end">
