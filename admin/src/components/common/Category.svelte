@@ -18,7 +18,7 @@
     "Watches & Jewelries",
   ];
 
-  let selectedCategory: string = "";
+  export let selectedCategory: string = "";
 
   function selectCategory(category: string) {
     selectedCategory = category;

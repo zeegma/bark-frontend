@@ -6,7 +6,8 @@
   $: isDisabled = mode === "view";
 
   const statusOptions = ["Unclaimed", "Claimed"];
-  let selectedStatus: string = "";
+
+  export let selectedStatus: string = "";
 
   function selectStatus(status: string) {
     selectedStatus = status;

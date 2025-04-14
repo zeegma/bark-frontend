@@ -1,5 +1,5 @@
 <script lang="ts">
-  let selectedTime: string = "00:00";
+  export let selectedTime: string = "";
   export let mode: "add" | "edit" | "view";
   let className: string = "";
 

@@ -5,7 +5,7 @@
 
   $: isDisabled = mode === "view";
 
-  let selectedDate: Date | null = null;
+  export let selectedDate: Date | null = null;
   let lastAction: string = "";
 
   function handleClear(): void {

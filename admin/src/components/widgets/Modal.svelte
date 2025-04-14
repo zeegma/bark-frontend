@@ -12,10 +12,50 @@
   } from "flowbite-svelte-icons";
 
   export let mode: "add" | "view" | "edit" = "add";
+  export let items: Array<any> = [];
+  export let currentItem: any = {};
 
   let showModal = false;
+  let formData: any = {
+    id: "",
+    name: "",
+    status: "",
+    category: "",
+    claimant: "",
+    image: null,
+    description: "",
+    dateLost: "",
+    timeLost: "",
+    lastKnownLocation: "",
+  };
 
-  const openModal = () => (showModal = true);
+  const getNextHexId = () => {
+    if (items.length === 0) return "LOST0001";
+    const lastItem = items[items.length - 1];
+    const lastId = parseInt(lastItem.id.replace("LOST", ""), 16);
+    const nextId = (lastId + 1).toString(16).toUpperCase().padStart(4, "0");
+    return `LOST${nextId}`;
+  };
+
+  const resetForm = () => {
+    formData = {
+      id: mode === "add" ? getNextHexId() : currentItem.id,
+      name: mode === "edit" ? currentItem.name : "",
+      status: mode === "edit" ? currentItem.status : "",
+      category: mode === "edit" ? currentItem.category : "",
+      claimant: mode === "edit" ? currentItem.claimant : "",
+      image: null,
+      description: mode === "edit" ? currentItem.description : "",
+      dateLost: mode === "edit" ? currentItem.dateLost : "",
+      timeLost: mode === "edit" ? currentItem.timeLost : "",
+      lastKnownLocation: mode === "edit" ? currentItem.lastKnownLocation : "",
+    };
+  };
+
+  const openModal = () => {
+    resetForm();
+    showModal = true;
+  };
   const closeModal = () => (showModal = false);
 
   $: title =
@@ -25,7 +65,16 @@
   $: showClaimant = mode !== "add";
 
   const handleSubmit = () => {
-    // Submission logic
+    console.log("Form Data Submitted:", formData);
+
+    if (mode === "add") {
+      const newItem = { ...formData };
+      items = [...items, newItem];
+    } else if (mode === "edit") {
+      items = items.map((item) =>
+        item.id === formData.id ? { ...formData } : item,
+      );
+    }
     closeModal();
   };
 </script>
@@ -94,6 +143,7 @@
           >
           <input
             type="text"
+            bind:value={formData.name}
             class="w-full p-2.5 border border-gray-300 rounded-lg text-sm"
             placeholder={!isDisabled ? "Enter item name" : ""}
             disabled={isDisabled}
@@ -106,7 +156,7 @@
             for="status"
             class="block text-sm font-medium text-gray-800 mb-1">Status</label
           >
-          <Status {mode} />
+          <Status {mode} bind:selectedStatus={formData.status} />
         </div>
 
         <!-- Category -->
@@ -115,7 +165,7 @@
             for="category"
             class="block text-sm font-medium text-gray-800 mb-1">Category</label
           >
-          <Category {mode} />
+          <Category {mode} bind:selectedCategory={formData.category} />
         </div>
 
         <!-- Claimant -->
@@ -126,7 +176,7 @@
               class="block text-sm font-medium text-gray-800 mb-1"
               >Claimant</label
             >
-            <ClaimantsList {mode} />
+            <ClaimantsList {mode} bind:selectedClaimant={formData.claimant} />
           </div>
         {/if}
 
@@ -153,6 +203,7 @@
             >Description</label
           >
           <Textarea
+            bind:value={formData.description}
             id="textarea-id"
             placeholder="Your message"
             rows={4}
@@ -170,7 +221,7 @@
             >Date Lost</label
           >
           <div class="w-full">
-            <DatePicker {mode} />
+            <DatePicker {mode} bind:selectedDate={formData.dateLost} />
           </div>
         </div>
 
@@ -182,7 +233,7 @@
             >Time Lost</label
           >
           <div class="w-full">
-            <TimePicker {mode} />
+            <TimePicker {mode} bind:selectedTime={formData.timeLost} />
           </div>
         </div>
 
@@ -195,6 +246,7 @@
           >
           <div class="relative">
             <input
+              bind:value={formData.lastKnownLocation}
               type="text"
               class="w-full p-2.5 pr-10 border border-gray-300 rounded-lg text-sm focus:ring-red-500 focus:ring-2"
               placeholder={!isDisabled ? "Location" : ""}

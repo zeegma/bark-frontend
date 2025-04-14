@@ -5,8 +5,9 @@
 
   $: isDisabled = mode === "view";
 
+  // Change this const
   const claimantOptions = ["Claimant 1", "Claimant 2", "Claimant 3"];
-  let selectedClaimant: string = "";
+  export let selectedClaimant: string = "";
 
   function selectClaimant(claimant: string) {
     selectedClaimant = claimant;
