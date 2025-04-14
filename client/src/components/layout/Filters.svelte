@@ -37,7 +37,9 @@
   const statusIcon = "/icons/status-icon.svg";
 </script>
 
-<div class="flex gap-4 sticky top-0 px-24 py-4 bg-white font-[Poppins]">
+<div
+  class="flex gap-4 sticky top-0 px-24 py-4 bg-white/80 backdrop-blur-md font-[Poppins]"
+>
   <!-- Dropdown Filter by Category -->
   <Dropdown
     label="All Categories"
