@@ -15,7 +15,9 @@
 
 <section class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
   {#each items as item (item.id)}
-    <div class="px-6 py-6 border border-stone-300 rounded-2xl bg-white">
+    <div
+      class="px-6 py-6 border border-stone-300 rounded-2xl bg-white hover:bg-stone-100 hover:border-stone-400 transition duration-300 ease-in-out"
+    >
       <div class="flex justify-between">
         <!-- Item Label -->
         <div class="flex-col flex-grow min-w-0">
@@ -74,7 +76,7 @@
         href={item.status === "UC"
           ? `#/claim?id=${item.id}`
           : `#/appeal?id=${item.id}`}
-        class="flex justify-center mt-5 px-4 py-3 text-white font-medium bg-[#800000] rounded-lg"
+        class="flex justify-center mt-5 px-4 py-3 text-white font-medium bg-[#800000] rounded-lg hover:bg-[#A73D3D] transition duration-300 ease-in-out cursor-pointer"
       >
         {item.status === "UC" ? "File Claim" : "Appeal Claim"}
       </a>

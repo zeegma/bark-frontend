@@ -114,7 +114,7 @@
       type="text"
       readonly
       value={formatDateRange(selectedStartDate, selectedEndDate)}
-      class="px-4 border border-stone-300 rounded-lg bg-white text-sm font-medium text-[#9A4444] cursor-pointer"
+      class="px-4 border border-stone-300 rounded-lg bg-white text-sm font-medium text-[#9A4444] hover:bg-stone-100 hover:border-stone-400 transition duration-300 ease-in-out cursor-pointer"
       on:click={() => (showCalendar = !showCalendar)}
     />
     <img
@@ -133,7 +133,7 @@
         <!-- Previous Button-->
         <button
           on:click={() => navigateMonth("prev")}
-          class="p-2 hover:bg-stone-100 rounded-lg"
+          class="p-2 hover:bg-stone-100 rounded-lg cursor-pointer transition duration-300 ease-in-out"
           aria-label="Previous Month"
         >
           <svg
@@ -163,7 +163,7 @@
         <!-- Next Button -->
         <button
           on:click={() => navigateMonth("next")}
-          class="p-2 hover:bg-stone-100 rounded-lg"
+          class="p-2 hover:bg-stone-100 rounded-lg cursor-pointer transition duration-300 ease-in-out"
           aria-label="Next Month"
         >
           <svg
@@ -194,7 +194,7 @@
         <!-- Cell for each days -->
         {#each getDaysInMonth(currentDate) as day}
           <button
-            class={`rounded-lg py-2 w-full text-xs ${
+            class={`rounded-lg py-2 w-full text-xs cursor-pointer ${
               !day.date
                 ? "text-gray-400 cursor-not-allowed"
                 : day.date.getMonth() !== currentDate.getMonth()
@@ -208,7 +208,7 @@
                           day.date >= selectedStartDate &&
                           day.date <= selectedEndDate
                         ? "bg-gray-200"
-                        : "hover:bg-gray-100"
+                        : "hover:bg-gray-100 transition duration-100 ease-in-out"
             }`}
             disabled={!day.date ||
               (day.date && day.date.getMonth() !== currentDate.getMonth())}
@@ -221,13 +221,13 @@
       <span class="border-t-stone-200 border-t flex"></span>
       <div class="flex justify-between m-4 gap-2">
         <button
-          class="flex flex-grow justify-center items-center px-3 py-2 border rounded-md bg-red-300 text-xs text-white"
+          class="flex flex-grow justify-center items-center px-3 py-2 border rounded-md bg-red-500 text-xs text-white hover:bg-red-400 transition duration-300 ease-in-out cursor-pointer"
           on:click={clearDateRange}
         >
           Clear
         </button>
         <button
-          class="flex flex-grow justify-center items-center px-3 py-2 border rounded-md bg-[#800000] text-xs text-white"
+          class="flex flex-grow justify-center items-center px-3 py-2 border rounded-md bg-[#800000] text-xs text-white hover:bg-[#A73D3D] transition duration-300 ease-in-out cursor-pointer"
           on:click={applyDateRange}
         >
           Apply

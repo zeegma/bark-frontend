@@ -10,7 +10,7 @@
     {placeholder}
     bind:value
     on:input={(e) => onInput((e.target as HTMLInputElement).value)}
-    class="px-4 border border-stone-300 rounded-lg flex-1 bg-white text-sm"
+    class="px-4 border border-stone-300 rounded-lg flex-1 bg-white text-sm hover:bg-stone-100 hover:border-stone-400 transition duration-300 ease-in-out"
   />
   <img
     src="/icons/search-icon.svg"

@@ -1,5 +1,6 @@
 <script lang="ts">
-  import pupManila from "../assets/images/pup-manila.jpg";
+  import pupManila from "../../assets/images/pup-manila.jpg";
+
 </script>
 
 <div class="font-[Poppins]">
@@ -7,7 +8,7 @@
     PUP-BARK
   </nav>
   <header
-    class="relative bg-cover bg-center h-48 xl:h-64 px-24"
+    class="relative bg-cover bg-center h-48 px-24 xl:h-64 "
     style="background-image: url({pupManila})"
   >
     <div class="absolute inset-0 bg-black opacity-50"></div>

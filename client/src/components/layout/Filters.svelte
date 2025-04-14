@@ -67,10 +67,10 @@
   />
 
   <!-- View Toggle -->
-  <div class="flex gap-1 border border-stone-300 rounded-lg overflow-hidden">
+  <div class="flex border border-stone-300 rounded-lg overflow-hidden">
     <!-- Grid Button -->
     <button
-      class={`flex items-center gap-2 px-6 py-2 ${isGrid ? "bg-red-100 text-white" : "bg-white"}`}
+      class={`flex items-center gap-2 px-6 py- hover:bg-stone-100 hover:border-stone-400 transition duration-300 ease-in-out cursor-pointer ${isGrid ? "bg-red-100 text-white" : "bg-white"}`}
       on:click={() => (isGrid = true)}
     >
       <img src="/icons/grid-icon.svg" alt="Grid View" class="w-5 h-5" />
@@ -78,7 +78,7 @@
 
     <!-- List Button -->
     <button
-      class={`flex items-center gap-2 px-6 py-2 ${!isGrid ? "bg-red-100 text-white" : "bg-white"}`}
+      class={`flex items-center gap-2 px-6 py-2 hover:bg-stone-100 hover:border-stone-400 transition duration-300 ease-in-out cursor-pointer ${!isGrid ? "bg-red-100 text-white" : "bg-white"}`}
       on:click={() => (isGrid = false)}
     >
       <img src="/icons/list-icon.svg" alt="List View" class="w-4 h-4" />

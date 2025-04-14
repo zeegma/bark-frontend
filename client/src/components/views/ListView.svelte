@@ -68,7 +68,7 @@
               href={item.status === "UC"
                 ? `#/claim?id=${item.id}`
                 : `#/appeal?id=${item.id}`}
-              class="min-w-48 inline-block py-4 text-center text-white bg-[#800000] rounded-lg text-base font-medium"
+              class="min-w-48 inline-block py-4 text-center text-white bg-[#800000] rounded-lg text-base font-medium hover:bg-[#A73D3D] transition duration-300 ease-in-out cursor-pointer"
             >
               {item.status === "UC" ? "File Claim" : "Appeal Claim"}
             </a>
