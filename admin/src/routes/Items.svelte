@@ -1,6 +1,6 @@
 <script lang="ts">
   import Layout from "../components/layout/Layout.svelte";
-  import Modal from "../components/widgets/Modal.svelte";
+  import Modal from "../components/widgets/ItemModal.svelte";
 </script>
 
 <Layout title="Items">
