@@ -10,6 +10,7 @@
   } from "flowbite-svelte";
   import { InfoCircleOutline, TrashBinSolid } from "flowbite-svelte-icons";
   import { claimsData } from "../../lib/mockData";
+  import ViewModal from "../widgets/claimants/ViewModal.svelte";
   import { sortStore, type SortOptions } from "../../stores/sortStore";
   import {
     selectionStore,
@@ -26,6 +27,11 @@
     itemRequested: string;
     hasImage?: boolean;
   };
+
+  // For modal
+  let viewModal: boolean = false;
+
+  let selectedClaim: ClaimItem | null = null;
 
   // Create a local copy of the claims data to sort
   let claims: ClaimItem[] = [...claimsData];
@@ -135,6 +141,10 @@
         <TableBodyCell class="p-4 flex gap-2 justify-center">
           <button
             class="text-gray-900 hover:text-red-900 dark:text-gray-200 dark:hover:text-red-400"
+            on:click={() => {
+              viewModal = true;
+              selectedClaim = claim;
+            }}
           >
             <InfoCircleOutline size="lg" />
             <span class="sr-only">View</span>
@@ -150,3 +160,4 @@
     {/each}
   </TableBody>
 </Table>
+<ViewModal bind:open={viewModal} claim={selectedClaim} />
