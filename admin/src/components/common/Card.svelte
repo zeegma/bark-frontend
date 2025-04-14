@@ -6,11 +6,26 @@
     selectionActions,
   } from "../../stores/selectionStore";
 
+  type ClaimItem = {
+    id: string;
+    name: string;
+    phone: string;
+    facebook: string;
+    dateFiled: string;
+    itemId: string;
+    itemRequested: string;
+    hasImage?: boolean;
+  };
+
+  let clickTimeout: NodeJS.Timeout | null = null;
+
   export let id: string;
   export let name: string;
   export let dateFiled: string;
   export let phone: string;
   export let hasImage: boolean = true;
+  export let claim: ClaimItem;
+  export let onDoubleClick: (claim: ClaimItem) => void;
 
   // Selection state
   let selectedIds: Set<string>;
@@ -22,14 +37,41 @@
   });
 
   // Function for handling the menu click
-  const handleMenuClick = () => {
+  function handleMenuClick() {
     // TBI
-  };
+  }
 
   // Function to handle card selection
-  const handleCardClick = () => {
-    selectionActions.toggleSelection(id);
-  };
+  function handleCardClick() {
+    // Clear any existing timeout
+    if (clickTimeout) {
+      clearTimeout(clickTimeout);
+      clickTimeout = null;
+    }
+
+    // Set a new timeout
+    clickTimeout = setTimeout(() => {
+      // Only toggle selection if it wasn't a double click
+      selectionActions.toggleSelection(id);
+      clickTimeout = null;
+    }, 250);
+  }
+
+  function handleDoubleClick(event: MouseEvent) {
+    // Clear the timeout to prevent the click handler from firing
+    if (clickTimeout) {
+      clearTimeout(clickTimeout);
+      clickTimeout = null;
+    }
+
+    // Also, select item
+    if (!selectedIds.has(id)) {
+      selectionActions.toggleSelection(id);
+    }
+
+    // Trigger double click
+    onDoubleClick(claim);
+  }
 
   function handleKeyDown(event: KeyboardEvent) {
     // Trigger click on enter space to stop linter yap
@@ -49,6 +91,7 @@
   aria-label="Description of card action"
   role="button"
   on:click={handleCardClick}
+  on:dblclick={handleDoubleClick}
   on:keydown={handleKeyDown}
 >
   <div
