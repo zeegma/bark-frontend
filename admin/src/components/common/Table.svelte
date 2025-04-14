@@ -11,6 +11,10 @@
   import { InfoCircleOutline, TrashBinSolid } from "flowbite-svelte-icons";
   import { claimsData } from "../../lib/mockData";
   import { sortStore, type SortOptions } from "../../stores/sortStore";
+  import {
+    selectionStore,
+    selectionActions,
+  } from "../../stores/selectionStore";
 
   type ClaimItem = {
     id: string;
@@ -26,10 +30,17 @@
   // Create a local copy of the claims data to sort
   let claims: ClaimItem[] = [...claimsData];
   let currentSortOptions: SortOptions;
+  let selectedIds: Set<string>;
+  let isAllSelected: boolean;
 
   sortStore.subscribe((options) => {
     currentSortOptions = options;
     applySorting();
+  });
+
+  selectionStore.subscribe((state) => {
+    selectedIds = state.selectedIds;
+    isAllSelected = state.isAllSelected;
   });
 
   // Function to sort the claims data
@@ -56,6 +67,16 @@
     });
   }
 
+  // Handle select all checkbox
+  function handleSelectAll() {
+    selectionActions.toggleSelectAll(claims.map((claim) => claim.id));
+  }
+
+  // Handle individual item selection
+  function handleSelectItem(id: string) {
+    selectionActions.toggleSelection(id);
+  }
+
   // Initial sort
   applySorting();
 </script>
@@ -63,7 +84,12 @@
 <Table hoverable={true} class="w-full table-fixed text-center overflow-auto">
   <TableHead>
     <TableHeadCell class="p-4 w-16">
-      <Checkbox color="red" />
+      <Checkbox
+        checked={isAllSelected}
+        on:change={handleSelectAll}
+        color="red"
+        class="cursor-pointer"
+      />
     </TableHeadCell>
     <TableHeadCell class="p-4">Claimant ID</TableHeadCell>
     <TableHeadCell class="p-4">Claimant Name</TableHeadCell>
@@ -78,9 +104,18 @@
   </TableHead>
   <TableBody tableBodyClass="divide-y">
     {#each claims as claim}
-      <TableBodyRow class="h-16">
+      <TableBodyRow
+        class={selectedIds.has(claim.id)
+          ? "h-16 bg-red-100 hover:bg-red-200"
+          : "h-16"}
+      >
         <TableBodyCell class="p-4">
-          <Checkbox color="red" />
+          <Checkbox
+            checked={selectedIds.has(claim.id)}
+            on:change={() => handleSelectItem(claim.id)}
+            color="red"
+            class="cursor-pointer"
+          />
         </TableBodyCell>
         <TableBodyCell class="p-2 text-gray-600">{claim.id}</TableBodyCell>
         <TableBodyCell class="p-2 text-gray-600 truncate"

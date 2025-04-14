@@ -5,14 +5,32 @@
   import Toggle from "../components/common/Toggle.svelte";
   import Table from "../components/common/Table.svelte";
   import Grid from "../components/common/Grid.svelte";
+  import Indicator from "../components/common/Indicator.svelte";
   import { viewStore, type ViewType } from "../stores/viewStore";
+  import { selectionStore, selectionActions } from "../stores/selectionStore";
 
-  // Subscribe to the viewStore
+  // Subscribe to necessary stores
   let currentView: ViewType;
+  let selectedIds: Set<string>;
 
   viewStore.subscribe((value) => {
     currentView = value;
   });
+
+  selectionStore.subscribe((state) => {
+    selectedIds = state.selectedIds;
+  });
+
+  // Function to handle selection actions
+  function clearSelection() {
+    selectionActions.clearSelection();
+  }
+
+  function deleteSelectedItems() {
+    // Wait for API imple of deletion, this one's temp code
+    console.log("Deleting items:", Array.from(selectedIds));
+    selectionActions.clearSelection();
+  }
 </script>
 
 <Layout title="Claimants">
@@ -22,6 +40,17 @@
       <SortDropdown />
       <DatePicker />
       <Toggle />
+
+      <div class="flex flex-1 justify-end">
+        <!-- Selection Indicator -->
+        {#if selectedIds.size > 0}
+          <Indicator
+            selectedCount={selectedIds.size}
+            onClear={clearSelection}
+            onDelete={deleteSelectedItems}
+          />
+        {/if}
+      </div>
     </div>
 
     <!-- Table section -->

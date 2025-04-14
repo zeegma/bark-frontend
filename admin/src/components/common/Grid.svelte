@@ -1,7 +1,12 @@
 <script lang="ts">
   import Card from "./Card.svelte";
+  import { Checkbox } from "flowbite-svelte";
   import { claimsData } from "../../lib/mockData";
   import { sortStore, type SortOptions } from "../../stores/sortStore";
+  import {
+    selectionStore,
+    selectionActions,
+  } from "../../stores/selectionStore";
 
   type ClaimItem = {
     id: string;
@@ -16,6 +21,8 @@
 
   export let claims: ClaimItem[] = [...claimsData];
   let currentSortOptions: SortOptions;
+  let isAllSelected: boolean;
+  let selectedIds: Set<string>;
 
   // Sample mapping for images
   const hasImageMap: Record<string, boolean> = {
@@ -33,6 +40,11 @@
   sortStore.subscribe((options) => {
     currentSortOptions = options;
     applySorting();
+  });
+
+  selectionStore.subscribe((state) => {
+    selectedIds = state.selectedIds;
+    isAllSelected = state.isAllSelected;
   });
 
   // Function to sort the claims data
@@ -59,11 +71,28 @@
     });
   }
 
+  // Handle select all function
+  function handleSelectAll() {
+    selectionActions.toggleSelectAll(claims.map((claim) => claim.id));
+  }
+
   // Initial sort
   applySorting();
 </script>
 
 <div>
+  <!-- Select all -->
+  <div class="sticky top-0 z-10 bg-white pb-3 pl-1 flex items-center">
+    <Checkbox
+      checked={isAllSelected}
+      on:change={handleSelectAll}
+      color="red"
+      class="cursor-pointer"
+    />
+    <span class="ml-2 text-sm text-gray-700">Select All</span>
+  </div>
+
+  <!-- Main content grid -->
   <div
     class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
   >
