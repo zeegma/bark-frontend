@@ -1,5 +1,6 @@
 <script lang="ts">
   import Card from "./Card.svelte";
+  import ViewModal from "../widgets/claimants/ViewModal.svelte";
   import { Checkbox } from "flowbite-svelte";
   import { claimsData } from "../../lib/mockData";
   import { sortStore, type SortOptions } from "../../stores/sortStore";
@@ -7,6 +8,9 @@
     selectionStore,
     selectionActions,
   } from "../../stores/selectionStore";
+
+  let viewModal: boolean = false;
+  let selectedClaim: ClaimItem | null = null;
 
   type ClaimItem = {
     id: string;
@@ -33,9 +37,9 @@
   };
 
   // Function to determine if claim has photo
-  const shouldShowImage = (id: string): boolean => {
+  function shouldShowImage(id: string): boolean {
     return hasImageMap[id] || false;
-  };
+  }
 
   sortStore.subscribe((options) => {
     currentSortOptions = options;
@@ -76,6 +80,11 @@
     selectionActions.toggleSelectAll(claims.map((claim) => claim.id));
   }
 
+  function handleCardDoubleClick(claim: ClaimItem) {
+    selectedClaim = claim;
+    viewModal = true;
+  }
+
   // Initial sort
   applySorting();
 </script>
@@ -98,12 +107,15 @@
   >
     {#each claims as claim (claim.id)}
       <Card
+        {claim}
         id={claim.id}
         name={claim.name}
-        dateFiled={claim.dateFiled}
         phone={claim.phone}
+        dateFiled={claim.dateFiled}
         hasImage={shouldShowImage(claim.id)}
+        onDoubleClick={handleCardDoubleClick}
       />
     {/each}
   </div>
 </div>
+<ViewModal bind:open={viewModal} claim={selectedClaim} />
