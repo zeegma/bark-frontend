@@ -11,6 +11,7 @@
   import { InfoCircleOutline, TrashBinSolid } from "flowbite-svelte-icons";
   import { claimsData } from "../../lib/mockData";
   import ViewModal from "../widgets/claimants/ViewModal.svelte";
+  import DeleteModal from "../widgets/claimants/DeleteModal.svelte";
   import { sortStore, type SortOptions } from "../../stores/sortStore";
   import {
     selectionStore,
@@ -28,8 +29,11 @@
     hasImage?: boolean;
   };
 
-  // For modal
+  // For view modal
   let viewModal: boolean = false;
+
+  // For delete modal
+  let deleteModal: boolean = false;
 
   let selectedClaim: ClaimItem | null = null;
 
@@ -151,6 +155,10 @@
           </button>
           <button
             class="text-gray-900 hover:text-red-900 dark:text-gray-200 dark:hover:text-red-400"
+            on:click={() => {
+              deleteModal = true;
+              selectedClaim = claim;
+            }}
           >
             <TrashBinSolid size="lg" />
             <span class="sr-only">Delete</span>
@@ -161,3 +169,4 @@
   </TableBody>
 </Table>
 <ViewModal bind:open={viewModal} claim={selectedClaim} />
+<DeleteModal bind:open={deleteModal} claim={selectedClaim} />
