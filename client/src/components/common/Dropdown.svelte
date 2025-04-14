@@ -19,7 +19,7 @@
 <div class="relative" use:onClickOutside={() => (showDropdown = false)}>
   <button
     on:click={() => (showDropdown = !showDropdown)}
-    class="flex items-center justify-between gap-2 h-[48px] px-4 w-56 border border-stone-300 rounded-lg bg-white focus:border-[#9A4444] focus:border-2 hover:bg-stone-100 hover:border-stone-400 transition duration-300 ease-in-out cursor-pointer"
+    class="flex items-center justify-between gap-2 h-[48px] px-4 w-58 border border-stone-300 rounded-lg bg-white focus:border-[#9A4444] focus:border-2 hover:bg-stone-100 hover:border-stone-400 transition duration-300 ease-in-out cursor-pointer"
   >
     <div class="flex items-center gap-2">
       <img src={icon} class="w-5 h-5" alt="Dropdown Icon" />
