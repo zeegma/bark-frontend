@@ -145,15 +145,16 @@
     </div>
 
     <!-- Image area -->
+    <!-- Image area -->
     <div
       class={`w-full h-[180px] flex items-center justify-center ${isSelected ? "bg-red-100 group-hover:bg-red-200" : "bg-white group-hover:bg-gray-50"}`}
     >
-      {#if hasImage}
+      {#if hasImage && item.image}
         <div
           class="w-[90%] h-full bg-gray-200 rounded-lg flex items-center justify-center overflow-hidden"
         >
           <img
-            src="/src/assets/me.png"
+            src={item.imagePreview}
             alt="Claim"
             class="h-full w-full object-cover"
           />

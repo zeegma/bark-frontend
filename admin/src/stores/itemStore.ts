@@ -15,7 +15,7 @@ export type Item = {
   dateLost: Date;
   timeLost: string;
   lastKnownLocation: string;
-  image?: File | null;
+  image?: File | null | string;
   imagePreview?: string | null;
 };
 
