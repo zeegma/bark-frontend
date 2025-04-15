@@ -1,5 +1,6 @@
 <script lang="ts">
   import { categoryOptions } from "../../lib/constants/filters";
+  import { formatTime } from "../../lib/utils/timeFormatter";
   export let items: any[];
 </script>
 
@@ -51,7 +52,7 @@
           <td
             class="max-w-24 px-2 py-4 text-base text-center text-stone-700 font-medium"
           >
-            {item.date_found} @ {item.time_found}
+            {item.date_found} @ {formatTime(item.time_found)}
           </td>
 
           <!-- Last Seen -->

@@ -1,16 +1,10 @@
 <script lang="ts">
   import { categoryOptions } from "../../lib/constants/filters";
+  import { formatTime } from "../../lib/utils/timeFormatter";
   import timeIcon from "/icons/time-icon.svg";
   import locationIcon from "/icons/location-icon.svg";
 
   export let items: any[];
-
-  const formatTime = (time: string): string => {
-    const [hours, minutes] = time.split(":").map(Number);
-    const period = hours >= 12 ? "PM" : "AM";
-    const formattedHours = hours % 12 || 12;
-    return `${formattedHours}:${String(minutes).padStart(2, "0")} ${period}`;
-  };
 </script>
 
 <section class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
