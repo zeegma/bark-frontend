@@ -11,7 +11,7 @@
   let errorMessage: string | null = null;
   let previewUrl: string | null = null;
 
-  // Handle file input change (via click or drag-and-drop)
+  // Handle file input change
   function handleFile(file: File) {
     photo = file;
     const reader = new FileReader();
@@ -130,6 +130,7 @@
       <p class="text-red-500">{errorMessage}</p>
     {/if}
 
+    <!-- Full Name -->
     <label class="flex flex-col gap-2 text-stone-700">
       Full Name
       <input
@@ -142,6 +143,7 @@
     </label>
 
     <div class="grid grid-cols-2 gap-6">
+      <!-- Contact Number -->
       <label class="flex flex-col flex-grow gap-2 text-stone-700">
         Contact Number
         <input
@@ -152,6 +154,8 @@
           class="border border-gray-300 rounded-md p-3 w-full text-sm"
         />
       </label>
+
+      <!-- Facebook Link -->
       <label class="flex flex-col flex-grow gap-2 text-stone-700">
         Facebook Link
         <input
@@ -163,6 +167,8 @@
         />
       </label>
     </div>
+
+    <!-- Detailed Description -->
     <label class="flex flex-col gap-2 text-stone-700">
       Detailed Description
       <textarea
@@ -173,24 +179,24 @@
       ></textarea>
     </label>
 
-    <!-- Image Upload with Preview -->
+    <!-- Image Uploader -->
     <div class="flex flex-col gap-2">
       <p class="text-stone-700">Ownership Photo</p>
       <label
         class="relative border-2 border-dashed border-gray-300 rounded-md p-4 text-center cursor-pointer"
       >
         {#if previewUrl}
-          <!-- Show preview image -->
+          <!-- Show Preview Image -->
           <img
             src={previewUrl}
             alt="Preview"
             class="w-full h-64 object-cover rounded-md mb-2"
           />
           <span class="text-sm text-gray-500"
-            >Replace image by dragging or clicking</span
+            >Replace image by dropping or clicking</span
           >
         {:else}
-          <!-- Default upload prompt -->
+          <!-- Upload Prompt -->
           <div class="flex flex-col items-center justify-center gap-2 min-h-36">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -211,8 +217,6 @@
             >
           </div>
         {/if}
-
-        <!-- Hidden file input -->
         <input
           type="file"
           name="photo"
