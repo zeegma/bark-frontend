@@ -1,12 +1,14 @@
 <script lang="ts">
   import { Datepicker } from "flowbite-svelte";
+
   export let selectedDate: Date | null = null;
-  export let disabled: boolean = false; // To disable it for View Item
-  let className = ""; // Control the width/style
+  export let disabled: boolean = false;
+  let className = "";
   let lastAction: string = "";
 
   function handleClear(): void {
     lastAction = "Cleared";
+    selectedDate = null;
   }
 
   function handleApply(event: CustomEvent<Date>): void {

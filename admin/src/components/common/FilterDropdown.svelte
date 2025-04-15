@@ -59,7 +59,10 @@
       </ul>
     </div>
 
-    <!-- Filter by Category -->
+    <!-- Filter by Category 
+
+    Limit the view, use scrollbar
+    -->
     <div>
       <h6 class="mb-2 text-sm font-medium text-gray-900">Filter by Category</h6>
       <ul class="space-y-2">
