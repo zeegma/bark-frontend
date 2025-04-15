@@ -1,8 +1,10 @@
 <script lang="ts">
-  import Header from "../components/layout/Header.svelte";
   import { onMount } from "svelte";
   import { getQueryParameter } from "../lib/utils/queryParser";
   import { fetchItemDetails } from "../lib/api/fetch";
+  import Header from "../components/layout/Header.svelte";
+  import ItemDetails from "../components/common/ItemDetails.svelte";
+  import ClaimForm from "../components/common/ClaimForm.svelte";
 
   let itemId: string | null = null;
   let itemDetails: any = null;
@@ -34,7 +36,8 @@
 {:else if !itemDetails}
   <p>Item not found.</p>
 {:else}
-  <div class="flex flex-col gap-4 px-24 mt-4 font-[Poppins]">
+  <div class="flex flex-col px-24 mt-4 font-[Poppins]">
+    <!-- Header -->
     <div
       class="flex border h-[48px] rounded-tl-2xl rounded-tr-2xl border-stone-300"
     >
@@ -66,6 +69,14 @@
       >
         {itemDetails.name}
       </h1>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 border border-stone-300 border-t-0">
+      <!-- Item Details -->
+      <ItemDetails item={itemDetails} />
+
+      <!-- Claim Form -->
+      <ClaimForm />
     </div>
   </div>
 {/if}
