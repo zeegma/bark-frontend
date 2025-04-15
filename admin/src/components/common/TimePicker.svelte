@@ -1,9 +1,7 @@
 <script lang="ts">
   export let selectedTime: string = "";
-  export let mode: "add" | "edit" | "view";
+  export let disabled: boolean = false;
   let className: string = "";
-
-  $: isDisabled = mode === "view";
 
   function handleTimeChange(event: Event): void {
     const input = event.target as HTMLInputElement;
@@ -11,16 +9,19 @@
   }
 </script>
 
+<!-- className for the width and style (Can/Should be modified)-->
 <form class={className}>
   <div class="relative">
     <input
       type="time"
       id="time"
       bind:value={selectedTime}
+      {disabled}
       required
       on:change={handleTimeChange}
-      disabled={isDisabled}
-      class="border leading-none border-gray-300 text-gray-800 text-sm rounded-lg block w-full p-2.5 cursor-pointer focus:ring-red-500 focus:ring-2"
+      class="border leading-none border-gray-300 text-gray-700 text-sm rounded-xl block w-full p-2.5 focus:ring-red-500 focus:ring-2 ${disabled
+        ? 'opacity-50'
+        : 'hover:bg-gray-100 cursor-pointer'}"
     />
     <div
       class="absolute inset-y-0 end-0 top-0 flex items-center pe-3.5 pointer-events-none"

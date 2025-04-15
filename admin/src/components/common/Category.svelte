@@ -1,10 +1,8 @@
 <script lang="ts">
   import { Button, Dropdown, DropdownItem } from "flowbite-svelte";
   import { ChevronDownOutline } from "flowbite-svelte-icons";
-  export let mode: "add" | "edit" | "view";
 
-  $: isDisabled = mode === "view";
-
+  // Category List (Can be stored in store)
   const categoryOptions = [
     "Bags & Backpacks",
     "Electronics",
@@ -19,6 +17,7 @@
   ];
 
   export let selectedCategory: string = "";
+  export let disabled: boolean = false; // To disable it for View Item
 
   function selectCategory(category: string) {
     selectedCategory = category;
@@ -27,18 +26,15 @@
 
 <div class="w-full">
   <Button
-    disabled={isDisabled}
     class="w-full bg-white border border-gray-300 text-[#1E1E1E] justify-between hover:bg-white hover:border-gray-300 focus:outline-none focus:ring-0 "
+    {disabled}
     >{selectedCategory ? selectedCategory : "Category"}<ChevronDownOutline
       class="w-6 h-6 ms-2 text-[#1E1E1E]"
     /></Button
   >
   <Dropdown>
     {#each categoryOptions as category}
-      <DropdownItem
-        on:click={() => selectCategory(category)}
-        disabled={isDisabled}
-        aria-required
+      <DropdownItem on:click={() => selectCategory(category)} aria-required
         >{category}
       </DropdownItem>
     {/each}

@@ -1,11 +1,8 @@
 <script lang="ts">
   import { Datepicker } from "flowbite-svelte";
-  export let mode: "add" | "edit" | "view";
-  let className = "";
-
-  $: isDisabled = mode === "view";
-
   export let selectedDate: Date | null = null;
+  export let disabled: boolean = false; // To disable it for View Item
+  let className = ""; // Control the width/style
   let lastAction: string = "";
 
   function handleClear(): void {
@@ -23,11 +20,11 @@
     bind:value={selectedDate}
     on:clear={handleClear}
     on:apply={handleApply}
+    {disabled}
     color="red"
     showActionButtons
     placeholder="Date"
     autohide={false}
-    disabled={isDisabled}
-    inputClass="border border-gray-300 bg-white text-gray-700 hover:bg-gray-100 rounded-xl h-11"
+    inputClass={`border border-gray-300 bg-white text-gray-700 rounded-xl h-11 ${disabled ? "opacity-50" : "hover:bg-gray-100"}`}
   />
 </div>
