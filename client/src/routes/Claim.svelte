@@ -71,7 +71,9 @@
       </h1>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-2 border border-stone-300 border-t-0">
+    <div
+      class="grid grid-cols-1 lg:grid-cols-2 border border-stone-300 border-t-0"
+    >
       <!-- Item Details -->
       <ItemDetails item={itemDetails} />
 

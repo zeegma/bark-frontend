@@ -33,7 +33,10 @@
   />
   <div class="flex flex-col gap-4">
     <InfoRow label="Item Description" value={item.description} />
-    <InfoRow label="Found on" value={`${item.date_found} at ${formatTime(item.time_found)}`} />
+    <InfoRow
+      label="Found on"
+      value={`${item.date_found} at ${formatTime(item.time_found)}`}
+    />
     <InfoRow label="Last Seen" value={item.location_found} />
   </div>
 </div>
