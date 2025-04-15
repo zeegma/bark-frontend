@@ -137,7 +137,7 @@
         name="name"
         bind:value={fullName}
         required
-        class="border border-gray-300 rounded-md p-2 w-full"
+        class="border border-gray-300 rounded-md p-3 w-full text-sm"
       />
     </label>
 
@@ -149,7 +149,7 @@
           name="contact_number"
           bind:value={contactNumber}
           required
-          class="border border-gray-300 rounded-md p-2 w-full"
+          class="border border-gray-300 rounded-md p-3 w-full text-sm"
         />
       </label>
       <label class="flex flex-col flex-grow gap-2 text-stone-700">
@@ -159,7 +159,7 @@
           name="facebook_link"
           bind:value={facebookLink}
           required
-          class="border border-gray-300 rounded-md p-2 w-full"
+          class="border border-gray-300 rounded-md p-3 w-full text-sm"
         />
       </label>
     </div>
@@ -169,7 +169,7 @@
         name="description"
         bind:value={description}
         required
-        class="border border-gray-300 rounded-md p-2 w-full h-32"
+        class="border border-gray-300 rounded-md p-3 w-full text-sm h-32"
       ></textarea>
     </label>
 
@@ -191,7 +191,7 @@
           >
         {:else}
           <!-- Default upload prompt -->
-          <div class="flex flex-col items-center justify-center gap-2 w">
+          <div class="flex flex-col items-center justify-center gap-2 min-h-36">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               class="h-10 w-10 text-gray-400"
@@ -229,7 +229,7 @@
     <button
       type="submit"
       disabled={isLoading}
-      class="bg-[#800000] text-white rounded-lg p-4 w-full mt-4"
+      class="px-4 py-3 text-white font-medium bg-[#800000] rounded-lg hover:bg-[#A73D3D] transition duration-300 ease-in-out cursor-pointer mt-4"
     >
       {isLoading ? "Submitting..." : "Submit Claim"}
     </button>
