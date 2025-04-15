@@ -3,8 +3,8 @@
   import TimePicker from "../common/TimePicker.svelte";
   import Category from "../common/Category.svelte";
   import Status from "../common/Status.svelte";
-  import { Textarea } from "flowbite-svelte";
   import ClaimantsList from "../common/ClaimantsList.svelte";
+  import { Textarea } from "flowbite-svelte";
   import { EditSolid } from "flowbite-svelte-icons";
   import {
     items,
@@ -32,6 +32,16 @@
     console.log("Opening modal for item:", item);
     formData = { ...item }; // Reset form data when opening the modal
     formData.dateLost = ensureValidDate(formData.dateLost); // Ensure valid date
+
+    // Make sure imagePreview exists if image exists but imagePreview doesn't
+    if (
+      formData.image &&
+      !formData.imagePreview &&
+      typeof formData.image === "string"
+    ) {
+      formData.imagePreview = formData.image;
+    }
+
     showModal = true;
   };
 
@@ -39,19 +49,42 @@
     showModal = false;
   };
 
+  const handleImageUpload = (event: Event) => {
+    const target = event.target as HTMLInputElement;
+    const file = target?.files?.[0];
+
+    if (file) {
+      formData.image = file; // Store the file object
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        formData.imagePreview = e.target?.result as string; // Store the data URL for preview
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const handleSubmit = () => {
+    // Prepare the form data for saving
+    const itemToSave = { ...formData };
+
+    // If we have a new image (File object), use the imagePreview as the image data
+    if (formData.image instanceof File && formData.imagePreview) {
+      itemToSave.image = formData.imagePreview;
+    }
+
     if (formData.id) {
       // If the item already exists (has an ID), update it in the store
-      itemsStore.updateItem(formData);
+      itemsStore.updateItem(itemToSave);
     } else {
       // If it's a new item, create it, merge with form data, and add to the store
       const newItem = createNewItem(itemsStore.getNextId());
-      const itemToAdd = { ...newItem, ...formData };
+      const itemToAdd = { ...newItem, ...itemToSave };
       itemsStore.addItem(itemToAdd);
     }
 
     // Trigger the onSave callback to propagate the changes
-    onSave(formData);
+    onSave(itemToSave);
     showModal = false;
   };
 </script>
@@ -152,11 +185,53 @@
             class="block mb-1 text-sm font-medium text-[#1E1E1E]">Image</label
           >
           <label
-            class="flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded h-full cursor-pointer"
+            class="flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded h-full cursor-pointer relative group"
           >
-            <input type="file" class="hidden" />
-            <span class="text-4xl text-gray-400">+</span>
-            <span class="text-sm mt-2">Add image</span>
+            <input
+              type="file"
+              class="hidden"
+              accept="image/*"
+              on:change={handleImageUpload}
+            />
+            {#if formData.imagePreview || (typeof formData.image === "string" && formData.image)}
+              <div
+                class="relative w-full h-full flex items-center justify-center"
+              >
+                <img
+                  src={formData.imagePreview ||
+                    (typeof formData.image === "string" ? formData.image : "")}
+                  alt={formData.name || "Lost and Found Item"}
+                  class="max-h-48 object-contain"
+                />
+                <div
+                  class="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity duration-200"
+                >
+                  <span class="text-white font-medium"
+                    >Click to change image</span
+                  >
+                </div>
+              </div>
+            {:else if formData.image instanceof File}
+              <div
+                class="relative w-full h-full flex items-center justify-center"
+              >
+                <img
+                  src={URL.createObjectURL(formData.image)}
+                  alt={formData.name || "Lost and Found Item"}
+                  class="max-h-48 object-contain"
+                />
+                <div
+                  class="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity duration-200"
+                >
+                  <span class="text-white font-medium"
+                    >Click to change image</span
+                  >
+                </div>
+              </div>
+            {:else}
+              <span class="text-4xl text-gray-400">+</span>
+              <span class="text-sm mt-2">Add image</span>
+            {/if}
           </label>
         </div>
 

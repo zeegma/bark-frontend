@@ -145,7 +145,6 @@
     </div>
 
     <!-- Image area -->
-    <!-- Image area -->
     <div
       class={`w-full h-[180px] flex items-center justify-center ${isSelected ? "bg-red-100 group-hover:bg-red-200" : "bg-white group-hover:bg-gray-50"}`}
     >
