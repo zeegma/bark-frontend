@@ -5,6 +5,7 @@
   import ItemsTable from "../components/common/ItemsTable.svelte";
   import FilterDropdown from "../components/common/FilterDropdown.svelte";
   import Toggle from "../components/common/Toggle.svelte";
+  import Indicator from "../components/common/Indicator.svelte";
   import { viewStore, type ViewType } from "../stores/viewStore";
   import { selectionStore, selectionActions } from "../stores/selectionStore";
   import ItemsGrid from "../components/common/ItemsGrid.svelte";
@@ -40,7 +41,16 @@
         <DatePicker />
         <Toggle />
       </div>
-      <div>
+      <div class="flex flex-1 justify-end">
+        {#if selectedIds.size > 0}
+          <Indicator
+            selectedCount={selectedIds.size}
+            onClear={clearSelection}
+            onDelete={deleteSelectedItems}
+          />
+        {/if}
+      </div>
+      <div class="ml-4">
         <AddItem />
       </div>
     </div>
