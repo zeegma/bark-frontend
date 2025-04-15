@@ -3,9 +3,9 @@
     ExclamationCircleOutline,
     TrashBinSolid,
   } from "flowbite-svelte-icons";
+  import { itemsStore } from "../../stores/itemStore";
 
-  export let item: any; // item to delete
-  export let onDelete: (id: string) => void;
+  export let item: any;
 
   let showModal = false;
 
@@ -14,7 +14,7 @@
   };
 
   const handleDelete = () => {
-    onDelete(item.id);
+    itemsStore.deleteItem(item.id);
     showModal = false;
   };
 

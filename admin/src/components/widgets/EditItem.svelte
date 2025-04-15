@@ -6,42 +6,32 @@
   import { Textarea } from "flowbite-svelte";
   import ClaimantsList from "../common/ClaimantsList.svelte";
   import { EditSolid } from "flowbite-svelte-icons";
+  import {
+    items,
+    currentItem,
+    createNewItem,
+    itemsStore,
+    type Item,
+  } from "../../stores/itemStore";
 
-  type Item = {
-    id: string;
-    name: string;
-    status: string;
-    category: string;
-    claimant: string;
-    description: string;
-    dateLost: string;
-    timeLost: string;
-    lastKnownLocation: string;
-    image?: File | null;
-  };
-
-  export let item: any;
+  export let item: Item;
   export let onSave: (data: Item) => void;
+  export let viewType: "list" | "grid" = "list";
 
   let showModal = false;
-  let formData: any = {};
+  let formData: Item = { ...item };
+
+  // Ensure date is a valid Date object
+  const ensureValidDate = (date: any): Date => {
+    return date instanceof Date && !isNaN(date.getTime()) ? date : new Date();
+  };
+
+  formData.dateLost = ensureValidDate(formData.dateLost);
 
   const openModal = () => {
     console.log("Opening modal for item:", item);
-
-    formData = {
-      id: item?.id || "",
-      name: item?.name || "",
-      status: item?.status || "",
-      category: item?.category || "",
-      claimant: item?.claimant || "",
-      description: item?.description || "",
-      dateLost: item?.dateLost ? new Date(item.dateLost) : null,
-      timeLost: item?.timeLost ? new Date(item.timeLost) : null,
-      lastKnownLocation: item?.lastKnownLocation || "",
-      image: null,
-    };
-
+    formData = { ...item }; // Reset form data when opening the modal
+    formData.dateLost = ensureValidDate(formData.dateLost); // Ensure valid date
     showModal = true;
   };
 
@@ -50,15 +40,28 @@
   };
 
   const handleSubmit = () => {
-    if (onSave) {
-      onSave(formData);
+    if (formData.id) {
+      // If the item already exists (has an ID), update it in the store
+      itemsStore.updateItem(formData);
+    } else {
+      // If it's a new item, create it, merge with form data, and add to the store
+      const newItem = createNewItem(itemsStore.getNextId());
+      const itemToAdd = { ...newItem, ...formData };
+      itemsStore.addItem(itemToAdd);
     }
+
+    // Trigger the onSave callback to propagate the changes
+    onSave(formData);
     showModal = false;
   };
 </script>
 
 <button on:click={openModal} class="btn capitalize">
-  <EditSolid />
+  {#if viewType === "list"}
+    <EditSolid />
+  {:else}
+    Edit
+  {/if}
 </button>
 
 <!-- Modal -->

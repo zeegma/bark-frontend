@@ -1,105 +1,77 @@
 <script lang="ts">
+  import { onMount } from "svelte";
+  import {
+    items,
+    currentItem,
+    createNewItem,
+    itemsStore,
+    type Item,
+  } from "../../stores/itemStore";
+  // import { get } from "svelte/store"; (in itemStore.ts, createItemStore gets the item )
   import DatePicker from "../common/DatePicker.svelte";
   import TimePicker from "../common/TimePicker.svelte";
   import Category from "../common/Category.svelte";
   import Status from "../common/Status.svelte";
   import { Textarea } from "flowbite-svelte";
   import { PlusOutline } from "flowbite-svelte-icons";
-  import { onMount } from "svelte";
-
-  export let items: Array<any> = []; // List of items
-  export let currentItem: any = {}; // Newly added/edited items
 
   let showModal = false;
+  let formData: Item;
 
-  // Form data
-  let formData: any = {
-    id: "",
-    name: "",
-    status: "",
-    category: "",
-    claimant: "",
-    image: null,
-    imagePreview: null,
-    description: "",
-    dateLost: "",
-    timeLost: "",
-    lastKnownLocation: "",
-  };
-
-  // Generating ID
-  const getNextHexId = () => {
-    if (items.length === 0) return "LOST0001";
-    const lastItem = items[items.length - 1];
-    const lastId = parseInt(lastItem.id.replace("LOST", ""), 16);
-    const nextId = (lastId + 1).toString(16).toUpperCase().padStart(4, "0");
-    return `LOST${nextId}`;
-  };
-
+  // Reset form to create a new item
   const resetForm = () => {
-    formData = {
-      id: getNextHexId(),
-      name: "",
-      status: "",
-      category: "",
-      claimant: "",
-      image: null,
-      imagePreview: null,
-      description: "",
-      dateLost: "",
-      timeLost: "",
-      lastKnownLocation: "",
-    };
+    const nextId = itemsStore.getNextId();
+    formData = createNewItem(nextId);
   };
 
+  // Open modal for adding item
   const openModal = () => {
     resetForm();
     showModal = true;
   };
 
+  // Close the modal
   const closeModal = () => {
     showModal = false;
   };
 
-  // Temporary handling for submission in the localStorage
+  // Submit the form data
   const handleSubmit = () => {
-    console.log("Form Data Submitted:", formData);
-    currentItem = { ...formData };
+    const newItem = { ...formData };
+    currentItem.set(newItem);
 
-    // Save item to localStorage
-    let storedItems = JSON.parse(localStorage.getItem("items") || "[]");
-    storedItems.push(currentItem);
-    localStorage.setItem("items", JSON.stringify(storedItems));
+    itemsStore.addItem(newItem);
 
-    // Update items array to reflect the newly added item
-    items = storedItems;
+    // const updatedItems = [...get(items), newItem];
+    // items.set(updatedItems);
 
+    // localStorage.setItem("items", JSON.stringify(updatedItems));
     closeModal();
   };
 
-  // Handles image upload (for now as localStorage is being used - MUST be changed)
+  // Handle image upload
   const handleImageUpload = (event: Event) => {
     const target = event.target as HTMLInputElement;
     const file = target?.files?.[0];
     if (file) {
       formData.image = file;
 
-      // Create a preview
       const reader = new FileReader();
       reader.onload = (e) => {
-        formData.imagePreview = e.target?.result;
+        formData.imagePreview = e.target?.result as string;
       };
       reader.readAsDataURL(file);
     }
   };
 
-  // Load items from localStorage when the component is mounted
+  // On mount, load items from localStorage
   onMount(() => {
-    let storedItems = JSON.parse(localStorage.getItem("items") || "[]");
-    items = storedItems;
+    const storedItems = JSON.parse(localStorage.getItem("items") || "[]");
+    items.set(storedItems);
   });
 </script>
 
+<!-- Add Item Button -->
 <button on:click={openModal} class="btn capitalize">
   <div
     class="bg-red-900 text-white px-4 py-2 flex items-center gap-2 rounded-lg"
@@ -113,6 +85,7 @@
     class="overflow-y-auto fixed inset-0 z-50 flex justify-center items-center w-screen h-screen max-h-full backdrop-blur-sm bg-black/50"
   >
     <div class="bg-white rounded-2xl w-full max-w-6xl shadow-md">
+      <!-- Header -->
       <div
         class="flex justify-between items-center px-6 py-4 border-b border-gray-300"
       >
@@ -141,6 +114,7 @@
         </button>
       </div>
 
+      <!-- Form -->
       <form
         class="px-6 py-4 grid grid-cols-12 gap-4"
         on:submit|preventDefault={handleSubmit}
@@ -191,7 +165,6 @@
               class="hidden"
               on:change={handleImageUpload}
             />
-
             {#if formData.imagePreview}
               <img
                 src={formData.imagePreview}

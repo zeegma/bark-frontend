@@ -5,27 +5,23 @@
   import Status from "../common/Status.svelte";
   import { Textarea } from "flowbite-svelte";
   import { InfoCircleOutline } from "flowbite-svelte-icons";
+  import {
+    items,
+    currentItem,
+    createNewItem,
+    itemsStore,
+    type Item,
+  } from "../../stores/itemStore";
+  import { onMount } from "svelte";
 
-  type Item = {
-    id: string;
-    name: string;
-    status: string;
-    category: string;
-    claimant: string;
-    description: string;
-    dateLost: string;
-    timeLost: string;
-    lastKnownLocation: string;
-    image?: File | null;
-  };
-
-  export let item!: Item;
+  export let item: Item;
+  export let viewType: "list" | "grid" = "list";
 
   let showModal = false;
 
-  const openModal = () => {
+  export function openModal() {
     showModal = true;
-  };
+  }
 
   const closeModal = () => {
     showModal = false;
@@ -33,7 +29,11 @@
 </script>
 
 <button on:click={openModal} class="btn capitalize">
-  <InfoCircleOutline />
+  {#if viewType === "list"}
+    <InfoCircleOutline />
+  {:else}
+    View
+  {/if}
 </button>
 
 <!-- Modal -->
@@ -126,11 +126,21 @@
           <div
             class="border border-gray-300 rounded h-full flex items-center justify-center bg-gray-50 p-2"
           >
-            {#if item.image}
+            {#if item.imagePreview}
               <img
-                src={typeof item.image === "string"
-                  ? item.image
-                  : URL.createObjectURL(item.image)}
+                src={item.imagePreview}
+                alt="Item"
+                class="max-h-full max-w-full object-contain rounded"
+              />
+            {:else if typeof item.image === "string"}
+              <img
+                src={item.image}
+                alt="Item"
+                class="max-h-full max-w-full object-contain rounded"
+              />
+            {:else if item.image instanceof File}
+              <img
+                src={URL.createObjectURL(item.image)}
                 alt="Item"
                 class="max-h-full max-w-full object-contain rounded"
               />
