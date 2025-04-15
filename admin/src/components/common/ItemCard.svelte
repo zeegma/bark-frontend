@@ -11,31 +11,31 @@
   } from "../../stores/selectionStore";
   import { formatDate, formatTime } from "../../lib/formatDateTime";
   import { onMount, onDestroy } from "svelte";
+  import { type Item } from "../../stores/itemStore";
+  import ViewItem from "../widgets/ViewItem.svelte";
+  import EditItem from "../widgets/EditItem.svelte";
+  import DeleteItem from "../widgets/DeleteItem.svelte";
 
-  export let id: string;
-  export let name: string;
-  export let dateLost: string;
-  export let timeLost: string;
-  export let lastKnownLocation: string;
-  export let status: string;
-  export let hasImage: boolean = true;
-
-  // New: prop for handling view action
-  export let onView: () => void;
+  export let item: Item;
 
   let selectedIds: Set<string>;
   let isSelected: boolean;
   let showMenu = false;
   let menuRef: HTMLElement;
   let currentlyOpenMenu: string | null = null;
+  let allItems: Item[] = [];
+
+  const { image } = item;
+
+  const hasImage = !!image;
 
   selectionStore.subscribe((state) => {
     selectedIds = state.selectedIds;
-    isSelected = selectedIds.has(id);
+    isSelected = selectedIds.has(item.id);
   });
 
   const handleCardClick = () => {
-    selectionActions.toggleSelection(id);
+    selectionActions.toggleSelection(item.id);
   };
 
   function handleKeyDown(event: KeyboardEvent) {
@@ -46,9 +46,9 @@
 
   const handleMenuClick = (event: MouseEvent) => {
     event.stopPropagation();
-    if (currentlyOpenMenu !== id) {
+    if (currentlyOpenMenu !== item.id) {
       showMenu = true;
-      currentlyOpenMenu = id;
+      currentlyOpenMenu = item.id;
     } else {
       showMenu = false;
       currentlyOpenMenu = null;
@@ -65,6 +65,15 @@
       currentlyOpenMenu = null;
     }
   };
+
+  function handleSave(updatedItem: Item) {
+    const index = allItems.findIndex((i) => i.id === updatedItem.id);
+    if (index !== -1) {
+      allItems[index] = updatedItem;
+    } else {
+      allItems.push(updatedItem);
+    }
+  }
 
   onMount(() => {
     document.addEventListener("click", handleClickOutside);
@@ -91,7 +100,7 @@
       class={`flex justify-between items-center px-4 py-3 ${isSelected ? "bg-red-100 group-hover:bg-red-200" : "bg-white group-hover:bg-gray-50"}`}
     >
       <div class="flex items-center">
-        <span class="text-sm font-semibold text-[#1E1E1E]">{id}</span>
+        <span class="text-sm font-semibold text-[#1E1E1E]">{item.id}</span>
         {#if isSelected}
           <span class="ml-2 w-2 h-2 bg-red-700 rounded-full"></span>
         {/if}
@@ -113,23 +122,22 @@
             <button
               on:click={(event) => {
                 handleMenuItemClick(event);
-                onView();
               }}
               class="w-full text-left px-4 py-2 hover:bg-gray-100 text-sm"
             >
-              View
+              <ViewItem {item} viewType="grid" />
             </button>
             <button
               on:click={handleMenuItemClick}
               class="w-full text-left px-4 py-2 hover:bg-gray-100 text-sm"
             >
-              Edit
+              <EditItem {item} onSave={handleSave} />
             </button>
             <button
               on:click={handleMenuItemClick}
               class="w-full text-left px-4 py-2 hover:bg-gray-100 text-sm text-red-600"
             >
-              Delete
+              <DeleteItem {item} />
             </button>
           </div>
         {/if}
@@ -185,36 +193,38 @@
         <div class="space-y-1 text-sm">
           <div class="flex items-center gap-1">
             <FileSolid class="w-4 h-4" />
-            <span class="truncate">{name}</span>
+            <span class="truncate">{item.name}</span>
           </div>
           <div class="flex items-center gap-1">
             <CalendarMonthSolid class="w-4 h-4" />
-            <span>{formatDate(dateLost)} • {formatTime(timeLost)}</span>
+            <span
+              >{formatDate(item.dateLost)} • {formatTime(item.timeLost)}</span
+            >
           </div>
           <div class="flex items-center gap-1">
             <MapPinSolid class="w-4 h-4" />
-            <span class="truncate">{lastKnownLocation}</span>
+            <span class="truncate">{item.lastKnownLocation}</span>
           </div>
         </div>
       </div>
       <div>
-        {#if status === "Unclaimed"}
+        {#if item.status === "Unclaimed"}
           <span
             class="inline-block w-fit bg-[#A79F00]/10 border border-[#A79F00] text-[#A79F00] text-[10px] font-medium px-3 py-1 rounded-lg"
           >
-            {status}
+            {item.status}
           </span>
-        {:else if status === "Claimed"}
+        {:else if item.status === "Claimed"}
           <span
             class="inline-block w-fit bg-[#4BA83D]/10 border border-[#4BA83D] text-[#4BA83D] text-[10px] font-medium px-3 py-1 rounded-lg"
           >
-            {status}
+            {item.status}
           </span>
-        {:else if status === "Expired"}
+        {:else if item.status === "Expired"}
           <span
             class="inline-block w-fit bg-[#800000]/10 border border-[#800000] text-[#800000] text-[10px] font-medium px-3 py-1 rounded-lg"
           >
-            {status}
+            {item.status}
           </span>
         {/if}
       </div>

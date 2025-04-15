@@ -10,7 +10,7 @@
   } from "flowbite-svelte";
   import DeleteItem from "../widgets/DeleteItem.svelte";
   import EditItem from "../widgets/EditItem.svelte";
-  import ViewItemModal from "../widgets/ViewItem.svelte";
+  import ViewItem from "../widgets/ViewItem.svelte";
   import { filterStore, type FilterOptions } from "../../stores/filterStore";
   import {
     selectionStore,
@@ -18,22 +18,10 @@
   } from "../../stores/selectionStore";
   import { formatDate, formatTime } from "../../lib/formatDateTime";
   import { onMount } from "svelte";
-
-  type Item = {
-    id: string;
-    name: string;
-    status: string;
-    category: string;
-    claimant: string;
-    description: string;
-    dateLost: string;
-    timeLost: string;
-    lastKnownLocation: string;
-    image?: File | null;
-  };
+  import { type Item } from "../../stores/itemStore";
 
   let allItems: Item[] = [];
-  let items: Item[] = [];
+  let filteredItems: Item[] = [];
   let currentFilters: FilterOptions;
   let selectedIds: Set<string>;
   let isAllSelected: boolean;
@@ -64,7 +52,7 @@
     }
 
     filtered.sort((a, b) => b.id.localeCompare(a.id));
-    items = filtered;
+    filteredItems = filtered;
   }
 
   selectionStore.subscribe((state) => {
@@ -73,7 +61,7 @@
   });
 
   function handleSelectAll() {
-    selectionActions.toggleSelectAll(items.map((item) => item.id));
+    selectionActions.toggleSelectAll(filteredItems.map((item) => item.id));
   }
 
   function handleSelectItem(id: string) {
@@ -139,7 +127,8 @@
   </TableHead>
 
   <TableBody tableBodyClass="divide-y">
-    {#each items as item}
+    {#each filteredItems as item}
+      <!-- Using 'filteredItems' here -->
       <TableBodyRow
         class={selectedIds.has(item.id)
           ? "h-16 bg-red-100 hover:bg-red-200"
@@ -153,27 +142,27 @@
             class="cursor-pointer"
           />
         </TableBodyCell>
-        <TableBodyCell class="p-2 text-gray-600 text-center"
-          >{item.id}</TableBodyCell
-        >
-        <TableBodyCell class="p-2 text-gray-600 text-center"
-          >{item.name}</TableBodyCell
-        >
+        <TableBodyCell class="p-2 text-gray-600 text-center">
+          {item.id}
+        </TableBodyCell>
+        <TableBodyCell class="p-2 text-gray-600 text-center">
+          {item.name}
+        </TableBodyCell>
         <TableBodyCell
           class="p-2 text-gray-600 truncate text-center max-w-[18rem]"
           title={item.description}
         >
           {item.description}
         </TableBodyCell>
-        <TableBodyCell class="p-2 text-gray-600 text-center"
-          >{item.category}</TableBodyCell
-        >
-        <TableBodyCell class="p-2 text-gray-600 text-center"
-          >{formatDate(item.dateLost)}</TableBodyCell
-        >
-        <TableBodyCell class="p-2 text-gray-600 text-center"
-          >{formatTime(item.timeLost)}</TableBodyCell
-        >
+        <TableBodyCell class="p-2 text-gray-600 text-center">
+          {item.category}
+        </TableBodyCell>
+        <TableBodyCell class="p-2 text-gray-600 text-center">
+          {formatDate(item.dateLost)}
+        </TableBodyCell>
+        <TableBodyCell class="p-2 text-gray-600 text-center">
+          {formatTime(item.timeLost)}
+        </TableBodyCell>
         <TableBodyCell
           class="p-2 text-gray-600 truncate text-center max-w-[18rem]"
         >
@@ -202,9 +191,9 @@
         </TableBodyCell>
         <TableBodyCell class="p-2">
           <div class="flex gap-1">
-            <ViewItemModal {item} />
+            <ViewItem {item} />
             <EditItem {item} onSave={handleSave} />
-            <DeleteItem {item} onDelete={handleDelete} />
+            <DeleteItem {item} />
           </div>
         </TableBodyCell>
       </TableBodyRow>

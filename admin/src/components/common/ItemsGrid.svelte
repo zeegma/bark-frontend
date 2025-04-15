@@ -7,18 +7,7 @@
     selectionStore,
     selectionActions,
   } from "../../stores/selectionStore";
-
-  type Item = {
-    id: string;
-    name: string;
-    status: string;
-    category: string;
-    description: string;
-    dateLost: string;
-    timeLost: string;
-    lastKnownLocation: string;
-    image?: File | null;
-  };
+  import { type Item } from "../../stores/itemStore";
 
   let allItems: Item[] = [];
   let items: Item[] = [];
@@ -68,12 +57,6 @@
     const item = items.find((i) => i.id === id);
     return !!item?.image;
   }
-
-  // 👇 Add your handler for View button
-  function handleViewItem(id: string) {
-    console.log("Viewing item with id:", id);
-    // You could open a modal, set a store value, etc.
-  }
 </script>
 
 <div class="mr-2">
@@ -91,16 +74,7 @@
   <!-- Main content grid -->
   <div class="grid grid-cols-3 gap-4 w-full">
     {#each items as item (item.id)}
-      <ItemCard
-        id={item.id}
-        name={item.name}
-        status={item.status}
-        dateLost={item.dateLost}
-        timeLost={item.timeLost}
-        lastKnownLocation={item.lastKnownLocation}
-        hasImage={shouldShowImage(item.id)}
-        onView={() => handleViewItem(item.id)}
-      />
+      <ItemCard {item} />
     {/each}
   </div>
 </div>
