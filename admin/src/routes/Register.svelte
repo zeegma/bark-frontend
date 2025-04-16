@@ -1,59 +1,86 @@
-<script lang="ts">
-  import { Button, Checkbox, Label, Input } from "flowbite-svelte";
+<script>
+  import { Input, Label, Button, Checkbox, A } from "flowbite-svelte";
+  import { EyeOutline, EyeSlashOutline } from "flowbite-svelte-icons";
+
+  let showPassword = false;
+  let showConfirm = false;
 </script>
 
-<div>
-  <div>
-    {#snippet top()}
-      <img class="mr-2 h-8 w-8" src="/images/logo.svg" alt="logo" />
-      Flowbite
-    {/snippet}
-    <div class="space-y-4 p-6 sm:p-8 md:space-y-6">
-      <form class="flex flex-col space-y-6" action="/">
-        <h3 class="p-0 text-xl font-medium text-gray-900 dark:text-white">
-          Create and account
-        </h3>
-        <Label class="space-y-2">
-          <span>Your email</span>
-          <Input
-            type="email"
-            name="email"
-            placeholder="name@company.com"
-            required
-          />
-        </Label>
-        <Label class="space-y-2">
-          <span>Your password</span>
-          <Input type="password" name="password" placeholder="•••••" required />
-        </Label>
-        <Label class="space-y-2">
-          <span>Confirm password</span>
-          <Input
-            type="password"
-            name="confirm-password"
-            placeholder="•••••"
-            required
-          />
-        </Label>
-        <div class="flex items-start">
-          <Checkbox
-            >I accept the <a
-              class="text-primary-600 dark:text-primary-500 font-medium hover:underline"
-              href="/"
-            >
-              Terms and Conditions</a
-            ></Checkbox
-          >
-        </div>
-        <Button type="submit" class="w-full1">Create an account</Button>
-        <div class="text-sm font-medium text-gray-500 dark:text-gray-300">
-          Already have an account? <a
-            href="/"
-            class="text-primary-600 dark:text-primary-500 font-medium hover:underline"
-            >Login here</a
-          >
-        </div>
-      </form>
+<div class="min-h-screen flex items-center justify-center bg-gray-100 p-4">
+  <form class="bg-white shadow-xl rounded-2xl p-8 w-full max-w-md space-y-6">
+    <div>
+      <Label for="name" class="mb-2 block">Full Name</Label>
+      <Input type="text" id="name" placeholder="John Doe" required />
     </div>
-  </div>
+
+    <div>
+      <Label for="email" class="mb-2 block">Email address</Label>
+      <Input
+        type="email"
+        id="email"
+        placeholder="john.doe@company.com"
+        required
+      />
+    </div>
+
+    <!-- Password Field -->
+    <div class="relative">
+      <Label for="password" class="mb-2 block">Password</Label>
+      <Input
+        id="password"
+        type={showPassword ? "text" : "password"}
+        placeholder="•••••••••"
+        required
+        class="pr-12"
+      />
+      <button
+        type="button"
+        on:click={() => (showPassword = !showPassword)}
+        class="absolute right-3 top-9 text-gray-500 hover:text-gray-700 focus:outline-none"
+      >
+        {#if showPassword}
+          <EyeSlashOutline class="w-5 h-5" />
+        {:else}
+          <EyeOutline class="w-5 h-5" />
+        {/if}
+      </button>
+    </div>
+
+    <!-- Confirm Password -->
+    <div class="relative">
+      <Label for="confirm_password" class="mb-2 block">Confirm password</Label>
+      <Input
+        id="confirm_password"
+        type={showConfirm ? "text" : "password"}
+        placeholder="•••••••••"
+        required
+        class="pr-12"
+      />
+      <button
+        type="button"
+        on:click={() => (showConfirm = !showConfirm)}
+        class="absolute right-3 top-9 text-gray-500 hover:text-gray-700 focus:outline-none"
+      >
+        {#if showConfirm}
+          <EyeSlashOutline class="w-5 h-5" />
+        {:else}
+          <EyeOutline class="w-5 h-5" />
+        {/if}
+      </button>
+    </div>
+
+    <div>
+      <Checkbox required class="gap-1 rtl:space-x-reverse">
+        I agree with the
+        <A
+          href="/"
+          class="text-primary-700 dark:text-primary-600 hover:underline"
+        >
+          terms and conditions
+        </A>.
+      </Checkbox>
+    </div>
+
+    <Button type="submit" class="w-full">Submit</Button>
+  </form>
 </div>
