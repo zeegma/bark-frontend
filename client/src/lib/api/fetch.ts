@@ -1,6 +1,6 @@
 export async function fetchItemDetails(id: string): Promise<any> {
   try {
-    const response = await fetch(`/api/lost-items/${id}`);
+    const response = await fetch(`http://127.0.0.1:8000/lost-items/${id}`);
     if (!response.ok) {
       throw new Error(`Failed to fetch item details: ${response.statusText}`);
     }
@@ -14,7 +14,7 @@ export async function fetchItemDetails(id: string): Promise<any> {
 
 export async function fetchAllItems(): Promise<any[]> {
   try {
-    const response = await fetch('/api/lost-items/');
+    const response = await fetch("http://127.0.0.1:8000/lost-items/");
     if (!response.ok) {
       throw new Error(`Failed to fetch items: ${response.statusText}`);
     }
