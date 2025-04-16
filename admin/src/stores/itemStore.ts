@@ -1,9 +1,9 @@
 import { writable, get } from "svelte/store";
 
 export const itemsStore = createItemsStore();
-export const items = writable<Item[]>([]); // The writable store for all items
-export const currentItem = writable<Item | null>(null); // Holds the current item (for adding/editing)
-export const showAddModal = writable(false); // Controls the visibility of the add modal
+export const items = writable<Item[]>([]);
+export const currentItem = writable<Item | null>(null);
+export const showAddModal = writable(false);
 
 export type Item = {
   id: string;
