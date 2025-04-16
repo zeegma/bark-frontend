@@ -12,6 +12,7 @@
 
   function handleClear(): void {
     lastAction = "Cleared";
+    selectedDate = null;
   }
 
   function handleApply(event: CustomEvent<Date>): void {
@@ -25,6 +26,7 @@
     bind:value={selectedDate}
     on:clear={handleClear}
     on:apply={handleApply}
+    {disabled}
     color="red"
     showActionButtons
     placeholder="Date"
