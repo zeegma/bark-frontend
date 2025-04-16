@@ -1,14 +1,48 @@
 <script lang="ts">
   import Card from "./Card.svelte";
   import ViewModal from "../widgets/claimants/ViewModal.svelte";
+  import DeleteModal from "../widgets/claimants/DeleteModal.svelte";
   import { Checkbox } from "flowbite-svelte";
   import { claimsData } from "../../lib/mockData";
+  import { onMount } from "svelte";
+  import { dropdownActions } from "../../stores/dropdownStore";
   import { sortStore, type SortOptions } from "../../stores/sortStore";
   import {
     selectionStore,
     selectionActions,
   } from "../../stores/selectionStore";
 
+  // Global click handler: close dropdowns when clicking outside
+  onMount(() => {
+    const handleGlobalClick = (event: MouseEvent) => {
+      // Close dropdowns when clicking outside of dropdown elements
+      const clickedOnDropdown = (event.target as Element).closest(
+        "[role='dialog']",
+      );
+      const clickedOnMenu = (event.target as Element).closest(
+        "[class^='dots-menu-']",
+      );
+
+      if (!clickedOnDropdown && !clickedOnMenu) {
+        dropdownActions.closeAll();
+      }
+    };
+
+    // Scroll handler to close dropdowns when scrolling
+    const handleScroll = () => {
+      dropdownActions.closeAll();
+    };
+
+    window.addEventListener("click", handleGlobalClick);
+    window.addEventListener("scroll", handleScroll, true);
+
+    return () => {
+      window.removeEventListener("click", handleGlobalClick);
+      window.removeEventListener("scroll", handleScroll, true);
+    };
+  });
+
+  let deleteModal: boolean = false;
   let viewModal: boolean = false;
   let selectedClaim: ClaimItem | null = null;
 
@@ -85,6 +119,16 @@
     viewModal = true;
   }
 
+  function handleViewClick(claim: ClaimItem) {
+    selectedClaim = claim;
+    viewModal = true;
+  }
+
+  function handleDeleteClick(claim: ClaimItem) {
+    selectedClaim = claim;
+    deleteModal = true;
+  }
+
   // Initial sort
   applySorting();
 </script>
@@ -105,8 +149,9 @@
   <div
     class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
   >
-    {#each claims as claim (claim.id)}
+    {#each claims as claim, index (claim.id)}
       <Card
+        {index}
         {claim}
         id={claim.id}
         name={claim.name}
@@ -114,6 +159,8 @@
         dateFiled={claim.dateFiled}
         hasImage={shouldShowImage(claim.id)}
         onDoubleClick={handleCardDoubleClick}
+        onViewClick={handleViewClick}
+        onDeleteClick={handleDeleteClick}
       />
     {/each}
   </div>
