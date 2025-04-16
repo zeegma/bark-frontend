@@ -65,20 +65,20 @@
         Return
       </a>
       <h1
-        class="flex flex-grow justify-center items-center pr-16 text-sm text-[#9A4444] font-medium"
+        class="flex flex-grow justify-center items-center pr-32 text-sm text-[#9A4444] font-medium"
       >
         {itemDetails.name}
       </h1>
     </div>
 
     <div
-      class="grid grid-cols-1 lg:grid-cols-2 border border-stone-300 border-t-0"
+      class="grid grid-cols-1 lg:grid-cols-2 border rounded-bl-2xl rounded-br-2xl border-stone-300 border-t-0"
     >
       <!-- Item Details -->
       <ItemDetails item={itemDetails} />
 
       <!-- Claim Form -->
-      <ClaimForm />
+      <ClaimForm itemId={itemId ?? ""} />
     </div>
   </div>
 {/if}

@@ -66,12 +66,15 @@
           <!-- Action Button -->
           <td class="max-w-24 text-end">
             <a
-              href={item.status === "UC"
-                ? `#/claim?id=${item.id}`
-                : `#/appeal?id=${item.id}`}
-              class="min-w-48 inline-block py-4 text-center text-white bg-[#800000] rounded-lg text-base font-medium hover:bg-[#A73D3D] transition duration-300 ease-in-out cursor-pointer"
+              href={item.status === "UC" ? `#/claim?id=${item.id}` : "#"}
+              class={`min-w-48 inline-block py-4 text-center text-white rounded-lg text-base font-medium transition duration-300 ease-in-out ${
+                item.status === "CL"
+                  ? "bg-stone-800 cursor-not-allowed pointer-events-none"
+                  : "bg-[#800000] hover:bg-[#A73D3D] cursor-pointer"
+              }`}
+              aria-disabled={item.status === "CL"}
             >
-              {item.status === "UC" ? "File Claim" : "Appeal Claim"}
+              {item.status === "UC" ? "File A Claim" : "Claimed"}
             </a>
           </td>
         </tr>
