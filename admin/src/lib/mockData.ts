@@ -7,6 +7,7 @@ export const claimsData = [
     dateFiled: "April 10, 2025",
     itemId: "LOST0001",
     itemRequested: "Expensive Black Headset",
+    hasImage: true,
   },
   {
     id: "CLM0002",
@@ -16,6 +17,7 @@ export const claimsData = [
     dateFiled: "April 10, 2025",
     itemId: "LOST0003",
     itemRequested: "Black Tumbler",
+    hasImage: true,
   },
   {
     id: "CLM0003",
@@ -25,6 +27,7 @@ export const claimsData = [
     dateFiled: "April 10, 2025",
     itemId: "LOST0001",
     itemRequested: "Expensive Black Headset",
+    hasImage: true,
   },
   {
     id: "CLM0004",
@@ -34,6 +37,7 @@ export const claimsData = [
     dateFiled: "April 10, 2025",
     itemId: "LOST0001",
     itemRequested: "Org Pin",
+    hasImage: true,
   },
   {
     id: "CLM0005",
@@ -43,6 +47,7 @@ export const claimsData = [
     dateFiled: "April 10, 2025",
     itemId: "LOST0001",
     itemRequested: "Pink Tumbler",
+    hasImage: true,
   },
   {
     id: "CLM0006",
@@ -52,6 +57,7 @@ export const claimsData = [
     dateFiled: "April 10, 2025",
     itemId: "LOST0001",
     itemRequested: "Student ID",
+    hasImage: true,
   },
   {
     id: "CLM0007",
@@ -61,6 +67,7 @@ export const claimsData = [
     dateFiled: "April 10, 2025",
     itemId: "LOST0001",
     itemRequested: "Book",
+    hasImage: true,
   },
   {
     id: "CLM0008",
@@ -70,5 +77,6 @@ export const claimsData = [
     dateFiled: "April 10, 2025",
     itemId: "LOST0001",
     itemRequested: "KPOP Merch",
+    hasImage: true,
   },
 ];

@@ -1,34 +1,126 @@
 <script lang="ts">
+  import { Dropdown, DropdownItem } from "flowbite-svelte";
   import { DotsVerticalOutline } from "flowbite-svelte-icons";
+  import Placeholder from "./Placeholder.svelte";
   import {
     selectionStore,
     selectionActions,
   } from "../../stores/selectionStore";
+  import {
+    openDropdownIdStore,
+    dropdownActions,
+  } from "../../stores/dropdownStore";
+  import { onMount } from "svelte";
+
+  type ClaimItem = {
+    id: string;
+    name: string;
+    phone: string;
+    facebook: string;
+    dateFiled: string;
+    itemId: string;
+    itemRequested: string;
+    hasImage?: boolean;
+  };
+
+  let clickTimeout: NodeJS.Timeout | null = null;
 
   export let id: string;
   export let name: string;
   export let dateFiled: string;
   export let phone: string;
   export let hasImage: boolean = true;
+  export let claim: ClaimItem;
+  export let index: number;
+  export let onDoubleClick: (claim: ClaimItem) => void;
+  export let onViewClick: (claim: any) => void;
+  export let onDeleteClick: (claim: any) => void;
+
+  // Unique ID for card's dropdown
+  const dropdownId = `dropdown-${id}-${index}`;
 
   // Selection state
   let selectedIds: Set<string>;
   let isSelected: boolean;
+
+  // Track if the card's dropdown is open
+  let isDropdownOpen = false;
+
+  // Subscribe to the global dropdown store
+  openDropdownIdStore.subscribe((openId) => {
+    isDropdownOpen = openId === dropdownId;
+  });
 
   selectionStore.subscribe((state) => {
     selectedIds = state.selectedIds;
     isSelected = selectedIds.has(id);
   });
 
-  // Function for handling the menu click
-  const handleMenuClick = () => {
-    // TBI
-  };
+  // Add scroll handler to close dropdown when scrolling
+  onMount(() => {
+    const handleScroll = () => {
+      if (isDropdownOpen) {
+        dropdownActions.closeAll();
+      }
+    };
+
+    // Add scroll listener
+    window.addEventListener("scroll", handleScroll, true);
+
+    // Clean up on component destruction
+    return () => {
+      window.removeEventListener("scroll", handleScroll, true);
+    };
+  });
 
   // Function to handle card selection
-  const handleCardClick = () => {
-    selectionActions.toggleSelection(id);
-  };
+  function handleCardClick() {
+    // Clear any existing timeout
+    if (clickTimeout) {
+      clearTimeout(clickTimeout);
+      clickTimeout = null;
+    }
+
+    // Set a new timeout
+    clickTimeout = setTimeout(() => {
+      // Only toggle selection if it wasn't a double click
+      selectionActions.toggleSelection(id);
+      clickTimeout = null;
+    }, 250);
+  }
+
+  function handleDoubleClick(event: MouseEvent) {
+    // Clear the timeout to prevent the click handler from firing
+    if (clickTimeout) {
+      clearTimeout(clickTimeout);
+      clickTimeout = null;
+    }
+
+    // Also, select item
+    if (!selectedIds.has(id)) {
+      selectionActions.toggleSelection(id);
+    }
+
+    // Trigger double click
+    onDoubleClick(claim);
+  }
+
+  function toggleDropdown(event: MouseEvent) {
+    event.stopPropagation();
+    dropdownActions.toggleDropdown(dropdownId);
+  }
+
+  function handleView(event: MouseEvent) {
+    event.stopPropagation();
+    dropdownActions.closeAll();
+    onViewClick(claim);
+  }
+
+  function handleDelete(event: MouseEvent) {
+    event.stopPropagation();
+    dropdownActions.closeAll();
+    onDeleteClick(claim);
+  }
 
   function handleKeyDown(event: KeyboardEvent) {
     // Trigger click on enter space to stop linter yap
@@ -48,6 +140,7 @@
   aria-label="Description of card action"
   role="button"
   on:click={handleCardClick}
+  on:dblclick={handleDoubleClick}
   on:keydown={handleKeyDown}
 >
   <div
@@ -61,12 +154,23 @@
           <span class="ml-2 w-2 h-2 bg-red-700 rounded-full"></span>
         {/if}
       </div>
-      <button
-        on:click|stopPropagation={handleMenuClick}
-        class="text-gray-500 hover:text-gray-700"
+      <div
+        aria-label="Menu icon"
+        role="button"
+        tabindex="-2"
+        on:click={toggleDropdown}
+        on:keydown={handleKeyDown}
       >
-        <DotsVerticalOutline size="sm" />
-      </button>
+        <DotsVerticalOutline class={`dots-menu-${index} dark:text-white`} />
+      </div>
+      <Dropdown
+        triggeredBy={`.dots-menu-${index}`}
+        autosave="true"
+        bind:open={isDropdownOpen}
+      >
+        <DropdownItem on:click={handleView}>View</DropdownItem>
+        <DropdownItem on:click={handleDelete}>Delete</DropdownItem>
+      </Dropdown>
     </div>
 
     <!-- Image area -->
@@ -90,20 +194,7 @@
           <div
             class="w-12 h-12 bg-gray-300 flex items-center justify-center rounded"
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              class="h-6 w-6 text-gray-500"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-              />
-            </svg>
+            <Placeholder />
           </div>
           <span class="text-xs text-gray-500 mt-1">NO PHOTO AVAILABLE</span>
         </div>

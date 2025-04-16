@@ -67,12 +67,15 @@
 
       <!-- Action Button -->
       <a
-        href={item.status === "UC"
-          ? `#/claim?id=${item.id}`
-          : `#/appeal?id=${item.id}`}
-        class="flex justify-center mt-5 px-4 py-3 text-white font-medium bg-[#800000] rounded-lg hover:bg-[#A73D3D] transition duration-300 ease-in-out cursor-pointer"
+        href={item.status === "UC" ? `#/claim?id=${item.id}` : "#"}
+        class={`flex justify-center mt-5 px-4 py-3 text-white font-medium rounded-lg transition duration-300 ease-in-out ${
+          item.status === "CL"
+            ? "bg-stone-800 cursor-not-allowed pointer-events-none"
+            : "bg-[#800000] hover:bg-[#A73D3D] cursor-pointer"
+        }`}
+        aria-disabled={item.status === "CL"}
       >
-        {item.status === "UC" ? "File Claim" : "Appeal Claim"}
+        {item.status === "UC" ? "File A Claim" : "Claimed"}
       </a>
     </div>
   {/each}
