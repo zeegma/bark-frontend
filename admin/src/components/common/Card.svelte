@@ -1,10 +1,16 @@
 <script lang="ts">
+  import { Dropdown, DropdownItem } from "flowbite-svelte";
   import { DotsVerticalOutline } from "flowbite-svelte-icons";
   import Placeholder from "./Placeholder.svelte";
   import {
     selectionStore,
     selectionActions,
   } from "../../stores/selectionStore";
+  import {
+    openDropdownIdStore,
+    dropdownActions,
+  } from "../../stores/dropdownStore";
+  import { onMount } from "svelte";
 
   type ClaimItem = {
     id: string;
@@ -25,21 +31,47 @@
   export let phone: string;
   export let hasImage: boolean = true;
   export let claim: ClaimItem;
+  export let index: number;
   export let onDoubleClick: (claim: ClaimItem) => void;
+  export let onViewClick: (claim: any) => void;
+  export let onDeleteClick: (claim: any) => void;
+
+  // Unique ID for card's dropdown
+  const dropdownId = `dropdown-${id}-${index}`;
 
   // Selection state
   let selectedIds: Set<string>;
   let isSelected: boolean;
+
+  // Track if the card's dropdown is open
+  let isDropdownOpen = false;
+
+  // Subscribe to the global dropdown store
+  openDropdownIdStore.subscribe((openId) => {
+    isDropdownOpen = openId === dropdownId;
+  });
 
   selectionStore.subscribe((state) => {
     selectedIds = state.selectedIds;
     isSelected = selectedIds.has(id);
   });
 
-  // Function for handling the menu click
-  function handleMenuClick() {
-    // TBI
-  }
+  // Add scroll handler to close dropdown when scrolling
+  onMount(() => {
+    const handleScroll = () => {
+      if (isDropdownOpen) {
+        dropdownActions.closeAll();
+      }
+    };
+
+    // Add scroll listener
+    window.addEventListener("scroll", handleScroll, true);
+
+    // Clean up on component destruction
+    return () => {
+      window.removeEventListener("scroll", handleScroll, true);
+    };
+  });
 
   // Function to handle card selection
   function handleCardClick() {
@@ -71,6 +103,23 @@
 
     // Trigger double click
     onDoubleClick(claim);
+  }
+
+  function toggleDropdown(event: MouseEvent) {
+    event.stopPropagation();
+    dropdownActions.toggleDropdown(dropdownId);
+  }
+
+  function handleView(event: MouseEvent) {
+    event.stopPropagation();
+    dropdownActions.closeAll();
+    onViewClick(claim);
+  }
+
+  function handleDelete(event: MouseEvent) {
+    event.stopPropagation();
+    dropdownActions.closeAll();
+    onDeleteClick(claim);
   }
 
   function handleKeyDown(event: KeyboardEvent) {
@@ -105,12 +154,23 @@
           <span class="ml-2 w-2 h-2 bg-red-700 rounded-full"></span>
         {/if}
       </div>
-      <button
-        on:click|stopPropagation={handleMenuClick}
-        class="text-gray-500 hover:text-gray-700"
+      <div
+        aria-label="Menu icon"
+        role="button"
+        tabindex="-2"
+        on:click={toggleDropdown}
+        on:keydown={handleKeyDown}
       >
-        <DotsVerticalOutline size="sm" />
-      </button>
+        <DotsVerticalOutline class={`dots-menu-${index} dark:text-white`} />
+      </div>
+      <Dropdown
+        triggeredBy={`.dots-menu-${index}`}
+        autosave="true"
+        bind:open={isDropdownOpen}
+      >
+        <DropdownItem on:click={handleView}>View</DropdownItem>
+        <DropdownItem on:click={handleDelete}>Delete</DropdownItem>
+      </Dropdown>
     </div>
 
     <!-- Image area -->
