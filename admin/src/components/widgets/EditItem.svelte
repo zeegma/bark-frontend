@@ -6,13 +6,7 @@
   import ClaimantsList from "../common/ClaimantsList.svelte";
   import { Textarea } from "flowbite-svelte";
   import { EditSolid } from "flowbite-svelte-icons";
-  import {
-    items,
-    currentItem,
-    createNewItem,
-    itemsStore,
-    type Item,
-  } from "../../stores/itemStore";
+  import { createNewItem, itemsStore, type Item } from "../../stores/itemStore";
 
   export let item: Item;
   export let onSave: (data: Item) => void;
@@ -30,10 +24,9 @@
 
   const openModal = () => {
     console.log("Opening modal for item:", item);
-    formData = { ...item }; // Reset form data when opening the modal
-    formData.dateLost = ensureValidDate(formData.dateLost); // Ensure valid date
+    formData = { ...item };
+    formData.dateLost = ensureValidDate(formData.dateLost);
 
-    // Make sure imagePreview exists if image exists but imagePreview doesn't
     if (
       formData.image &&
       !formData.imagePreview &&
@@ -65,31 +58,33 @@
   };
 
   const handleSubmit = () => {
-    // Prepare the form data for saving
     const itemToSave = { ...formData };
 
-    // If we have a new image (File object), use the imagePreview as the image data
     if (formData.image instanceof File && formData.imagePreview) {
       itemToSave.image = formData.imagePreview;
     }
 
+    itemToSave.imagePreview = formData.imagePreview;
+
     if (formData.id) {
-      // If the item already exists (has an ID), update it in the store
       itemsStore.updateItem(itemToSave);
     } else {
-      // If it's a new item, create it, merge with form data, and add to the store
       const newItem = createNewItem(itemsStore.getNextId());
       const itemToAdd = { ...newItem, ...itemToSave };
       itemsStore.addItem(itemToAdd);
     }
 
-    // Trigger the onSave callback to propagate the changes
     onSave(itemToSave);
     showModal = false;
   };
 </script>
 
-<button on:click={openModal} class="btn capitalize">
+<button
+  on:click={openModal}
+  class="btn capitalize {viewType === 'grid'
+    ? 'w-full px-1 m-0 text-left'
+    : ''}"
+>
   {#if viewType === "list"}
     <EditSolid />
   {:else}

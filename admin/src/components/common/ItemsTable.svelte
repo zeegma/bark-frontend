@@ -26,11 +26,6 @@
   let selectedIds: Set<string>;
   let isAllSelected: boolean;
 
-  onMount(() => {
-    allItems = JSON.parse(localStorage.getItem("items") || "[]");
-    applyFiltering();
-  });
-
   filterStore.subscribe((f) => {
     currentFilters = f;
     applyFiltering();
@@ -85,6 +80,12 @@
     localStorage.setItem("items", JSON.stringify(allItems));
     applyFiltering();
   }
+
+  // Load items from localStorage
+  onMount(() => {
+    allItems = JSON.parse(localStorage.getItem("items") || "[]");
+    applyFiltering();
+  });
 </script>
 
 <Table hoverable class="w-full table-fixed overflow-auto">

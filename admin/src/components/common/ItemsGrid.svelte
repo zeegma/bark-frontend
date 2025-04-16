@@ -15,11 +15,6 @@
   let isAllSelected: boolean;
   let selectedIds: Set<string>;
 
-  onMount(() => {
-    allItems = JSON.parse(localStorage.getItem("items") || "[]");
-    applyFiltering();
-  });
-
   filterStore.subscribe((f) => {
     currentFilters = f;
     applyFiltering();
@@ -40,6 +35,7 @@
       );
     }
 
+    // Sort filtered items by ID in descending order (Latest added item first)
     filtered.sort((a, b) => b.id.localeCompare(a.id));
     items = filtered;
   }
@@ -53,10 +49,11 @@
     selectionActions.toggleSelectAll(items.map((item) => item.id));
   }
 
-  function shouldShowImage(id: string): boolean {
-    const item = items.find((i) => i.id === id);
-    return !!item?.image;
-  }
+  // Load items from localStorage
+  onMount(() => {
+    allItems = JSON.parse(localStorage.getItem("items") || "[]");
+    applyFiltering();
+  });
 </script>
 
 <div class="mr-2">

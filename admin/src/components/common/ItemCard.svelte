@@ -21,12 +21,11 @@
   let selectedIds: Set<string>;
   let isSelected: boolean;
   let showMenu = false;
-  let menuRef: HTMLElement;
-  let currentlyOpenMenu: string | null = null;
+  let menuRef: HTMLElement; // For closing the menu if clicked outside the menu
+  let currentlyOpenMenu: string | null = null; // Check if multiple menu is open (NOT WORKING)
   let allItems: Item[] = [];
 
   const { image } = item;
-
   const hasImage = !!image;
 
   selectionStore.subscribe((state) => {
@@ -55,6 +54,7 @@
     }
   };
 
+  // Stop the card from being clicked when button is clicked in the dropdown
   const handleMenuItemClick = (event: MouseEvent) => {
     event.stopPropagation();
   };
@@ -75,6 +75,7 @@
     }
   }
 
+  // Add/remove global click listener for menu (TODO: Check for other approaches)
   onMount(() => {
     document.addEventListener("click", handleClickOutside);
   });
@@ -117,27 +118,27 @@
 
         {#if showMenu}
           <div
-            class="absolute right-0 mt-2 w-36 bg-white border rounded-lg shadow z-50"
+            class="absolute right-0 mt-2 w-24 bg-white border rounded-lg shadow z-50"
           >
             <button
               on:click={(event) => {
                 handleMenuItemClick(event);
               }}
-              class="w-full text-left px-4 py-2 hover:bg-gray-100 text-sm"
+              class="w-full text-left px-1 py-1 hover:bg-gray-100 text-sm"
             >
               <ViewItem {item} viewType="grid" />
             </button>
             <button
               on:click={handleMenuItemClick}
-              class="w-full text-left px-4 py-2 hover:bg-gray-100 text-sm"
+              class="w-full text-left px-1 py-1 hover:bg-gray-100 text-sm"
             >
-              <EditItem {item} onSave={handleSave} />
+              <EditItem {item} viewType="grid" onSave={handleSave} />
             </button>
             <button
               on:click={handleMenuItemClick}
-              class="w-full text-left px-4 py-2 hover:bg-gray-100 text-sm text-red-600"
+              class="w-full text-left px-1 py-1 hover:bg-gray-100 text-sm"
             >
-              <DeleteItem {item} />
+              <DeleteItem {item} viewType="grid" />
             </button>
           </div>
         {/if}

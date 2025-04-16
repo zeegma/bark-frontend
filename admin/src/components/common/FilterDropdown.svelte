@@ -9,7 +9,7 @@
     statusOptions,
   } from "../../stores/filterStore";
 
-  // Assign the `status` and `category` values from the store
+  // Assign the status and category values from the store
   $: status = $filterStore.status;
   $: category = $filterStore.category;
 
@@ -25,7 +25,7 @@
 
   // Label for the dropdown
   function formatLabel(value: string) {
-    return value === "all" ? "All" : value;
+    return value === "All" ? "All" : value;
   }
 </script>
 
@@ -60,8 +60,7 @@
     </div>
 
     <!-- Filter by Category 
-
-    Limit the view, use scrollbar
+    TODO: Limit the view, use scrollbar
     -->
     <div>
       <h6 class="mb-2 text-sm font-medium text-gray-900">Filter by Category</h6>

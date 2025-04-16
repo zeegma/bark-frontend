@@ -5,30 +5,28 @@
   import Status from "../common/Status.svelte";
   import { Textarea } from "flowbite-svelte";
   import { InfoCircleOutline } from "flowbite-svelte-icons";
-  import {
-    items,
-    currentItem,
-    createNewItem,
-    itemsStore,
-    type Item,
-  } from "../../stores/itemStore";
-  import { onMount } from "svelte";
+  import { type Item } from "../../stores/itemStore";
 
   export let item: Item;
   export let viewType: "list" | "grid" = "list";
 
   let showModal = false;
 
-  export function openModal() {
+  const openModal = () => {
     showModal = true;
-  }
+  };
 
   const closeModal = () => {
     showModal = false;
   };
 </script>
 
-<button on:click={openModal} class="btn capitalize">
+<button
+  on:click={openModal}
+  class="btn capitalize {viewType === 'grid'
+    ? 'w-full px-1 m-0 text-left'
+    : ''}"
+>
   {#if viewType === "list"}
     <InfoCircleOutline />
   {:else}

@@ -7,7 +7,6 @@
     itemsStore,
     type Item,
   } from "../../stores/itemStore";
-  // import { get } from "svelte/store"; (in itemStore.ts, createItemStore gets the item )
   import DatePicker from "../common/DatePicker.svelte";
   import TimePicker from "../common/TimePicker.svelte";
   import Category from "../common/Category.svelte";
@@ -39,13 +38,7 @@
   const handleSubmit = () => {
     const newItem = { ...formData };
     currentItem.set(newItem);
-
     itemsStore.addItem(newItem);
-
-    // const updatedItems = [...get(items), newItem];
-    // items.set(updatedItems);
-
-    // localStorage.setItem("items", JSON.stringify(updatedItems));
     closeModal();
   };
 
@@ -64,7 +57,7 @@
     }
   };
 
-  // On mount, load items from localStorage
+  // Load items from localStorage
   onMount(() => {
     const storedItems = JSON.parse(localStorage.getItem("items") || "[]");
     items.set(storedItems);

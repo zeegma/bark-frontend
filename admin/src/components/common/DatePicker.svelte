@@ -2,8 +2,8 @@
   import { Datepicker } from "flowbite-svelte";
 
   export let selectedDate: Date | null = null;
-  export let disabled: boolean = false;
-  let className = "";
+  export let disabled: boolean = false; // For ViewItem
+  let className = ""; // Used for the width of the date picker
   let lastAction: string = "";
 
   function handleClear(): void {

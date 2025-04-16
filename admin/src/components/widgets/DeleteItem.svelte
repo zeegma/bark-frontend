@@ -3,19 +3,19 @@
     ExclamationCircleOutline,
     TrashBinSolid,
   } from "flowbite-svelte-icons";
-  import { itemsStore } from "../../stores/itemStore";
+  import { itemsStore, type Item } from "../../stores/itemStore";
 
-  export let item: any;
-
+  export let item: Item;
+  export let viewType: "list" | "grid" = "list";
   let showModal = false;
-
-  const openModal = () => {
-    showModal = true;
-  };
 
   const handleDelete = () => {
     itemsStore.deleteItem(item.id);
     showModal = false;
+  };
+
+  const openModal = () => {
+    showModal = true;
   };
 
   const closeModal = () => {
@@ -23,8 +23,17 @@
   };
 </script>
 
-<button on:click={openModal} class="btn capitalize">
-  <TrashBinSolid />
+<button
+  on:click={openModal}
+  class="btn capitalize {viewType === 'grid'
+    ? 'w-full px-1 m-0 text-left'
+    : ''}"
+>
+  {#if viewType === "list"}
+    <TrashBinSolid />
+  {:else}
+    Delete
+  {/if}
 </button>
 
 {#if showModal}
