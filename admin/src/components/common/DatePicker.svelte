@@ -1,10 +1,14 @@
 <script lang="ts">
   import { Datepicker } from "flowbite-svelte";
 
-  export let selectedDate: Date | null = null;
-  export let disabled: boolean = false; // For ViewItem
-  let className = ""; // Used for the width of the date picker
+  export let disabled: boolean = false;
+
+  export let value: Date | null = null;
+
+  let selectedDate: Date | null = value;
   let lastAction: string = "";
+
+  $: selectedDate = value;
 
   function handleClear(): void {
     lastAction = "Cleared";
@@ -17,7 +21,7 @@
   }
 </script>
 
-<div class={`relative ${className}`}>
+<div class="w-full">
   <Datepicker
     bind:value={selectedDate}
     on:clear={handleClear}
@@ -27,6 +31,7 @@
     showActionButtons
     placeholder="Date"
     autohide={false}
-    inputClass={`border border-gray-300 bg-white text-gray-700 rounded-xl h-11 ${disabled ? "opacity-50" : "hover:bg-gray-100"}`}
+    {disabled}
+    inputClass="border border-gray-300 bg-white text-gray-700 hover:bg-gray-100 rounded-xl h-11"
   />
 </div>
