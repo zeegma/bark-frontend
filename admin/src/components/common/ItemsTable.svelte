@@ -18,7 +18,8 @@
   } from "../../stores/selectionStore";
   import { formatDate, formatTime } from "../../lib/formatDateTime";
   import { onMount } from "svelte";
-  import { type Item } from "../../stores/itemStore";
+  import type { Item } from "../../lib/types";
+  import { fetchItems, updateItem, deleteItem } from "../../lib/api/items";
 
   let allItems: Item[] = [];
   let filteredItems: Item[] = [];
@@ -46,7 +47,7 @@
       );
     }
 
-    filtered.sort((a, b) => b.id.localeCompare(a.id));
+    filtered.sort((a, b) => String(b.id).localeCompare(String(a.id)));
     filteredItems = filtered;
   }
 
@@ -63,27 +64,34 @@
     selectionActions.toggleSelection(id);
   }
 
-  function handleDelete(id: string) {
-    allItems = allItems.filter((i) => i.id !== id);
-    localStorage.setItem("items", JSON.stringify(allItems));
-    applyFiltering();
-  }
-
-  function handleSave(updatedItem: Item) {
-    const index = allItems.findIndex((i) => i.id === updatedItem.id);
-    if (index !== -1) {
-      allItems[index] = updatedItem;
+  async function handleDelete(id: string) {
+    // DeleteItem.svelte to be updated to use onDelete={handleDelete}
+    const res = await deleteItem(id);
+    if (res.ok) {
+      allItems = allItems.filter((i) => i.id !== id);
+      applyFiltering();
     } else {
-      allItems.push(updatedItem);
+      console.error("Failed to delete item");
     }
-
-    localStorage.setItem("items", JSON.stringify(allItems));
-    applyFiltering();
   }
 
-  // Load items from localStorage
-  onMount(() => {
-    allItems = JSON.parse(localStorage.getItem("items") || "[]");
+  async function handleSave(updatedItem: Item) {
+    const res = await updateItem(updatedItem);
+    if (res.ok) {
+      const index = allItems.findIndex((i) => i.id === updatedItem.id);
+      if (index !== -1) {
+        allItems[index] = updatedItem;
+      } else {
+        allItems.push(updatedItem);
+      }
+      applyFiltering();
+    } else {
+      console.error("Failed to update/save item");
+    }
+  }
+
+  onMount(async () => {
+    allItems = await fetchItems();
     applyFiltering();
   });
 </script>
@@ -146,7 +154,7 @@
         <TableBodyCell class="p-2 text-gray-600 text-center">
           {item.id}
         </TableBodyCell>
-        <TableBodyCell class="p-2 text-gray-600 text-center">
+        <TableBodyCell class="p-2 text-gray-600 truncate text-center">
           {item.name}
         </TableBodyCell>
         <TableBodyCell
@@ -159,34 +167,34 @@
           {item.category}
         </TableBodyCell>
         <TableBodyCell class="p-2 text-gray-600 text-center">
-          {formatDate(item.dateLost)}
+          {formatDate(item.date_found)}
         </TableBodyCell>
         <TableBodyCell class="p-2 text-gray-600 text-center">
-          {formatTime(item.timeLost)}
+          {formatTime(item.time_found)}
         </TableBodyCell>
         <TableBodyCell
           class="p-2 text-gray-600 truncate text-center max-w-[18rem]"
         >
-          {item.lastKnownLocation}
+          {item.location_found}
         </TableBodyCell>
         <TableBodyCell class="p-2 text-gray-600 text-center">
-          {#if item.status === "Unclaimed"}
+          {#if item.status === "UC"}
             <span
               class="inline-block w-[100px] bg-[#A79F00]/10 border border-[#A79F00] text-[#A79F00] font-medium p-2 rounded-lg"
             >
-              {item.status}
+              Unclaimed
             </span>
-          {:else if item.status === "Claimed"}
+          {:else if item.status === "CL"}
             <span
               class="inline-block w-[100px] bg-[#4BA83D]/10 border border-[#4BA83D] text-[#4BA83D] font-medium p-2 rounded-lg"
             >
-              {item.status}
+              Claimed
             </span>
-          {:else if item.status === "Expired"}
+          {:else if item.status === "EX"}
             <span
               class="inline-block w-[100px] bg-[#800000]/10 border border-[#800000] text-[#800000] font-medium p-2 rounded-lg"
             >
-              {item.status}
+              Expired
             </span>
           {/if}
         </TableBodyCell>
