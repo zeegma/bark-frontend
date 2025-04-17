@@ -38,6 +38,6 @@ export interface Item {
   date_found: Date;
   time_found: string;
   location_found: string;
-  image?: File | null | string;
+  photo_url?: string;
   imagePreview?: string | null;
 }

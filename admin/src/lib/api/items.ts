@@ -29,8 +29,8 @@ export async function addItem(item: Item): Promise<Response> {
     formData.append("claimant", item.claimant);
   }
 
-  if (item.image && item.image instanceof File) {
-    formData.append("photo_url", item.image);
+  if (item.photo_url) {
+    formData.append("photo_url", item.photo_url);
   }
 
   for (const [key, value] of formData.entries()) {
@@ -60,8 +60,8 @@ export async function updateItem(item: Item): Promise<Response> {
     formData.append("claimant", item.claimant);
   }
 
-  if (item.image && item.image instanceof File) {
-    formData.append("image", item.image);
+  if (item.photo_url) {
+    formData.append("photo_url", item.photo_url);
   }
 
   return await fetch("http://127.0.0.1:8000/lost-items/${item.id}/edit/", {

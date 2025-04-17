@@ -71,7 +71,7 @@ export const createNewItem = (nextId: string): Item => ({
   status: "",
   category: "",
   claimant: "",
-  image: null,
+  photo_url: null,
   imagePreview: null,
   description: "",
   date_found: new Date(), // New Date as default for dateLost
