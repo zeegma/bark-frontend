@@ -4,47 +4,26 @@
   import { link } from "svelte-spa-router";
   import sampleImage from "../assets/sampleImage.jpg";
   import maskImage from "../assets/maskImage.png";
+  import { loginAdmin } from "../lib/api/admin";
 
   let showPassword = false;
   let email = "";
   let password = "";
   let errorMessage = "";
-  let isLoading = false;
 
   const handleLogin = async (event: Event) => {
     event.preventDefault();
     errorMessage = "";
 
-    isLoading = true;
-
     try {
-      const response = await fetch("", {
-        // API URL
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email,
-          password,
-        }),
-      });
-
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result.message || "Login failed.");
-      }
-
-      alert("Login successful!");
+      await loginAdmin(email, password);
+      alert("Login");
     } catch (error) {
       if (error instanceof Error) {
         errorMessage = error.message;
       } else {
         errorMessage = "Something went wrong.";
       }
-    } finally {
-      isLoading = false;
     }
   };
 </script>
@@ -118,19 +97,14 @@
         </div>
 
         {#if errorMessage}
-          <p class="text-red-600 text-sm">{errorMessage}</p>
+          <p class="text-red-900 text-sm m-0 p-0">{errorMessage}</p>
         {/if}
 
         <Button
           type="submit"
           class="w-full bg-red-900 text-white hover:bg-red-950"
-          disabled={isLoading}
         >
-          {#if isLoading}
-            Logging in...
-          {:else}
-            Log In
-          {/if}
+          Log In
         </Button>
 
         <p class="text-sm text-center text-gray-600">

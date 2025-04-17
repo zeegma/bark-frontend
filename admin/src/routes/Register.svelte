@@ -3,6 +3,7 @@
   import { EyeOutline, EyeSlashOutline } from "flowbite-svelte-icons";
   import sampleImage from "../assets/sampleImage.jpg";
   import maskImage from "../assets/maskImage.png";
+  import { registerAdmin } from "../lib/api/admin";
 
   let showPassword = false;
   let showConfirm = false;
@@ -14,7 +15,6 @@
   let confirmPassword = "";
   let agreed = false;
 
-  let isLoading = false;
   let errorMessage = "";
 
   const handleSubmit = async (event: Event) => {
@@ -31,30 +31,9 @@
       return;
     }
 
-    isLoading = true;
-
     try {
-      const response = await fetch("", {
-        //API URL
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          name,
-          email,
-          number,
-          password,
-        }),
-      });
-
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result.message || "Registration failed.");
-      }
-
-      alert("Registered successfully!");
+      await registerAdmin({ name, email, number, password });
+      alert("Registered");
       name = email = number = password = confirmPassword = "";
       agreed = false;
     } catch (error) {
@@ -63,8 +42,6 @@
       } else {
         errorMessage = "Something went wrong.";
       }
-    } finally {
-      isLoading = false;
     }
   };
 </script>
@@ -214,13 +191,8 @@
         <Button
           type="submit"
           class="w-full bg-red-900 text-white hover:bg-red-700"
-          disabled={isLoading}
         >
-          {#if isLoading}
-            Submitting...
-          {:else}
-            Submit
-          {/if}
+          Submit
         </Button>
       </form>
     </div>
