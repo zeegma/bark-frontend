@@ -3,12 +3,13 @@
   import DateTime from "../components/widgets/dashboard/DateTime.svelte";
   import StatsGrid from "../components/widgets/dashboard/StatsGrid.svelte";
   import QuickFilters from "../components/widgets/dashboard/QuickFilters.svelte";
+  import QuickEntry from "../components/widgets/dashboard/QuickEntry.svelte";
 </script>
 
-<Layout>
-  <div class="p-2 flex">
+<Layout padding="p-0">
+  <div class="flex h-full">
     <!-- Main content -->
-    <div class="w-3/5 mr-8">
+    <div class="p-9 w-3/5">
       <!-- Title & time -->
       <h1 class="text-5xl mb-3 font-semibold">Statistics</h1>
       <DateTime />
@@ -31,8 +32,8 @@
     </div>
 
     <!-- Add item sidebar -->
-    <div class="w-2/5">
-      <!-- Important: tomorrow -->
+    <div class="w-2/5 bg-gray-50 rounded-r-3xl">
+      <QuickEntry />
     </div>
   </div>
 </Layout>
