@@ -193,7 +193,7 @@
             class="block text-sm font-medium text-gray-800 mb-1"
             >Date Lost</label
           >
-          <DatePicker bind:selectedDate={formData.dateLost} />
+          <DatePicker bind:value={formData.dateLost} />
         </div>
 
         <!-- Time Lost -->
