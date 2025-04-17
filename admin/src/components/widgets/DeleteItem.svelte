@@ -3,14 +3,20 @@
     ExclamationCircleOutline,
     TrashBinSolid,
   } from "flowbite-svelte-icons";
-  import { itemsStore, type Item } from "../../stores/itemStore";
+  import { itemsStore } from "../../stores/itemStore";
+  import type { Item } from "../../lib/types";
 
   export let item: Item;
   export let viewType: "list" | "grid" = "list";
   let showModal = false;
 
-  const handleDelete = () => {
-    itemsStore.deleteItem(item.id);
+  const handleDelete = async () => {
+    const success = await itemsStore.deleteItem(item.id);
+    if (success) {
+      console.log("Item deleted successfully");
+    } else {
+      console.error("Failed to delete item");
+    }
     showModal = false;
   };
 

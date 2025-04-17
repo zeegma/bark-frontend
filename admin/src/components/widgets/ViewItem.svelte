@@ -5,7 +5,7 @@
   import Status from "../common/Status.svelte";
   import { Textarea } from "flowbite-svelte";
   import { InfoCircleOutline } from "flowbite-svelte-icons";
-  import { type Item } from "../../stores/itemStore";
+  import type { Item } from "../../lib/types";
 
   export let item: Item;
   export let viewType: "list" | "grid" = "list";
@@ -124,21 +124,9 @@
           <div
             class="border border-gray-300 rounded h-full flex items-center justify-center bg-gray-50 p-2"
           >
-            {#if item.imagePreview}
+            {#if item.photo_url}
               <img
-                src={item.imagePreview}
-                alt="Item"
-                class="max-h-full max-w-full object-contain rounded"
-              />
-            {:else if typeof item.image === "string"}
-              <img
-                src={item.image}
-                alt="Item"
-                class="max-h-full max-w-full object-contain rounded"
-              />
-            {:else if item.image instanceof File}
-              <img
-                src={URL.createObjectURL(item.image)}
+                src={item.photo_url}
                 alt="Item"
                 class="max-h-full max-w-full object-contain rounded"
               />
@@ -171,7 +159,10 @@
             class="block text-sm font-medium text-gray-800 mb-1"
             >Date Lost</label
           >
-          <DatePicker selectedDate={new Date(item.dateLost)} disabled={true} />
+          <DatePicker
+            selectedDate={new Date(item.date_found)}
+            disabled={true}
+          />
         </div>
 
         <!-- Time Lost -->
@@ -181,7 +172,7 @@
             class="block text-sm font-medium text-gray-800 mb-1"
             >Time Lost</label
           >
-          <TimePicker selectedTime={item.timeLost} disabled={true} />
+          <TimePicker selectedTime={item.time_found} disabled={true} />
         </div>
 
         <!-- Last Known Location -->
@@ -192,7 +183,7 @@
             >Last Known Location</label
           >
           <input
-            value={item.lastKnownLocation}
+            value={item.location_found}
             type="text"
             disabled
             class="w-full p-2.5 border border-gray-300 rounded-lg text-sm bg-gray-50 cursor-not-allowed"
