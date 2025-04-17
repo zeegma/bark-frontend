@@ -2,9 +2,10 @@
   import Card from "./Card.svelte";
   import ViewModal from "../widgets/claimants/ViewModal.svelte";
   import DeleteModal from "../widgets/claimants/DeleteModal.svelte";
-  import { Checkbox } from "flowbite-svelte";
-  import { claimsData } from "../../lib/mockData";
+  import { Checkbox, Spinner } from "flowbite-svelte";
+  import { fetchClaimants } from "../../lib/api";
   import { onMount } from "svelte";
+  import type { ClaimantResponse, ClaimItem } from "../../lib/types";
   import { dropdownActions } from "../../stores/dropdownStore";
   import { sortStore, type SortOptions } from "../../stores/sortStore";
   import {
@@ -12,68 +13,21 @@
     selectionActions,
   } from "../../stores/selectionStore";
 
-  // Global click handler: close dropdowns when clicking outside
-  onMount(() => {
-    const handleGlobalClick = (event: MouseEvent) => {
-      // Close dropdowns when clicking outside of dropdown elements
-      const clickedOnDropdown = (event.target as Element).closest(
-        "[role='dialog']",
-      );
-      const clickedOnMenu = (event.target as Element).closest(
-        "[class^='dots-menu-']",
-      );
-
-      if (!clickedOnDropdown && !clickedOnMenu) {
-        dropdownActions.closeAll();
-      }
-    };
-
-    // Scroll handler to close dropdowns when scrolling
-    const handleScroll = () => {
-      dropdownActions.closeAll();
-    };
-
-    window.addEventListener("click", handleGlobalClick);
-    window.addEventListener("scroll", handleScroll, true);
-
-    return () => {
-      window.removeEventListener("click", handleGlobalClick);
-      window.removeEventListener("scroll", handleScroll, true);
-    };
-  });
-
-  let deleteModal: boolean = false;
+  // For view modal
   let viewModal: boolean = false;
+
+  // For delete modal
+  let deleteModal: boolean = false;
+
   let selectedClaim: ClaimItem | null = null;
+  let loading: boolean = true;
+  let error: string | null = null;
 
-  type ClaimItem = {
-    id: string;
-    name: string;
-    phone: string;
-    facebook: string;
-    dateFiled: string;
-    itemId: string;
-    itemRequested: string;
-    hasImage?: boolean;
-  };
-
-  export let claims: ClaimItem[] = [...claimsData];
+  // Create a local copy of the claims data to sort
+  let claims: ClaimItem[] = [];
   let currentSortOptions: SortOptions;
-  let isAllSelected: boolean;
   let selectedIds: Set<string>;
-
-  // Sample mapping for images
-  const hasImageMap: Record<string, boolean> = {
-    CLM0001: true,
-    CLM0003: true,
-    CLM0004: true,
-    CLM0005: true,
-  };
-
-  // Function to determine if claim has photo
-  function shouldShowImage(id: string): boolean {
-    return hasImageMap[id] || false;
-  }
+  let isAllSelected: boolean;
 
   sortStore.subscribe((options) => {
     currentSortOptions = options;
@@ -85,9 +39,28 @@
     isAllSelected = state.isAllSelected;
   });
 
+  // Function to transform API response to internal format
+  function transformClaimantData(apiData: ClaimantResponse[]): ClaimItem[] {
+    return apiData.map((item) => ({
+      id: item.id.toString(),
+      name: item.name,
+      phone: item.number,
+      facebook: item.media,
+      dateFiled: item.request_date,
+      itemId: item.item_id.toString(),
+      itemRequested: item.item_name,
+      itemPhoto: item.item_image_url,
+      detailedDescription: item.detailed_description,
+      ownershipProofPhoto: item.ownership_photo,
+      hasImage: !!item.ownership_photo,
+    }));
+  }
+
   // Function to sort the claims data
   function applySorting() {
-    claims = [...claimsData].sort((a: ClaimItem, b: ClaimItem) => {
+    if (!claims.length) return;
+
+    claims = [...claims].sort((a: ClaimItem, b: ClaimItem) => {
       const { sortBy, sortOrder } = currentSortOptions;
       const multiplier = sortOrder === "Ascending" ? 1 : -1;
 
@@ -129,40 +102,95 @@
     deleteModal = true;
   }
 
+  // Global click handler: close dropdowns when clicking outside
+  onMount(() => {
+    const handleGlobalClick = (event: MouseEvent) => {
+      const clickedOnDropdown = (event.target as Element).closest(
+        "[role='dialog']",
+      );
+      const clickedOnMenu = (event.target as Element).closest(
+        "[class^='dots-menu-']",
+      );
+      if (!clickedOnDropdown && !clickedOnMenu) {
+        dropdownActions.closeAll();
+      }
+    };
+
+    const handleScroll = () => {
+      dropdownActions.closeAll();
+    };
+
+    window.addEventListener("click", handleGlobalClick);
+    window.addEventListener("scroll", handleScroll, true);
+
+    // Define and call async fetch logic inside
+    const fetchData = async () => {
+      try {
+        const claimantData = await fetchClaimants();
+        claims = transformClaimantData(claimantData);
+        applySorting();
+      } catch (e) {
+        error = e instanceof Error ? e.message : "Failed to fetch data";
+        console.error(error);
+      } finally {
+        loading = false;
+      }
+    };
+
+    fetchData();
+
+    return () => {
+      window.removeEventListener("click", handleGlobalClick);
+      window.removeEventListener("scroll", handleScroll, true);
+    };
+  });
+
   // Initial sort
   applySorting();
 </script>
 
-<div>
-  <!-- Select all -->
-  <div class="sticky top-0 z-10 bg-white pb-3 pl-1 flex items-center">
-    <Checkbox
-      checked={isAllSelected}
-      on:change={handleSelectAll}
-      color="red"
-      class="cursor-pointer"
-    />
-    <span class="ml-2 text-sm text-gray-700">Select All</span>
+{#if loading}
+  <div class="flex justify-center items-center h-full pb-10">
+    <Spinner color="red" size={20} />
   </div>
-
-  <!-- Main content grid -->
-  <div
-    class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
-  >
-    {#each claims as claim, index (claim.id)}
-      <Card
-        {index}
-        {claim}
-        id={claim.id}
-        name={claim.name}
-        phone={claim.phone}
-        dateFiled={claim.dateFiled}
-        hasImage={shouldShowImage(claim.id)}
-        onDoubleClick={handleCardDoubleClick}
-        onViewClick={handleViewClick}
-        onDeleteClick={handleDeleteClick}
+{:else if error}
+  <div class="text-center p-8 text-red-600">
+    <p>Error loading data: {error}</p>
+    <button
+      class="mt-4 px-4 py-2 bg-red-600 text-white rounded"
+      on:click={() => window.location.reload()}
+    >
+      Retry
+    </button>
+  </div>
+{:else}
+  <div>
+    <!-- Select all -->
+    <div class="sticky top-0 z-10 bg-white pb-3 pl-1 flex items-center">
+      <Checkbox
+        checked={isAllSelected}
+        on:change={handleSelectAll}
+        color="red"
+        class="cursor-pointer"
       />
-    {/each}
+      <span class="ml-2 text-sm text-gray-700">Select All</span>
+    </div>
+
+    <!-- Main content grid -->
+    <div
+      class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
+    >
+      {#each claims as claim, index (claim.id)}
+        <Card
+          {index}
+          {claim}
+          id={claim.id}
+          onDoubleClick={handleCardDoubleClick}
+          onViewClick={handleViewClick}
+          onDeleteClick={handleDeleteClick}
+        />
+      {/each}
+    </div>
   </div>
-</div>
-<ViewModal bind:open={viewModal} claim={selectedClaim} />
+  <ViewModal bind:open={viewModal} claim={selectedClaim} />
+{/if}
