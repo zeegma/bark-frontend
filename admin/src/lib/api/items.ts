@@ -71,7 +71,7 @@ export async function updateItem(item: Item): Promise<Response> {
 }
 
 export async function deleteItem(id: String): Promise<Response> {
-  return await fetch("http://127.0.0.1:8000/lost-items/${item.id}/delete/", {
+  return await fetch(`http://127.0.0.1:8000/lost-items/${id}/delete/`, {
     method: "DELETE",
   });
 }

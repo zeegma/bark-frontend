@@ -45,8 +45,10 @@ function createItemsStore() {
       const response = await deleteItemInDB(id);
       if (response.ok) {
         update((items) => items.filter((item) => item.id !== id));
+        return true;
       } else {
         console.error("Failed to delete");
+        return false;
       }
     },
     getNextId: () => getNextHexId(get(items)),
@@ -71,7 +73,7 @@ export const createNewItem = (nextId: string): Item => ({
   status: "",
   category: "",
   claimant: "",
-  photo_url: null,
+  photo_url: "",
   imagePreview: null,
   description: "",
   date_found: new Date(), // New Date as default for dateLost
