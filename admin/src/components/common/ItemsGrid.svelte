@@ -7,7 +7,8 @@
     selectionStore,
     selectionActions,
   } from "../../stores/selectionStore";
-  import { type Item } from "../../stores/itemStore";
+  import type { Item } from "../../lib/types";
+  import { fetchItems, updateItem, deleteItem } from "../../lib/api/items";
 
   let allItems: Item[] = [];
   let items: Item[] = [];
@@ -36,7 +37,7 @@
     }
 
     // Sort filtered items by ID in descending order (Latest added item first)
-    filtered.sort((a, b) => b.id.localeCompare(a.id));
+    filtered.sort((a, b) => String(b.id).localeCompare(String(a.id)));
     items = filtered;
   }
 
@@ -49,9 +50,34 @@
     selectionActions.toggleSelectAll(items.map((item) => item.id));
   }
 
-  // Load items from localStorage
-  onMount(() => {
-    allItems = JSON.parse(localStorage.getItem("items") || "[]");
+  async function handleDelete(id: string) {
+    // DeleteItem.svelte to be updated to use onDelete={handleDelete}
+    const res = await deleteItem(id);
+    if (res.ok) {
+      allItems = allItems.filter((i) => i.id !== id);
+      applyFiltering();
+    } else {
+      console.error("Failed to delete item");
+    }
+  }
+
+  async function handleSave(updatedItem: Item) {
+    const res = await updateItem(updatedItem);
+    if (res.ok) {
+      const index = allItems.findIndex((i) => i.id === updatedItem.id);
+      if (index !== -1) {
+        allItems[index] = updatedItem;
+      } else {
+        allItems.push(updatedItem);
+      }
+      applyFiltering();
+    } else {
+      console.error("Failed to update/save item");
+    }
+  }
+
+  onMount(async () => {
+    allItems = await fetchItems();
     applyFiltering();
   });
 </script>
@@ -71,7 +97,11 @@
   <!-- Main content grid -->
   <div class="grid grid-cols-3 gap-4 w-full">
     {#each items as item (item.id)}
-      <ItemCard {item} />
+      <ItemCard
+        {item}
+        on:update={(e) => handleSave(e.detail)}
+        on:delete={(e) => handleDelete(e.detail)}
+      />
     {/each}
   </div>
 </div>

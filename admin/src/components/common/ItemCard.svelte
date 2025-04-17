@@ -11,10 +11,10 @@
   } from "../../stores/selectionStore";
   import { formatDate, formatTime } from "../../lib/formatDateTime";
   import { onMount, onDestroy } from "svelte";
-  import { type Item } from "../../stores/itemStore";
   import ViewItem from "../widgets/ViewItem.svelte";
   import EditItem from "../widgets/EditItem.svelte";
   import DeleteItem from "../widgets/DeleteItem.svelte";
+  import type { Item } from "../../lib/types";
 
   export let item: Item;
 
@@ -25,8 +25,8 @@
   let currentlyOpenMenu: string | null = null; // Check if multiple menu is open (NOT WORKING)
   let allItems: Item[] = [];
 
-  const { image } = item;
-  const hasImage = !!image;
+  const { photo_url } = item;
+  const hasImage = !!photo_url;
 
   selectionStore.subscribe((state) => {
     selectedIds = state.selectedIds;
@@ -149,12 +149,12 @@
     <div
       class={`w-full h-[180px] flex items-center justify-center ${isSelected ? "bg-red-100 group-hover:bg-red-200" : "bg-white group-hover:bg-gray-50"}`}
     >
-      {#if hasImage && item.image}
+      {#if hasImage && item.photo_url}
         <div
           class="w-[90%] h-full bg-gray-200 rounded-lg flex items-center justify-center overflow-hidden"
         >
           <img
-            src={item.imagePreview}
+            src={item.photo_url}
             alt="Claim"
             class="h-full w-full object-cover"
           />
@@ -199,33 +199,35 @@
           <div class="flex items-center gap-1">
             <CalendarMonthSolid class="w-4 h-4" />
             <span
-              >{formatDate(item.dateLost)} • {formatTime(item.timeLost)}</span
+              >{formatDate(item.date_found)} • {formatTime(
+                item.time_found,
+              )}</span
             >
           </div>
           <div class="flex items-center gap-1">
             <MapPinSolid class="w-4 h-4" />
-            <span class="truncate">{item.lastKnownLocation}</span>
+            <span class="truncate">{item.location_found}</span>
           </div>
         </div>
       </div>
       <div>
-        {#if item.status === "Unclaimed"}
+        {#if item.status === "UC"}
           <span
             class="inline-block w-fit bg-[#A79F00]/10 border border-[#A79F00] text-[#A79F00] text-[10px] font-medium px-3 py-1 rounded-lg"
           >
-            {item.status}
+            Unclaimed
           </span>
-        {:else if item.status === "Claimed"}
+        {:else if item.status === "CL"}
           <span
             class="inline-block w-fit bg-[#4BA83D]/10 border border-[#4BA83D] text-[#4BA83D] text-[10px] font-medium px-3 py-1 rounded-lg"
           >
-            {item.status}
+            Claimed
           </span>
-        {:else if item.status === "Expired"}
+        {:else if item.status === "EX"}
           <span
             class="inline-block w-fit bg-[#800000]/10 border border-[#800000] text-[#800000] text-[10px] font-medium px-3 py-1 rounded-lg"
           >
-            {item.status}
+            Expired
           </span>
         {/if}
       </div>
