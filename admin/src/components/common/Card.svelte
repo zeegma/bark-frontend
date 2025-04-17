@@ -2,6 +2,8 @@
   import { Dropdown, DropdownItem } from "flowbite-svelte";
   import { DotsVerticalOutline } from "flowbite-svelte-icons";
   import Placeholder from "./Placeholder.svelte";
+  import { onMount } from "svelte";
+  import type { ClaimItem } from "../../lib/types";
   import {
     selectionStore,
     selectionActions,
@@ -10,26 +12,10 @@
     openDropdownIdStore,
     dropdownActions,
   } from "../../stores/dropdownStore";
-  import { onMount } from "svelte";
-
-  type ClaimItem = {
-    id: string;
-    name: string;
-    phone: string;
-    facebook: string;
-    dateFiled: string;
-    itemId: string;
-    itemRequested: string;
-    hasImage?: boolean;
-  };
 
   let clickTimeout: NodeJS.Timeout | null = null;
 
   export let id: string;
-  export let name: string;
-  export let dateFiled: string;
-  export let phone: string;
-  export let hasImage: boolean = true;
   export let claim: ClaimItem;
   export let index: number;
   export let onDoubleClick: (claim: ClaimItem) => void;
@@ -177,12 +163,12 @@
     <div
       class={`w-full h-32 flex items-center justify-center ${isSelected ? "bg-red-100 group-hover:bg-red-200" : "bg-white group-hover:bg-gray-50"}`}
     >
-      {#if hasImage}
+      {#if claim.hasImage}
         <div
           class="w-[90%] h-full bg-gray-200 rounded-lg flex items-center justify-center overflow-hidden"
         >
           <img
-            src="/src/assets/me.png"
+            src={claim.ownershipProofPhoto}
             alt="Claim"
             class="h-full w-full object-cover"
           />
@@ -206,12 +192,13 @@
       class={`p-2 ${isSelected ? "bg-red-100 group-hover:bg-red-200" : "bg-white group-hover:bg-gray-50"}`}
     >
       <div class="flex flex-col">
-        <span class="text-xs text-gray-800 truncate">{name}</span>
+        <span class="text-xs font-semibold text-gray-800 truncate">{claim.name}</span>
+        <span class="text-xs text-gray-800 truncate">Item > {claim.itemRequested}</span>
         <div class="flex text-xs text-gray-500 space-x-1">
           <span>•</span>
-          <span>{dateFiled}</span>
+          <span>{claim.dateFiled}</span>
           <span>•</span>
-          <span>{phone}</span>
+          <span>{claim.phone}</span>
         </div>
       </div>
     </div>
