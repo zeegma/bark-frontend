@@ -2,7 +2,8 @@
   import Header from "../components/layout/Header.svelte";
   import Filters from "../components/layout/Filters.svelte";
   import Contents from "../components/layout/Contents.svelte";
-  import { mockdata } from "../lib/constants/mockdata";
+  import { fetchAllItems } from "../lib/api/fetch";
+  import { onMount } from "svelte";
   import {
     selectedCategory,
     selectedStatus,
@@ -22,8 +23,21 @@
     status: string;
   }
 
-  let rawItems: Item[] = mockdata;
+  let rawItems: Item[] = [];
   let filteredItems: Item[] = [];
+  let isLoading: boolean = true;
+
+  // Fetch all items from the backend
+  onMount(async () => {
+    try {
+      rawItems = await fetchAllItems();
+      console.log("Fetched Items:", rawItems);
+    } catch (error) {
+      console.error("Error fetching items:", error);
+    } finally {
+      isLoading = false;
+    }
+  });
 
   function setToEndOfDay(date: Date): Date {
     const endOfDay = new Date(date);
@@ -55,5 +69,9 @@
 </script>
 
 <Header />
-<Filters bind:view />
-<Contents items={filteredItems} {view} />
+{#if isLoading}
+  <p>Loading...</p>
+{:else}
+  <Filters bind:view />
+  <Contents items={filteredItems} {view} />
+{/if}

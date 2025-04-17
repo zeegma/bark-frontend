@@ -1,7 +1,6 @@
 <script lang="ts">
   export let itemId: string;
 
-  // Form state
   let fullName: string = "";
   let contactNumber: string = "";
   let facebookLink: string = "";
@@ -61,66 +60,41 @@
     errorMessage = null;
 
     try {
-      let photoUrl: string = "https://example.com/default-image.jpg"; // Fallback URL
-      try {
-        const photoUploadResponse = await uploadPhoto(photo);
-        photoUrl = photoUploadResponse.url;
-      } catch (photoUploadError) {
-        console.error("Photo upload failed:", photoUploadError);
-        console.warn("Using fallback URL for ownership_photo.");
-      }
+      const formData = new FormData();
+      formData.append("image", photo!);
+      formData.append(
+        "data",
+        JSON.stringify({
+          name: fullName,
+          request_date: new Date().toISOString().split("T")[0],
+          detailed_description: description,
+          number: contactNumber,
+          media: facebookLink,
+          item_id: parseInt(itemId, 10),
+        }),
+      );
 
-      const requestBody = {
-        name: fullName,
-        request_date: new Date().toISOString().split("T")[0],
-        ownership_photo: photoUrl,
-        detailed_description: description,
-        number: contactNumber,
-        media: facebookLink,
-        item_id: parseInt(itemId, 10),
-      };
-
-      console.log("Request Body Being Sent:", requestBody);
-
+      console.log("Submitting claim form...");
       const apiResponse = await fetch(
-        "http://127.0.0.1:8000/claim-form/create",
+        "http://127.0.0.1:8000/claim-form/create/",
         {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(requestBody),
+          body: formData,
         },
       );
 
       if (!apiResponse.ok) {
-        throw new Error("Failed to submit claim.");
+        const errorBody = await apiResponse.text();
+        throw new Error(errorBody || "Failed to submit claim.");
       }
 
       alert("Claim submitted successfully!");
     } catch (error) {
+      console.error("Error submitting claim:", error);
       errorMessage = "An error occurred while submitting your claim.";
     } finally {
       isLoading = false;
     }
-  }
-
-  // Function to upload photo to the server
-  async function uploadPhoto(file: File): Promise<{ url: string }> {
-    const formData = new FormData();
-    formData.append("file", file);
-
-    const response = await fetch("http://127.0.0.1:8000/upload-photo", {
-      method: "POST",
-      body: formData,
-    });
-
-    if (!response.ok) {
-      throw new Error(`Photo upload failed: ${response.statusText}`);
-    }
-
-    const data = await response.json();
-    return { url: data.url };
   }
 </script>
 
