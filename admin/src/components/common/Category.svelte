@@ -26,7 +26,7 @@
 
 <div class="w-full">
   <Button
-    class="w-full bg-white border border-gray-300 text-gray-400 justify-between hover:bg-white hover:border-gray-300 focus:outline-none focus:ring-0 "
+    class="w-full bg-white border border-gray-300 text-gray-400 justify-between hover:bg-white hover:border-gray-300 focus:outline-none focus:ring-0 rounded-xl"
     {disabled}
     >{selectedCategory ? selectedCategory : "Category"}<ChevronDownOutline
       class="w-6 h-6 ms-2 text-[#1E1E1E]"
