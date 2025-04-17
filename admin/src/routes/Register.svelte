@@ -98,11 +98,11 @@
       <header class="text-4xl font-bold mb-4">PUP-Bark</header>
       <!-- Registration Form -->
       <form
-        class="bg-white shadow-xl rounded-2xl p-8 w-full max-w-md space-y-6"
+        class="bg-white shadow-xl rounded-2xl p-6 w-full max-w-md space-y-4"
         on:submit={handleSubmit}
       >
         <!-- Form content remains the same -->
-        <div class="text-2xl font-semibold text-gray-800">Register Account</div>
+        <div class="text-xl font-semibold text-gray-800">Register Account</div>
         <div>
           <Label for="name" class="mb-2 block text-gray-700">Full Name</Label>
           <Input
@@ -124,6 +124,20 @@
             id="email"
             bind:value={email}
             placeholder="Enter your Email Address"
+            required
+            class="border-gray-300 focus:ring-primary-500"
+          />
+        </div>
+
+        <div>
+          <Label for="number" class="mb-2 block text-gray-700"
+            >Phone Number</Label
+          >
+          <Input
+            type="tel"
+            id="number"
+            bind:value={number}
+            placeholder="Enter your Phone Number"
             required
             class="border-gray-300 focus:ring-primary-500"
           />
