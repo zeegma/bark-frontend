@@ -13,7 +13,7 @@
 
 <div class="w-full">
   <Button
-    class="w-full bg-white border border-gray-300 text-[#1E1E1E] justify-between hover:bg-white hover:border-gray-300 focus:outline-none focus:ring-0"
+    class="w-full bg-white border border-gray-300 text-gray-400 justify-between hover:bg-white hover:border-gray-300 focus:outline-none focus:ring-0"
     {disabled}
   >
     {selectedStatus ? selectedStatus : "Status"}
