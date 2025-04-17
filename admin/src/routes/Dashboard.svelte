@@ -15,7 +15,7 @@
       <DateTime />
 
       <!-- Stats -->
-      <div class="grid grid-cols-2 gap-x-10 gap-y-6 mb-8">
+      <div class="h-72 mb-4">
         <StatsGrid />
       </div>
 
