@@ -26,3 +26,18 @@ export interface ClaimItem {
   itemPhoto: string;
   hasImage?: boolean;
 }
+
+// Items
+export interface Item {
+  id: string;
+  name: string;
+  status: string;
+  category: string;
+  claimant?: string;
+  description: string;
+  date_found: Date;
+  time_found: string;
+  location_found: string;
+  image?: File | null | string;
+  imagePreview?: string | null;
+}
