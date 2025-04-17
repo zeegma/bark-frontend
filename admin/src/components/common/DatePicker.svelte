@@ -2,10 +2,8 @@
   import { Datepicker } from "flowbite-svelte";
 
   export let disabled: boolean = false;
-
   export let value: Date | null = null;
-
-  let selectedDate: Date | null = value;
+  export let selectedDate: Date | null = value;
   let lastAction: string = "";
 
   $: selectedDate = value;
@@ -31,7 +29,6 @@
     showActionButtons
     placeholder="Date"
     autohide={false}
-    {disabled}
-    inputClass="border border-gray-300 bg-white text-gray-700 hover:bg-gray-100 rounded-xl h-11"
+    inputClass="border border-gray-300 bg-white text-gray-600 hover:bg-gray-100 rounded-xl h-11"
   />
 </div>
