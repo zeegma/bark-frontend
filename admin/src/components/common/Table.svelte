@@ -7,9 +7,12 @@
     TableHead,
     TableHeadCell,
     Checkbox,
+    Spinner,
   } from "flowbite-svelte";
   import { InfoCircleOutline, TrashBinSolid } from "flowbite-svelte-icons";
-  import { claimsData } from "../../lib/mockData";
+  import { onMount } from "svelte";
+  import { fetchClaimants } from "../../lib/api";
+  import type { ClaimantResponse, ClaimItem } from "../../lib/types";
   import ViewModal from "../widgets/claimants/ViewModal.svelte";
   import DeleteModal from "../widgets/claimants/DeleteModal.svelte";
   import { sortStore, type SortOptions } from "../../stores/sortStore";
@@ -18,17 +21,6 @@
     selectionActions,
   } from "../../stores/selectionStore";
 
-  type ClaimItem = {
-    id: string;
-    name: string;
-    phone: string;
-    facebook: string;
-    dateFiled: string;
-    itemId: string;
-    itemRequested: string;
-    hasImage?: boolean;
-  };
-
   // For view modal
   let viewModal: boolean = false;
 
@@ -36,9 +28,11 @@
   let deleteModal: boolean = false;
 
   let selectedClaim: ClaimItem | null = null;
+  let loading: boolean = true;
+  let error: string | null = null;
 
   // Create a local copy of the claims data to sort
-  let claims: ClaimItem[] = [...claimsData];
+  let claims: ClaimItem[] = [];
   let currentSortOptions: SortOptions;
   let selectedIds: Set<string>;
   let isAllSelected: boolean;
@@ -53,9 +47,28 @@
     isAllSelected = state.isAllSelected;
   });
 
+  // Function to transform API response to internal format
+  function transformClaimantData(apiData: ClaimantResponse[]): ClaimItem[] {
+    return apiData.map((item) => ({
+      id: item.id.toString(),
+      name: item.name,
+      phone: item.number,
+      facebook: item.media,
+      dateFiled: item.request_date,
+      itemId: item.item_id.toString(),
+      itemRequested: item.item_name,
+      itemPhoto: item.item_image_url,
+      detailedDescription: item.detailed_description,
+      ownershipProofPhoto: item.ownership_photo,
+      hasImage: !!item.ownership_photo,
+    }));
+  }
+
   // Function to sort the claims data
   function applySorting() {
-    claims = [...claimsData].sort((a: ClaimItem, b: ClaimItem) => {
+    if (!claims.length) return;
+
+    claims = [...claims].sort((a: ClaimItem, b: ClaimItem) => {
       const { sortBy, sortOrder } = currentSortOptions;
       const multiplier = sortOrder === "Ascending" ? 1 : -1;
 
@@ -87,86 +100,114 @@
     selectionActions.toggleSelection(id);
   }
 
-  // Initial sort
-  applySorting();
+  // Fetch data on component mount
+  onMount(async () => {
+    try {
+      const claimantData = await fetchClaimants();
+      claims = transformClaimantData(claimantData);
+      applySorting();
+    } catch (e) {
+      error = e instanceof Error ? e.message : "Failed to fetch data";
+      console.error(error);
+    } finally {
+      loading = false;
+    }
+  });
 </script>
 
-<Table hoverable={true} class="w-full table-fixed text-center overflow-auto">
-  <TableHead>
-    <TableHeadCell class="p-4 w-16">
-      <Checkbox
-        checked={isAllSelected}
-        on:change={handleSelectAll}
-        color="red"
-        class="cursor-pointer"
-      />
-    </TableHeadCell>
-    <TableHeadCell class="p-4">Claimant ID</TableHeadCell>
-    <TableHeadCell class="p-4">Claimant Name</TableHeadCell>
-    <TableHeadCell class="p-4">Phone Number</TableHeadCell>
-    <TableHeadCell class="p-4">Facebook</TableHeadCell>
-    <TableHeadCell class="p-4">Date Filed</TableHeadCell>
-    <TableHeadCell class="p-4">Item ID</TableHeadCell>
-    <TableHeadCell class="p-4">Item Requested</TableHeadCell>
-    <TableHeadCell class="p-4 w-24">
-      <span class="sr-only">Actions</span>
-    </TableHeadCell>
-  </TableHead>
-  <TableBody tableBodyClass="divide-y">
-    {#each claims as claim}
-      <TableBodyRow
-        class={selectedIds.has(claim.id)
-          ? "h-16 bg-red-100 hover:bg-red-200"
-          : "h-16"}
-      >
-        <TableBodyCell class="p-4">
-          <Checkbox
-            checked={selectedIds.has(claim.id)}
-            on:change={() => handleSelectItem(claim.id)}
-            color="red"
-            class="cursor-pointer"
-          />
-        </TableBodyCell>
-        <TableBodyCell class="p-2 text-gray-600">{claim.id}</TableBodyCell>
-        <TableBodyCell class="p-2 text-gray-600 truncate"
-          >{claim.name}</TableBodyCell
+{#if loading}
+  <div class="flex justify-center items-center h-full pb-10">
+    <Spinner color="red" size={20} />
+  </div>
+{:else if error}
+  <div class="text-center p-8 text-red-600">
+    <p>Error loading data: {error}</p>
+    <button
+      class="mt-4 px-4 py-2 bg-red-600 text-white rounded"
+      on:click={() => window.location.reload()}
+    >
+      Retry
+    </button>
+  </div>
+{:else}
+  <Table hoverable={true} class="w-full table-fixed text-center overflow-auto">
+    <TableHead>
+      <TableHeadCell class="p-4 w-16">
+        <Checkbox
+          checked={isAllSelected}
+          on:change={handleSelectAll}
+          color="red"
+          class="cursor-pointer"
+        />
+      </TableHeadCell>
+      <TableHeadCell class="p-4">Claimant ID</TableHeadCell>
+      <TableHeadCell class="p-4">Claimant Name</TableHeadCell>
+      <TableHeadCell class="p-4">Phone Number</TableHeadCell>
+      <TableHeadCell class="p-4">Facebook</TableHeadCell>
+      <TableHeadCell class="p-4">Date Filed</TableHeadCell>
+      <TableHeadCell class="p-4">Item ID</TableHeadCell>
+      <TableHeadCell class="p-4">Item Requested</TableHeadCell>
+      <TableHeadCell class="p-4 w-24">
+        <span class="sr-only">Actions</span>
+      </TableHeadCell>
+    </TableHead>
+    <TableBody tableBodyClass="divide-y">
+      {#each claims as claim}
+        <TableBodyRow
+          class={selectedIds.has(claim.id)
+            ? "h-16 bg-red-100 hover:bg-red-200"
+            : "h-16"}
         >
-        <TableBodyCell class="p-2 text-gray-600">{claim.phone}</TableBodyCell>
-        <TableBodyCell class="p-2 text-gray-600 truncate"
-          >{claim.facebook}</TableBodyCell
-        >
-        <TableBodyCell class="p-2 text-gray-600"
-          >{claim.dateFiled}</TableBodyCell
-        >
-        <TableBodyCell class="p-2 text-gray-600">{claim.itemId}</TableBodyCell>
-        <TableBodyCell class="p-2 text-gray-600 truncate"
-          >{claim.itemRequested}</TableBodyCell
-        >
-        <TableBodyCell class="p-4 flex gap-2 justify-center">
-          <button
-            class="text-gray-900 hover:text-red-900 dark:text-gray-200 dark:hover:text-red-400"
-            on:click={() => {
-              viewModal = true;
-              selectedClaim = claim;
-            }}
+          <TableBodyCell class="p-4">
+            <Checkbox
+              checked={selectedIds.has(claim.id)}
+              on:change={() => handleSelectItem(claim.id)}
+              color="red"
+              class="cursor-pointer"
+            />
+          </TableBodyCell>
+          <TableBodyCell class="p-2 text-gray-600">{claim.id}</TableBodyCell>
+          <TableBodyCell class="p-2 text-gray-600 truncate"
+            >{claim.name}</TableBodyCell
           >
-            <InfoCircleOutline size="lg" />
-            <span class="sr-only">View</span>
-          </button>
-          <button
-            class="text-gray-900 hover:text-red-900 dark:text-gray-200 dark:hover:text-red-400"
-            on:click={() => {
-              deleteModal = true;
-              selectedClaim = claim;
-            }}
+          <TableBodyCell class="p-2 text-gray-600">{claim.phone}</TableBodyCell>
+          <TableBodyCell class="p-2 text-gray-600 truncate"
+            >{claim.facebook}</TableBodyCell
           >
-            <TrashBinSolid size="lg" />
-            <span class="sr-only">Delete</span>
-          </button>
-        </TableBodyCell>
-      </TableBodyRow>
-    {/each}
-  </TableBody>
-</Table>
-<ViewModal bind:open={viewModal} claim={selectedClaim} />
-<DeleteModal bind:open={deleteModal} claim={selectedClaim} />
+          <TableBodyCell class="p-2 text-gray-600"
+            >{claim.dateFiled}</TableBodyCell
+          >
+          <TableBodyCell class="p-2 text-gray-600">{claim.itemId}</TableBodyCell
+          >
+          <TableBodyCell class="p-2 text-gray-600 truncate"
+            >{claim.itemRequested}</TableBodyCell
+          >
+          <TableBodyCell class="p-4 flex gap-2 justify-center">
+            <button
+              class="text-gray-900 hover:text-red-900 dark:text-gray-200 dark:hover:text-red-400"
+              on:click={() => {
+                viewModal = true;
+                selectedClaim = claim;
+              }}
+            >
+              <InfoCircleOutline size="lg" />
+              <span class="sr-only">View</span>
+            </button>
+            <button
+              class="text-gray-900 hover:text-red-900 dark:text-gray-200 dark:hover:text-red-400"
+              on:click={() => {
+                deleteModal = true;
+                selectedClaim = claim;
+              }}
+            >
+              <TrashBinSolid size="lg" />
+              <span class="sr-only">Delete</span>
+            </button>
+          </TableBodyCell>
+        </TableBodyRow>
+      {/each}
+    </TableBody>
+  </Table>
+  <ViewModal bind:open={viewModal} claim={selectedClaim} />
+  <DeleteModal bind:open={deleteModal} claim={selectedClaim} />
+{/if}
