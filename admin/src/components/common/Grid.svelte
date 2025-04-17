@@ -75,7 +75,7 @@
         case "dateFiled":
           return a.dateFiled.localeCompare(b.dateFiled) * multiplier;
         case "id":
-          return a.id.localeCompare(b.id) * multiplier;
+          return (parseInt(a.id) - parseInt(b.id)) * multiplier;
         default:
           return 0;
       }

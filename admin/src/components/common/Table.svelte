@@ -83,7 +83,7 @@
         case "dateFiled":
           return a.dateFiled.localeCompare(b.dateFiled) * multiplier;
         case "id":
-          return a.id.localeCompare(b.id) * multiplier;
+          return (parseInt(a.id) - parseInt(b.id)) * multiplier;
         default:
           return 0;
       }
@@ -132,7 +132,7 @@
 {:else}
   <Table hoverable={true} class="w-full table-fixed text-center overflow-auto">
     <TableHead>
-      <TableHeadCell class="p-4 w-16">
+      <TableHeadCell class="p-4 w-12">
         <Checkbox
           checked={isAllSelected}
           on:change={handleSelectAll}
@@ -145,7 +145,7 @@
       <TableHeadCell class="p-4">Phone Number</TableHeadCell>
       <TableHeadCell class="p-4">Facebook</TableHeadCell>
       <TableHeadCell class="p-4">Date Filed</TableHeadCell>
-      <TableHeadCell class="p-4">Item ID</TableHeadCell>
+      <TableHeadCell class="p-4 w-20">Item ID</TableHeadCell>
       <TableHeadCell class="p-4">Item Requested</TableHeadCell>
       <TableHeadCell class="p-4 w-24">
         <span class="sr-only">Actions</span>
