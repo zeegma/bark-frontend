@@ -2,9 +2,7 @@
   import { Datepicker } from "flowbite-svelte";
 
   export let disabled: boolean = false;
-
   export let value: Date | null = null;
-
   export let selectedDate: Date | null = value;
   let lastAction: string = "";
 
