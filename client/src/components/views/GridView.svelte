@@ -1,6 +1,7 @@
 <script lang="ts">
   import { categoryOptions } from "../../lib/constants/filters";
   import { formatTime } from "../../lib/utils/timeFormatter";
+  import Tooltip from "../common/Tooltip.svelte";
   import timeIcon from "/icons/time-icon.svg";
   import locationIcon from "/icons/location-icon.svg";
 
@@ -64,19 +65,36 @@
           {item.location_found}
         </p>
       </div>
-
       <!-- Action Button -->
-      <a
-        href={item.status === "UC" ? `#/claim?id=${item.id}` : "#"}
-        class={`flex justify-center mt-5 px-4 py-3 text-white font-medium rounded-lg transition duration-300 ease-in-out ${
-          item.status === "CL"
-            ? "bg-stone-800 cursor-not-allowed pointer-events-none"
-            : "bg-[#800000] hover:bg-[#A73D3D] cursor-pointer"
-        }`}
-        aria-disabled={item.status === "CL"}
-      >
-        {item.status === "UC" ? "File A Claim" : "Claimed"}
-      </a>
+      <div class="mt-5">
+        {#if item.status === "UC"}
+          <a
+            href={`#/claim?id=${item.id}`}
+            class="flex justify-center px-4 py-3 text-white font-medium rounded-lg bg-[#800000] hover:bg-[#A73D3D] transition duration-300 ease-in-out cursor-pointer"
+          >
+            File A Claim
+          </a>
+        {:else}
+          <Tooltip
+            text={`
+              <h1 class="text-xs text-white font-medium">This item has already been claimed</h1>
+              <p class="text-xs/relaxed text-red-200 font-light mt-3">
+                If you believe this is a mistake and the item belongs to you, 
+                contact BARK admin at <a href="mailto:email@example.com"
+                class="text-red-50 underline">pupbark@gmail.com</a> or visit BARK at the 
+                main entrance gate of PUP Main.
+              </p>
+            `}
+          >
+            <button
+              class="md:flex justify-center w-full px-4 py-3 text-white font-medium rounded-lg bg-stone-800 cursor-not-allowed pointer-events-none"
+              aria-disabled={true}
+            >
+              Claimed
+            </button>
+          </Tooltip>
+        {/if}
+      </div>
     </div>
   {/each}
 </section>
