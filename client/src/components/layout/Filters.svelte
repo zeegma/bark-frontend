@@ -5,13 +5,16 @@
     searchQuery,
     selectedDateRange,
   } from "../../stores/store";
+  import { categoryOptions, statusOptions } from "../../lib/constants/filters";
+  import { onMount } from "svelte";
   import DatePicker from "../common/DatePicker.svelte";
   import Dropdown from "../common/Dropdown.svelte";
   import SearchBar from "../common/SearchBar.svelte";
-  import { categoryOptions, statusOptions } from "../../lib/constants/filters";
 
   export let view: string;
   let isGrid = view === "grid";
+  let isSticked = false;
+  let stickyDiv: HTMLElement;
 
   $: {
     if (isGrid) {
@@ -35,10 +38,32 @@
 
   const categoryIcon = "/icons/category-icon.svg";
   const statusIcon = "/icons/status-icon.svg";
+
+  // Function to check div if sticked
+  function updateShadow() {
+    if (!stickyDiv) return;
+    const rect = stickyDiv.getBoundingClientRect();
+    isSticked = rect.top === 0;
+  }
+
+  // Add scroll and resize listeners
+  onMount(() => {
+    window.addEventListener("scroll", updateShadow);
+    window.addEventListener("resize", updateShadow);
+
+    updateShadow();
+    return () => {
+      window.removeEventListener("scroll", updateShadow);
+      window.removeEventListener("resize", updateShadow);
+    };
+  });
 </script>
 
 <div
-  class="flex gap-4 sticky top-0 px-24 py-4 bg-white/80 backdrop-blur-md font-[Poppins]"
+  bind:this={stickyDiv}
+  class={`flex z-20 gap-4 sticky top-0 px-24 py-4 bg-white font-[Poppins] transition-shadow duration-300 ${
+    isSticked ? "shadow-xl" : ""
+  }`}
 >
   <!-- Dropdown Filter by Category -->
   <Dropdown
@@ -72,7 +97,7 @@
   <div class="flex border border-stone-300 rounded-lg overflow-hidden">
     <!-- Grid Button -->
     <button
-      class={`flex items-center gap-2 px-6 py- hover:bg-stone-100 hover:border-stone-400 transition duration-300 ease-in-out cursor-pointer ${isGrid ? "bg-red-100 text-white" : "bg-white"}`}
+      class={`flex items-center gap-2 px-6 py-2 hover:bg-stone-100 hover:border-stone-400 transition duration-300 ease-in-out cursor-pointer ${isGrid ? "bg-red-100 text-white" : "bg-white"}`}
       on:click={() => (isGrid = true)}
     >
       <img src="/icons/grid-icon.svg" alt="Grid View" class="w-5 h-5" />
