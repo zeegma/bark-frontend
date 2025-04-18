@@ -76,6 +76,7 @@
           </a>
         {:else}
           <Tooltip
+            position="top"
             text={`
               <h1 class="text-xs text-white font-medium">This item has already been claimed</h1>
               <p class="text-xs/relaxed text-red-200 font-light mt-3">
@@ -87,7 +88,7 @@
             `}
           >
             <button
-              class="md:flex justify-center w-full px-4 py-3 text-white font-medium rounded-lg bg-stone-800 cursor-not-allowed pointer-events-none"
+              class="md:flex justify-center w-full px-4 py-3 text-white font-medium rounded-lg bg-stone-800 pointer-events-none"
               aria-disabled={true}
             >
               Claimed
