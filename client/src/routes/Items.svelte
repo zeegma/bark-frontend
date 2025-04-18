@@ -1,5 +1,6 @@
 <script lang="ts">
   import Header from "../components/layout/Header.svelte";
+  import Loader from "../components/common/Loader.svelte";
   import Filters from "../components/layout/Filters.svelte";
   import Contents from "../components/layout/Contents.svelte";
   import { fetchAllItems } from "../lib/api/fetch";
@@ -70,7 +71,7 @@
 
 <Header />
 {#if isLoading}
-  <p>Loading...</p>
+  <Loader />
 {:else}
   <Filters bind:view />
   <Contents items={filteredItems} {view} />
