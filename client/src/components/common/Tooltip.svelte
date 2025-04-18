@@ -10,7 +10,7 @@
     class={`absolute z-10 px-6 py-6 bg-[#800000] rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 ${
       position === "top"
         ? "w-full bottom-full mb-4 left-1/2 transform -translate-x-1/2"
-        : "w-72 -left-66 text-left top-1/2 transform -translate-y-1/2"
+        : "w-72 right-54 text-left top-1/2 transform -translate-y-1/2"
     } pointer-events-none group-hover:pointer-events-auto shadow-xl shadow-stone-800/50`}
   >
     {@html text}
