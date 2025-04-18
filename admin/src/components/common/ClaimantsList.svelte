@@ -1,39 +1,24 @@
 <script lang="ts">
   import { Button, Dropdown, DropdownItem } from "flowbite-svelte";
   import { ChevronDownOutline } from "flowbite-svelte-icons";
-  import { claimsData } from "../../lib/mockData";
   import { onMount } from "svelte";
+  import { fetchClaimants, fetchClaimantById } from "../../lib/api";
+  import type { ClaimantResponse } from "../../lib/types";
 
-  // id from the claimsData to be displayed in the dropdown
-  type Claimant = {
-    id: string;
-  };
+  export let selectedClaimant: number;
+  let claimantOptions: ClaimantResponse[] = [];
 
-  export let selectedClaimant: string = "";
-  let claimantOptions: Claimant[] = [];
-
-  // TODO: Check if this is right
-  async function fetchClaimants(): Promise<Claimant[]> {
-    try {
-      const response = await fetch(""); // API
-      if (!response.ok) {
-        throw new Error(`Failed to fetch claimants: ${response.statusText}`);
-      }
-      return claimsData.map((claim) => ({ id: claim.id })); // Use and map claimsData from mockData for now
-    } catch (error) {
-      console.error(error);
-      return [];
-    }
-  }
-
-  function selectClaimant(claimant: Claimant) {
+  function selectClaimant(claimant: ClaimantResponse) {
     selectedClaimant = claimant.id;
   }
 
-  onMount(() => {
-    fetchClaimants().then((data) => {
+  onMount(async () => {
+    try {
+      const data = await fetchClaimants();
       claimantOptions = data;
-    });
+    } catch (error) {
+      console.error("Failed to load claimants", error);
+    }
   });
 </script>
 
