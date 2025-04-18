@@ -88,7 +88,6 @@
         throw new Error(errorBody || "Failed to submit claim.");
       }
 
-      alert("Claim submitted successfully!");
     } catch (error) {
       console.error("Error submitting claim:", error);
       errorMessage = "An error occurred while submitting your claim.";
