@@ -110,6 +110,16 @@
     };
     return `${startDate.toLocaleDateString("en-US", options)} - ${endDate.toLocaleDateString("en-US", options)}`;
   }
+
+  // Helper function to check if a date is today
+  function isToday(date: Date): boolean {
+    const today = new Date();
+    return (
+      date.getDate() === today.getDate() &&
+      date.getMonth() === today.getMonth() &&
+      date.getFullYear() === today.getFullYear()
+    );
+  }
 </script>
 
 <div class="relative" use:onClickOutside={() => (showCalendar = false)}>
@@ -212,7 +222,9 @@
                           day.date >= selectedStartDate &&
                           day.date <= selectedEndDate
                         ? "bg-gray-200"
-                        : "hover:bg-gray-100 transition duration-100 ease-in-out"
+                        : isToday(day.date)
+                          ? "border border-[#800000] text-[#800000] font-bold"
+                          : "hover:bg-gray-100 transition duration-100 ease-in-out"
             }`}
             disabled={!day.date ||
               (day.date && day.date.getMonth() !== currentDate.getMonth())}
