@@ -33,11 +33,12 @@ export interface Item {
   name: string;
   status: string;
   category: string;
-  claimant?: string;
+  claimant?: number | null;
   description: string;
   date_found: Date;
   time_found: string;
   location_found: string;
   photo_url?: string;
+  image?: File;
   imagePreview?: string | null;
 }

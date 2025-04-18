@@ -72,7 +72,7 @@ export const createNewItem = (nextId: string): Item => ({
   name: "",
   status: "",
   category: "",
-  claimant: "",
+  claimant: null,
   photo_url: "",
   imagePreview: null,
   description: "",
