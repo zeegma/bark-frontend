@@ -1,11 +1,8 @@
 <script lang="ts">
-  import { onMount } from "svelte";
   import {
-    items,
     currentItem,
     createNewItem,
     itemsStore,
-    type Item,
   } from "../../stores/itemStore";
   import DatePicker from "../common/DatePicker.svelte";
   import TimePicker from "../common/TimePicker.svelte";
@@ -13,6 +10,8 @@
   import Status from "../common/Status.svelte";
   import { Textarea } from "flowbite-svelte";
   import { PlusOutline } from "flowbite-svelte-icons";
+  import { addItem } from "../../lib/api/items";
+  import type { Item } from "../../lib/types";
 
   let showModal = false;
   let formData: Item;
@@ -35,11 +34,19 @@
   };
 
   // Submit the form data
-  const handleSubmit = () => {
-    const newItem = { ...formData };
-    currentItem.set(newItem);
-    itemsStore.addItem(newItem);
-    closeModal();
+  const handleSubmit = async () => {
+    try {
+      const response = await addItem(formData);
+      if (!response.ok) {
+        throw new Error("Failed to add lost item");
+      }
+      currentItem.set({ ...formData });
+      await itemsStore.loadItems();
+      closeModal();
+    } catch (error) {
+      console.error("Error submitting:", error);
+      alert("Failed to submit item.");
+    }
   };
 
   // Handle image upload
@@ -48,7 +55,6 @@
     const file = target?.files?.[0];
     if (file) {
       formData.image = file;
-
       const reader = new FileReader();
       reader.onload = (e) => {
         formData.imagePreview = e.target?.result as string;
@@ -56,12 +62,6 @@
       reader.readAsDataURL(file);
     }
   };
-
-  // Load items from localStorage
-  onMount(() => {
-    const storedItems = JSON.parse(localStorage.getItem("items") || "[]");
-    items.set(storedItems);
-  });
 </script>
 
 <!-- Add Item Button -->
@@ -118,6 +118,7 @@
             >Item Name</label
           >
           <input
+            id="name"
             type="text"
             bind:value={formData.name}
             class="w-full p-2.5 border border-gray-300 rounded-lg text-sm"
@@ -193,7 +194,7 @@
             class="block text-sm font-medium text-gray-800 mb-1"
             >Date Lost</label
           >
-          <DatePicker bind:selectedDate={formData.dateLost} />
+          <DatePicker bind:selectedDate={formData.date_found} />
         </div>
 
         <!-- Time Lost -->
@@ -203,7 +204,7 @@
             class="block text-sm font-medium text-gray-800 mb-1"
             >Time Lost</label
           >
-          <TimePicker bind:selectedTime={formData.timeLost} />
+          <TimePicker bind:selectedTime={formData.time_found} />
         </div>
 
         <!-- Last Known Location -->
@@ -214,7 +215,7 @@
             >Last Known Location</label
           >
           <input
-            bind:value={formData.lastKnownLocation}
+            bind:value={formData.location_found}
             type="text"
             class="w-full p-2.5 border border-gray-300 rounded-lg text-sm"
             placeholder="Enter location"

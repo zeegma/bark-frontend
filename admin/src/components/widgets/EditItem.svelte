@@ -6,33 +6,35 @@
   import ClaimantsList from "../common/ClaimantsList.svelte";
   import { Textarea } from "flowbite-svelte";
   import { EditSolid } from "flowbite-svelte-icons";
-  import { createNewItem, itemsStore, type Item } from "../../stores/itemStore";
+  import { itemsStore } from "../../stores/itemStore";
+  import type { Item } from "../../lib/types";
 
   export let item: Item;
   export let onSave: (data: Item) => void;
   export let viewType: "list" | "grid" = "list";
 
   let showModal = false;
-  let formData: Item = { ...item };
+  let formData: Item = {
+    ...item,
+    claimant: item.claimant ?? null,
+  };
 
   // Ensure date is a valid Date object
   const ensureValidDate = (date: any): Date => {
     return date instanceof Date && !isNaN(date.getTime()) ? date : new Date();
   };
 
-  formData.dateLost = ensureValidDate(formData.dateLost);
+  formData.date_found = ensureValidDate(formData.date_found);
 
   const openModal = () => {
     console.log("Opening modal for item:", item);
     formData = { ...item };
-    formData.dateLost = ensureValidDate(formData.dateLost);
+    formData.date_found = ensureValidDate(formData.date_found);
 
-    if (
-      formData.image &&
-      !formData.imagePreview &&
-      typeof formData.image === "string"
-    ) {
-      formData.imagePreview = formData.image;
+    if (typeof formData.photo_url === "string") {
+      formData.imagePreview = formData.photo_url;
+    } else {
+      formData.imagePreview = null;
     }
 
     showModal = true;
@@ -47,31 +49,30 @@
     const file = target?.files?.[0];
 
     if (file) {
-      formData.image = file; // Store the file object
+      console.log("Image selected:", file.name);
+      formData.image = file;
 
       const reader = new FileReader();
       reader.onload = (e) => {
-        formData.imagePreview = e.target?.result as string; // Store the data URL for preview
+        formData.imagePreview = e.target?.result as string;
+        console.log("Image preview generated.");
+      };
+      reader.onerror = (e) => {
+        console.error("Failed to load image preview:", e);
       };
       reader.readAsDataURL(file);
+    } else {
+      console.warn("No file selected.");
     }
   };
 
-  const handleSubmit = () => {
-    const itemToSave = { ...formData };
-
-    if (formData.image instanceof File && formData.imagePreview) {
-      itemToSave.image = formData.imagePreview;
-    }
-
-    itemToSave.imagePreview = formData.imagePreview;
+  const handleSubmit = async () => {
+    const itemToSave: Item = {
+      ...formData,
+    };
 
     if (formData.id) {
-      itemsStore.updateItem(itemToSave);
-    } else {
-      const newItem = createNewItem(itemsStore.getNextId());
-      const itemToAdd = { ...newItem, ...itemToSave };
-      itemsStore.addItem(itemToAdd);
+      await itemsStore.updateItem(itemToSave);
     }
 
     onSave(itemToSave);
@@ -170,62 +171,51 @@
             for="claimant"
             class="block text-sm font-medium text-gray-800 mb-1">Claimant</label
           >
-          <ClaimantsList bind:selectedClaimant={formData.claimant} />
+          <ClaimantsList bind:selectedClaimant={formData.claimant!} />
         </div>
 
-        <!-- Image Upload -->
+        <!-- Image -->
         <div class="col-span-3 row-span-3">
           <label
             for="image"
-            class="block mb-1 text-sm font-medium text-[#1E1E1E]">Image</label
+            class="block mb-1 text-sm font-medium text-[#1E1E1E]"
           >
+            Image
+          </label>
+
           <label
-            class="flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded h-full cursor-pointer relative group"
+            class="relative border border-gray-300 rounded h-[290px] flex items-center justify-center bg-gray-50 p-2 cursor-pointer overflow-hidden group"
           >
             <input
+              id="image"
               type="file"
-              class="hidden"
               accept="image/*"
+              class="hidden"
               on:change={handleImageUpload}
             />
-            {#if formData.imagePreview || (typeof formData.image === "string" && formData.image)}
+
+            {#if formData.imagePreview}
+              <img
+                src={formData.imagePreview}
+                alt="Preview"
+                class="max-h-full max-w-full object-contain rounded transition duration-200"
+              />
+
+              <!-- Overlay -->
               <div
-                class="relative w-full h-full flex items-center justify-center"
+                class="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity duration-200 rounded"
               >
-                <img
-                  src={formData.imagePreview ||
-                    (typeof formData.image === "string" ? formData.image : "")}
-                  alt={formData.name || "Lost and Found Item"}
-                  class="max-h-48 object-contain"
-                />
-                <div
-                  class="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity duration-200"
+                <span class="text-white text-sm font-medium"
+                  >Click to change image</span
                 >
-                  <span class="text-white font-medium"
-                    >Click to change image</span
-                  >
-                </div>
-              </div>
-            {:else if formData.image instanceof File}
-              <div
-                class="relative w-full h-full flex items-center justify-center"
-              >
-                <img
-                  src={URL.createObjectURL(formData.image)}
-                  alt={formData.name || "Lost and Found Item"}
-                  class="max-h-48 object-contain"
-                />
-                <div
-                  class="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity duration-200"
-                >
-                  <span class="text-white font-medium"
-                    >Click to change image</span
-                  >
-                </div>
               </div>
             {:else}
-              <span class="text-4xl text-gray-400">+</span>
-              <span class="text-sm mt-2">Add image</span>
+              <div
+                class="flex flex-col items-center justify-center text-center"
+              >
+                <span class="text-4xl text-gray-400">+</span>
+                <span class="text-sm mt-2">Add image</span>
+              </div>
             {/if}
           </label>
         </div>
@@ -251,7 +241,7 @@
             class="block text-sm font-medium text-gray-800 mb-1"
             >Date Lost</label
           >
-          <DatePicker bind:selectedDate={formData.dateLost} />
+          <DatePicker bind:value={formData.date_found} />
         </div>
 
         <!-- Time Lost -->
@@ -261,7 +251,7 @@
             class="block text-sm font-medium text-gray-800 mb-1"
             >Time Lost</label
           >
-          <TimePicker bind:selectedTime={formData.timeLost} />
+          <TimePicker bind:selectedTime={formData.time_found} />
         </div>
 
         <!-- Last Known Location -->
@@ -273,7 +263,7 @@
           >
           <input
             type="text"
-            bind:value={formData.lastKnownLocation}
+            bind:value={formData.location_found}
             class="w-full p-2.5 pr-10 border border-gray-300 rounded-lg text-sm"
             placeholder="Location"
           />

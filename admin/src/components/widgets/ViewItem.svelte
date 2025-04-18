@@ -44,7 +44,7 @@
       <div
         class="flex justify-between items-center px-6 py-4 border-b border-gray-300"
       >
-        <h2 class="text-2xl font-bold text-gray-800">{item.id}</h2>
+        <h2 class="text-2xl font-bold text-gray-800">{item.id}: {item.name}</h2>
         <button
           type="button"
           class="text-[#1E1E1E] bg-transparent rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center hover:bg-[#800000] hover:text-white"
@@ -122,7 +122,7 @@
             class="block mb-1 text-sm font-medium text-[#1E1E1E]">Image</label
           >
           <div
-            class="border border-gray-300 rounded h-full flex items-center justify-center bg-gray-50 p-2"
+            class="border border-gray-300 rounded h-[290px] flex items-center justify-center bg-gray-50 p-2"
           >
             {#if item.photo_url}
               <img
@@ -159,10 +159,7 @@
             class="block text-sm font-medium text-gray-800 mb-1"
             >Date Lost</label
           >
-          <DatePicker
-            selectedDate={new Date(item.date_found)}
-            disabled={true}
-          />
+          <DatePicker value={new Date(item.date_found)} disabled={true} />
         </div>
 
         <!-- Time Lost -->
