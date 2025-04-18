@@ -78,6 +78,10 @@
 
   // Applies the selected date range
   function applyDateRange() {
+    if (selectedStartDate && !selectedEndDate) {
+      selectedEndDate = selectedStartDate;
+    }
+
     if (selectedStartDate && selectedEndDate) {
       selectedDateRange.set({
         startDate: selectedStartDate,
