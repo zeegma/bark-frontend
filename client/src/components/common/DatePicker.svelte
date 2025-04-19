@@ -3,6 +3,7 @@
   import { onClickOutside } from "../../lib/utils/onClickOutside";
 
   export let value: { startDate: Date | null; endDate: Date | null };
+  export let fullWidth: boolean = false;
 
   let showCalendar = false;
   let currentDate = new Date();
@@ -124,7 +125,7 @@
 </script>
 
 <div class="relative" use:onClickOutside={() => (showCalendar = false)}>
-  <div class="relative h-full flex max-w-64">
+  <div class={`relative h-full flex ${fullWidth ? "w-full" : "max-w-64"}`}>
     <input
       type="text"
       readonly
@@ -141,7 +142,7 @@
 
   {#if showCalendar}
     <div
-      class="absolute z-10 bg-white border border-stone-300 rounded-lg mt-2 shadow-md w-82"
+      class={`absolute z-10 bg-white border border-stone-300 rounded-lg mt-2 shadow-md w-82`}
     >
       <!-- Month Navigation -->
       <div class="flex justify-between mx-6 mt-6 mb-4">

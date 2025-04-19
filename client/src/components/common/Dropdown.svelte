@@ -6,6 +6,7 @@
   export let options: { value: string; label: string; icon?: string }[];
   export let selectedValue: string;
   export let onSelect: (value: string) => void;
+  export let fullWidth: boolean = false;
   export let icon: string;
 
   let showDropdown = false;
@@ -19,7 +20,7 @@
 <div class="relative" use:onClickOutside={() => (showDropdown = false)}>
   <button
     on:click={() => (showDropdown = !showDropdown)}
-    class="flex items-center justify-between gap-2 h-[48px] px-4 w-58 border border-stone-300 rounded-lg bg-white focus:border-[#9A4444] focus:border-2 hover:bg-stone-100 hover:border-stone-400 transition duration-300 ease-in-out cursor-pointer"
+    class={`flex items-center justify-between gap-2 h-[48px] px-4 ${fullWidth ? 'w-full' : 'w-58'} border border-stone-300 rounded-lg bg-white focus:border-[#9A4444] focus:border-2 hover:bg-stone-100 hover:border-stone-400 transition duration-300 ease-in-out cursor-pointer`}
   >
     <div class="flex items-center gap-2">
       <img src={icon} class="w-5 h-5" alt="Dropdown Icon" />
@@ -55,7 +56,7 @@
 
   {#if showDropdown}
     <div
-      class="absolute w-64 z-10 py-1 mt-2 bg-white border border-stone-300 rounded-lg shadow"
+    class={`absolute ${fullWidth ? 'w-full' : 'w-64'} z-10 py-1 mt-2 bg-white border border-stone-300 rounded-lg shadow`}
     >
       <button
         class="w-full flex items-center gap-3 px-[14px] py-[10px] hover:bg-gray-100 text-sm text-left text-stone-600 cursor-pointer"
