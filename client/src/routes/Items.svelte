@@ -1,6 +1,7 @@
 <script lang="ts">
   import Header from "../components/layout/Header.svelte";
-  import Loader from "../components/common/Loader.svelte";
+  import GridLoader from "../components/common/GridLoader.svelte";
+  import ListLoader from "../components/common/ListLoader.svelte";
   import Filters from "../components/layout/Filters.svelte";
   import Contents from "../components/layout/Contents.svelte";
   import { fetchAllItems } from "../lib/api/fetch";
@@ -27,6 +28,7 @@
   let rawItems: Item[] = [];
   let filteredItems: Item[] = [];
   let isLoading: boolean = true;
+  let view: string = localStorage.getItem("viewMode") || "grid";
 
   // Fetch all items from the backend
   onMount(async () => {
@@ -66,12 +68,18 @@
     });
   }
 
-  let view: string = "grid";
+  $: {
+    localStorage.setItem("viewMode", view);
+  }
 </script>
 
 <Header />
 {#if isLoading}
-  <Loader />
+  {#if view === "grid"}
+    <GridLoader />
+  {:else}
+    <ListLoader />
+  {/if}
 {:else}
   <Filters bind:view />
   {#if filteredItems.length === 0}
