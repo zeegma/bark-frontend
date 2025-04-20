@@ -113,7 +113,7 @@
       <img
         src={isGrid ? "/icons/grid-icon.svg" : "/icons/list-icon.svg"}
         alt={isGrid ? "Grid View" : "List View"}
-        class="min-w-5 h-5"
+        class={isGrid ? "min-w-5 h-5" : "w-4 h-4"}
       />
     </button>
   {:else}
