@@ -95,8 +95,7 @@
       on:click={toggleSidePanel}
       class="flex items-center gap-2 h-[48px] px-4 border border-stone-300 rounded-lg bg-white hover:bg-stone-100 hover:border-stone-400 transition duration-300 ease-in-out cursor-pointer"
     >
-      <img src={filterIcon} class="w-5 h-5" alt="Filters" />
-      <span class="text-sm font-medium text-[#9A4444]">Filters</span>
+      <img src={filterIcon} class="min-w-5 h-5" alt="Filters" />
     </button>
 
     <!-- Search Bar -->
@@ -109,12 +108,12 @@
     <!-- Condensed View Toggle -->
     <button
       on:click={toggleView}
-      class="flex items-center justify-center h-[48px] w-[48px] border border-stone-300 rounded-lg bg-white hover:bg-stone-100 hover:border-stone-400 transition duration-300 ease-in-out cursor-pointer"
+      class="flex items-center justify-center h-[48px] min-w-[48px] px-2 border border-stone-300 rounded-lg bg-white hover:bg-stone-100 hover:border-stone-400 transition duration-300 ease-in-out cursor-pointer"
     >
       <img
         src={isGrid ? "/icons/grid-icon.svg" : "/icons/list-icon.svg"}
         alt={isGrid ? "Grid View" : "List View"}
-        class="w-5 h-5"
+        class="min-w-5 h-5"
       />
     </button>
   {:else}
