@@ -32,13 +32,12 @@
     on:click={closePanel}
     aria-label="Close panel"
   ></button>
-  <div class="relative w-80 h-full bg-white shadow-xl">
+  <div class="relative w-80 h-full bg-white shadow-xl overflow-y-auto">
     <div class="p-4">
-      <div class="flex justify-between items-center mb-6">
-        <h2 class="text-xl font-bold text-[#800000]">Filters</h2>
+      <div class="flex justify-end items-center mb-6">
         <button
           on:click={closePanel}
-          class="text-stone-500 border border-gray-300 hover:bg-stone-100 rounded-lg p-2 transition duration-300 ease-in-out cursor-pointer"
+          class="text-[#9A4444] border bg-white border-stone-300 hover:bg-stone-100 rounded-lg p-2 transition duration-300 ease-in-out cursor-pointer"
           aria-label="Close panel"
         >
           <svg
@@ -58,10 +57,11 @@
         </button>
       </div>
 
-      <div class="flex flex-col gap-4">
+      <span class="flex flex-grow border-t-1 mb-6 border-stone-300"></span>
+      <div class="flex flex-col gap-6">
         <!-- Category Filter -->
         <div>
-          <h3 class="text-sm font-semibold text-gray-700 mb-2">Category</h3>
+          <h3 class="text-md font-semibold text-stone-700 mb-2">Category</h3>
           <Dropdown
             label="All Categories"
             options={categoryOptions}
@@ -69,12 +69,13 @@
             onSelect={setCategory}
             icon={categoryIcon}
             fullWidth={true}
+            expanded={true}
           />
         </div>
 
         <!-- Status Filter -->
         <div>
-          <h3 class="text-sm font-semibold text-gray-700 mb-2">Status</h3>
+          <h3 class="text-md font-semibold text-stone-700 mb-2">Status</h3>
           <Dropdown
             label="All Statuses"
             options={statusOptions}
@@ -82,15 +83,18 @@
             onSelect={setStatus}
             icon={statusIcon}
             fullWidth={true}
+            expanded={true}
           />
         </div>
 
         <!-- Date Range -->
         <div>
-          <h3 class="text-sm font-semibold text-gray-700 mb-2">Date Range</h3>
-          <div class="flex w-full h-[48px]">
-            <DatePicker value={$selectedDateRange} fullWidth={true} />
-          </div>
+          <h3 class="text-md font-semibold text-stone-700 mb-2">Date Range</h3>
+          <DatePicker
+            value={$selectedDateRange}
+            fullWidth={true}
+            expanded={true}
+          />
         </div>
       </div>
     </div>
