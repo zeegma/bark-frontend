@@ -124,13 +124,17 @@
   }
 </script>
 
-<div class="relative" use:onClickOutside={() => (showCalendar = false)}>
-  <div class={`relative h-full flex ${fullWidth ? "w-full" : "max-w-64"}`}>
+<div
+  class={`relative ${fullWidth ? "w-full" : "min-w-48"}`}
+  use:onClickOutside={() => (showCalendar = false)}
+>
+  <div class={`relative h-full flex ${fullWidth ? "w-full" : "min-w-48"}`}>
     <input
       type="text"
       readonly
       value={formatDateRange(selectedStartDate, selectedEndDate)}
-      class="px-4 border border-stone-300 rounded-lg bg-white text-sm font-medium text-[#9A4444] hover:bg-stone-100 hover:border-stone-400 transition duration-300 ease-in-out cursor-pointer"
+      class={`px-4 border border-stone-300 rounded-lg bg-white text-sm font-medium text-[#9A4444] hover:bg-stone-100 hover:border-stone-400 transition duration-300 ease-in-out cursor-pointer w-full
+      }`}
       on:click={() => (showCalendar = !showCalendar)}
     />
     <img

@@ -89,7 +89,7 @@
         <div>
           <h3 class="text-sm font-semibold text-gray-700 mb-2">Date Range</h3>
           <div class="flex w-full h-[48px]">
-            <DatePicker value={$selectedDateRange} />
+            <DatePicker value={$selectedDateRange} fullWidth={true} />
           </div>
         </div>
       </div>
