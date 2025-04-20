@@ -4,12 +4,15 @@
 
   export let value: { startDate: Date | null; endDate: Date | null };
   export let fullWidth: boolean = false;
+  export let expanded: boolean = false;
 
   let showCalendar = false;
   let currentDate = new Date();
   let selectedStartDate: Date | null = value.startDate;
   let selectedEndDate: Date | null = value.endDate;
   let hoveredDate: Date | null = null;
+  let isApplied = false;
+  let isCleared = false;
 
   $: {
     selectedStartDate = value.startDate;
@@ -90,7 +93,12 @@
         endDate: selectedEndDate,
       });
     }
-    showCalendar = false;
+
+    isApplied = true;
+
+    setTimeout(() => {
+      isApplied = false;
+    }, 1000);
   }
 
   // Clears the selected date range
@@ -98,6 +106,12 @@
     selectedStartDate = null;
     selectedEndDate = null;
     selectedDateRange.set({ startDate: null, endDate: null });
+
+    isCleared = true;
+
+    setTimeout(() => {
+      isCleared = false;
+    }, 1000);
   }
 
   // Formats date range
@@ -128,28 +142,31 @@
   class={`relative ${fullWidth ? "w-full" : "min-w-48"}`}
   use:onClickOutside={() => (showCalendar = false)}
 >
-  <div class={`relative h-full flex ${fullWidth ? "w-full" : "min-w-48"}`}>
-    <input
-      type="text"
-      readonly
-      value={formatDateRange(selectedStartDate, selectedEndDate)}
-      class={`px-4 border border-stone-300 rounded-lg bg-white text-sm font-medium text-[#9A4444] hover:bg-stone-100 hover:border-stone-400 transition duration-300 ease-in-out cursor-pointer w-full
-      }`}
-      on:click={() => (showCalendar = !showCalendar)}
-    />
-    <img
-      src="/icons/calendar-icon.svg"
-      alt="Search Icon"
-      class="absolute right-4 top-[14px] w-5 h-5 pointer-events-none"
-    />
-  </div>
+  {#if !expanded}
+    <div class={`relative h-full flex ${fullWidth ? "w-full" : "min-w-48"}`}>
+      <input
+        type="text"
+        readonly
+        value={formatDateRange(selectedStartDate, selectedEndDate)}
+        class={`px-4 border border-stone-300 rounded-lg bg-white text-sm font-medium text-[#9A4444] hover:bg-stone-100 hover:border-stone-400 transition duration-300 ease-in-out cursor-pointer w-full`}
+        on:click={() => (showCalendar = !showCalendar)}
+      />
+      <img
+        src="/icons/calendar-icon.svg"
+        alt="Search Icon"
+        class="absolute right-4 top-[14px] w-5 h-5 pointer-events-none"
+      />
+    </div>
+  {/if}
 
-  {#if showCalendar}
+  {#if showCalendar || expanded}
     <div
-      class={`absolute z-10 bg-white border border-stone-300 rounded-lg mt-2 shadow-md w-82`}
+      class={`${expanded ? "" : "absolute"} z-10 bg-white border border-stone-300 rounded-lg ${expanded ? "" : "mt-2"} shadow-md ${expanded ? "w-full" : "w-82"}`}
     >
       <!-- Month Navigation -->
-      <div class="flex justify-between mx-6 mt-6 mb-4">
+      <div
+        class={`flex justify-between ${expanded ? "mx-4 mt-4" : "mx-6 mt-6"} mb-4`}
+      >
         <!-- Previous Button-->
         <button
           on:click={() => navigateMonth("prev")}
@@ -266,16 +283,20 @@
       <span class="border-t-stone-200 border-t flex"></span>
       <div class="flex justify-between m-4 gap-3">
         <button
-          class="flex flex-grow justify-center items-center px-3 py-3 rounded-lg bg-stone-100 text-sm text-[#800000] font-semibold hover:bg-red-100 transition duration-300 ease-in-out cursor-pointer"
+          class={`flex flex-grow justify-center items-center px-3 py-3 rounded-lg bg-stone-100 text-sm text-[#800000] font-semibold hover:bg-red-100 transition duration-300 ease-in-out cursor-pointer ${
+            isCleared ? "bg-stone-200 text-[#9A4444] pointer-events-none" : ""
+          }`}
           on:click={clearDateRange}
         >
-          Clear
+          {isCleared ? "Cleared" : "Clear"}
         </button>
         <button
-          class="flex flex-grow justify-center items-center px-3 py-3 border rounded-lg bg-[#800000] text-sm text-white font-medium hover:bg-[#A73D3D] transition duration-300 ease-in-out cursor-pointer"
+          class={`flex flex-grow justify-center items-center px-3 py-3 border rounded-lg bg-[#800000] text-sm text-white font-medium hover:bg-[#A73D3D] transition duration-300 ease-in-out cursor-pointer ${
+            isApplied ? "bg-stone-700 pointer-events-none" : ""
+          }`}
           on:click={applyDateRange}
         >
-          Apply
+          {isApplied ? "Applied" : "Apply"}
         </button>
       </div>
     </div>
