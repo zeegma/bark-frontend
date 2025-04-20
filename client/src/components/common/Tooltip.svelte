@@ -36,7 +36,7 @@
         : position === "left"
           ? "w-52 md:w-72 -left-56 md:-left-76 mr-52 top-1/2 transform -translate-y-1/2"
           : position === "bottom"
-            ? "w-42 top-full mt-3 right-0"
+            ? "w-44 top-full mt-3 right-0"
             : ""
     } shadow-xl shadow-stone-800/50`}
   >

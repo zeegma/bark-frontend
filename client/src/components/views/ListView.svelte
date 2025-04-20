@@ -52,7 +52,7 @@
           <!-- Date and Time Found-->
           <td class="max-w-24 text-center">
             <div
-              class="md:block hidden px-2 py-4 text-center text-sm lg:text-base text-stone-700 font-medium"
+              class="md:block hidden px-2 py-4 text-center text-sm xl:text-base text-stone-700 font-medium"
             >
               {item.date_found} @ {formatTime(item.time_found)}
             </div>
@@ -61,7 +61,7 @@
           <!-- Last Seen -->
           <td class="max-w-24 text-center">
             <div
-              class="md:block hidden px-2 py-4 text-center text-sm lg:text-base text-stone-700 font-medium truncate"
+              class="md:block hidden px-2 py-4 text-center text-sm xl:text-base text-stone-700 font-medium truncate"
             >
               {item.location_found}
             </div>
@@ -81,7 +81,7 @@
                 `}
               >
                 <button
-                  class=" py-2 text-stone-600 hover:text-stone-800 focus:outline-none"
+                  class="pr-2 py-2 text-stone-600 hover:text-stone-800 focus:outline-none"
                   aria-label="Show more details"
                 >
                   <svg
