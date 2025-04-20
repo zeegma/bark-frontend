@@ -284,7 +284,7 @@
       <div class="flex justify-between m-4 gap-3">
         <button
           class={`flex flex-grow justify-center items-center px-3 py-3 rounded-lg bg-stone-100 text-sm text-[#800000] font-semibold hover:bg-red-100 transition duration-300 ease-in-out cursor-pointer ${
-            isCleared ? "bg-stone-200 text-[#9A4444] pointer-events-none" : ""
+            isCleared ? "bg-stone-200 text-[#E37979] pointer-events-none" : ""
           }`}
           on:click={clearDateRange}
         >

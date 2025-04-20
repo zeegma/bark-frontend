@@ -34,7 +34,7 @@
       position === "top"
         ? "w-46 sm:w-full bottom-full mb-4 left-1/2 transform -translate-x-1/2"
         : position === "left"
-          ? "w-72 right-full mr-4 top-1/2 transform -translate-y-1/2"
+          ? "w-52 md:w-72 -left-56 md:-left-76 mr-52 top-1/2 transform -translate-y-1/2"
           : position === "bottom"
             ? "w-42 top-full mt-3 right-0"
             : ""
@@ -59,9 +59,9 @@
         position === "top"
           ? "right-16 bottom-0 border-l-[6px] border-r-[6px] border-t-[6px] border-l-transparent border-r-transparent border-t-[#800000] transform translate-y-full"
           : position === "left"
-            ? "left-full border-t-[6px] border-b-[6px] border-l-[6px] border-l-[#800000] border-b-transparent border-t-transparent transform -translate-y-16"
+            ? "left-full border-t-[6px] border-b-[6px] border-l-[6px] border-l-[#800000] border-b-transparent border-t-transparent transform -translate-y-22 md:-translate-y-16"
             : position === "bottom"
-              ? "bottom-full right-0 -translate-x-2 translate-y-0 border-l-[6px] border-r-[6px] border-b-[6px] border-l-transparent border-r-transparent border-b-[#800000]"
+              ? "bottom-full right-0 -translate-x-2 border-l-[6px] border-r-[6px] border-b-[6px] border-l-transparent border-r-transparent border-b-[#800000]"
               : ""
       }`}
     ></div>

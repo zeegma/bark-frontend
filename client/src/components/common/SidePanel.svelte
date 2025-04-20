@@ -34,7 +34,8 @@
   ></button>
   <div class="relative w-80 h-full bg-white shadow-xl overflow-y-auto">
     <div class="p-4">
-      <div class="flex justify-end items-center mb-6">
+      <div class="flex justify-between items-center mb-6">
+        <h1 class="text-2xl text-[#9A4444] font-bold">Filter Items</h1>
         <button
           on:click={closePanel}
           class="text-[#9A4444] border bg-white border-stone-300 hover:bg-stone-100 rounded-lg p-2 transition duration-300 ease-in-out cursor-pointer"
