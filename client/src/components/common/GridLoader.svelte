@@ -14,8 +14,6 @@
       <div class="bg-white p-6 rounded-2xl space-y-4 animate-pulse">
         <div class="h-8 bg-gray-300 rounded-lg w-full"></div>
         <div class="h-48 bg-gray-300 rounded-xl"></div>
-        <div class="h-6 bg-gray-300 rounded-lg w-3/4"></div>
-        <div class="h-6 bg-gray-300 rounded-lg w-1/2"></div>
         <div class="h-12 bg-gray-300 rounded-lg w-full"></div>
       </div>
     {/each}
