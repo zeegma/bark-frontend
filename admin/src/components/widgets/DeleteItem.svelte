@@ -8,15 +8,20 @@
 
   export let item: Item;
   export let viewType: "list" | "grid" = "list";
+  export let onDelete: () => void;
   let showModal = false;
+  let isLoading = false;
 
   const handleDelete = async () => {
+    isLoading = true;
     const success = await itemsStore.deleteItem(item.id);
     if (success) {
+      onDelete();
       console.log("Item deleted successfully");
     } else {
       console.error("Failed to delete item");
     }
+    isLoading = false;
     showModal = false;
   };
 
@@ -98,6 +103,16 @@
           Yes, delete it
         </button>
       </div>
+
+      {#if isLoading}
+        <div
+          class="fixed inset-0 z-60 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center"
+        >
+          <div
+            class="animate-spin w-12 h-12 border-4 border-t-4 border-white rounded-full border-t-transparent"
+          ></div>
+        </div>
+      {/if}
     </div>
   </div>
 {/if}
