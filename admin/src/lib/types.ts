@@ -33,7 +33,8 @@ export interface Item {
   name: string;
   status: string;
   category: string;
-  claimant?: number | null;
+  accepted_claim?: number | null;
+  accepted_claim_id: number | null;
   description: string;
   date_found: Date;
   time_found: string;

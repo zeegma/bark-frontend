@@ -66,7 +66,6 @@ export async function addItem(item: Item): Promise<Response> {
     date_found: item.date_found.toISOString().split("T")[0],
     time_found: item.time_found,
     location_found: item.location_found,
-    // claimant: item.claimant || "",
   };
 
   if (item.image) {
@@ -140,7 +139,9 @@ export async function updateItem(item: Item): Promise<Response> {
     time_found: item.time_found,
     location_found: item.location_found,
     photo_url: item.photo_url,
-    // claimant: item.claimant || "", // optional
+    ...(item.accepted_claim
+      ? { accepted_claim: Number(item.accepted_claim) }
+      : {}),
   };
 
   if (item.image instanceof File) {

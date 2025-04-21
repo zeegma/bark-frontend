@@ -13,6 +13,7 @@
   let showModal = false;
 
   const openModal = () => {
+    console.log("Viewing item:", item);
     showModal = true;
   };
 
@@ -108,7 +109,7 @@
             class="block text-sm font-medium text-gray-800 mb-1">Claimant</label
           >
           <input
-            value={item.claimant}
+            value={item.accepted_claim_id}
             type="text"
             disabled
             class="w-full p-2.5 border border-gray-300 rounded-lg text-sm bg-gray-50 cursor-not-allowed"
