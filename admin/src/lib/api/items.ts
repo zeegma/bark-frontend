@@ -3,14 +3,16 @@ import type { Item } from "../types";
 export async function fetchItems(): Promise<Item[]> {
   try {
     const res = await fetch("http://127.0.0.1:8000/lost-items/");
+
     if (!res.ok) {
       throw new Error("Failed to fetch items");
     }
+
     const data = await res.json();
     return data;
   } catch (error) {
-    console.error(error);
-    return [];
+    console.error("Failed to fetch lost items: ", error);
+    throw error;
   }
 }
 
@@ -157,9 +159,22 @@ export async function updateItem(item: Item): Promise<Response> {
 }
 
 export async function deleteItem(id: string): Promise<Response> {
-  console.log("Deleting item with ID:", id, typeof id);
-  alert("About to delete " + id);
-  return await fetch(`http://127.0.0.1:8000/lost-items/${id}/delete/`, {
-    method: "DELETE",
-  });
+  try {
+    const response = await fetch(
+      `http://127.0.0.1:8000/lost-items/${id}/delete/`,
+      {
+        method: "DELETE",
+      },
+    );
+
+    if (!response.ok) {
+      throw new Error(
+        `Error deleting claimant: ${response.status} ${response.statusText}`,
+      );
+    }
+    return response;
+  } catch (error) {
+    console.error(`Failed to delete claimant with ID ${id}:`, error);
+    throw error;
+  }
 }
