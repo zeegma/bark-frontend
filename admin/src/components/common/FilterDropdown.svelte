@@ -7,6 +7,8 @@
     type CategoryFilter,
     categoryOptions,
     statusOptions,
+    reverseCategoryMap,
+    reverseStatusMap,
   } from "../../stores/filterStore";
 
   // Assign the status and category values from the store
