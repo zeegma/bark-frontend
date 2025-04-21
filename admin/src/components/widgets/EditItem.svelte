@@ -16,7 +16,7 @@
   let showModal = false;
   let formData: Item = {
     ...item,
-    claimant: item.claimant ?? null,
+    accepted_claim: item.accepted_claim ?? null,
   };
 
   // Ensure date is a valid Date object
@@ -171,7 +171,10 @@
             for="claimant"
             class="block text-sm font-medium text-gray-800 mb-1">Claimant</label
           >
-          <ClaimantsList bind:selectedClaimant={formData.claimant!} />
+          <ClaimantsList
+            bind:selectedClaimant={formData.accepted_claim!}
+            itemId={item.id}
+          />
         </div>
 
         <!-- Image -->

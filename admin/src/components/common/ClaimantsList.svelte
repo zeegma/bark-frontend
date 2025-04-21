@@ -3,9 +3,10 @@
   import { ChevronDownOutline } from "flowbite-svelte-icons";
   import { onMount } from "svelte";
   import { fetchClaimants, fetchClaimantById } from "../../lib/api";
-  import type { ClaimantResponse } from "../../lib/types";
+  import type { ClaimantResponse, Item } from "../../lib/types";
 
   export let selectedClaimant: number;
+  export let itemId: string;
   let claimantOptions: ClaimantResponse[] = [];
 
   function selectClaimant(claimant: ClaimantResponse) {
@@ -14,10 +15,18 @@
 
   onMount(async () => {
     try {
-      const data = await fetchClaimants();
-      claimantOptions = data;
+      // Fetch all claimants
+      const allClaimants = await fetchClaimants();
+      console.log("All claimants:", allClaimants);
+      // Filter claimants to only those who claimed the current item
+      claimantOptions = allClaimants.filter(
+        (claimant) =>
+          claimant.item_id === parseInt(itemId) ||
+          claimant.item_id.toString() === itemId,
+      );
+      console.log("Filtered claimants for item", itemId, ":", claimantOptions);
     } catch (error) {
-      console.error("Failed to load claimants", error);
+      console.error(`Failed to load claimants for item #${itemId}:`, error);
     }
   });
 </script>
@@ -31,11 +40,15 @@
       <ChevronDownOutline class="w-6 h-6 ms-2 text-[#1E1E1E]" />
     </Button>
     <Dropdown class="w-full">
-      {#each claimantOptions as claimant}
-        <DropdownItem on:click={() => selectClaimant(claimant)}>
-          {claimant.id}
-        </DropdownItem>
-      {/each}
+      {#if claimantOptions.length > 0}
+        {#each claimantOptions as claimant}
+          <DropdownItem on:click={() => selectClaimant(claimant)}>
+            {claimant.id}
+          </DropdownItem>
+        {/each}
+      {:else}
+        <DropdownItem>No Claim</DropdownItem>
+      {/if}
     </Dropdown>
   </div>
 </div>
