@@ -18,6 +18,7 @@
     ...item,
     accepted_claim: item.accepted_claim ?? null,
   };
+  let isLoading = false;
 
   // Ensure date is a valid Date object
   const ensureValidDate = (date: any): Date => {
@@ -67,6 +68,7 @@
   };
 
   const handleSubmit = async () => {
+    isLoading = true;
     const itemToSave: Item = {
       ...formData,
     };
@@ -77,6 +79,7 @@
 
     onSave(itemToSave);
     showModal = false;
+    isLoading = false;
   };
 </script>
 
@@ -287,6 +290,16 @@
           >
         </div>
       </form>
+
+      {#if isLoading}
+        <div
+          class="fixed inset-0 z-60 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center"
+        >
+          <div
+            class="animate-spin w-12 h-12 border-4 border-t-4 border-white rounded-full border-t-transparent"
+          ></div>
+        </div>
+      {/if}
     </div>
   </div>
 {/if}
