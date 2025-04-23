@@ -111,9 +111,8 @@
         </button>
       </div>
 
-      <!-- Form -->
       <form
-        class="px-6 py-4 grid grid-cols-12 gap-4"
+        class="px-6 py-4 grid grid-cols-6 grid-rows-4 gap-4"
         on:submit|preventDefault={handleSubmit}
       >
         <!-- Item Name -->
@@ -125,13 +124,13 @@
             id="name"
             type="text"
             bind:value={formData.name}
-            class="w-full p-2.5 border border-gray-300 rounded-lg text-sm"
+            class="w-full p-2.5 border border-gray-300 focus:border-black focus:ring-2 focus:ring-red-500 focus:outline-none rounded-lg text-sm"
             placeholder="Enter item name"
           />
         </div>
 
         <!-- Status -->
-        <div class="col-span-2">
+        <div class="col-start-4 row-start-1">
           <label
             for="status"
             class="block text-sm font-medium text-gray-800 mb-1">Status</label
@@ -140,7 +139,7 @@
         </div>
 
         <!-- Category -->
-        <div class="col-span-3">
+        <div class="col-start-5 row-start-1 col-span-2">
           <label
             for="category"
             class="block text-sm font-medium text-gray-800 mb-1">Category</label
@@ -148,14 +147,64 @@
           <Category bind:selectedCategory={formData.category} />
         </div>
 
-        <!-- Image -->
-        <div class="col-span-4 row-span-3">
+        <!-- Date Picker -->
+        <div class="col-span-2 col-start-1 row-start-2">
+          <label
+            for="dateLost"
+            class="block text-sm font-medium text-gray-800 mb-1"
+            >Date Lost</label
+          >
+          <DatePicker bind:selectedDate={formData.date_found} />
+        </div>
+
+        <!-- Description -->
+        <div class="col-span-2 row-span-3 col-start-3 row-start-2">
+          <label
+            for="description"
+            class="block text-sm font-medium text-gray-800 mb-1"
+            >Description</label
+          >
+          <Textarea
+            bind:value={formData.description}
+            id="textarea-id"
+            placeholder="Your message"
+            rows={10}
+          />
+        </div>
+
+        <!-- Time Picker -->
+        <div class="col-span-2 col-start-1 row-start-3">
+          <label
+            for="timeLost"
+            class="block text-sm font-medium text-gray-800 mb-1"
+            >Time Lost</label
+          >
+          <TimePicker bind:selectedTime={formData.time_found} />
+        </div>
+
+        <!-- Last Known Location -->
+        <div class="col-span-2 col-start-1 row-start-4">
+          <label
+            for="lastKnownLocation"
+            class="block text-sm font-medium text-gray-800 mb-1"
+            >Last Known Location</label
+          >
+          <input
+            bind:value={formData.location_found}
+            type="text"
+            class="w-full p-2.5 border border-gray-300 focus:border-black focus:ring-2 focus:ring-red-500 focus:outline-none rounded-lg text-sm"
+            placeholder="Enter location"
+          />
+        </div>
+
+        <!-- Image Upload -->
+        <div class="col-span-2 row-span-3 col-start-5 row-start-2">
           <label
             for="image"
             class="block mb-1 text-sm font-medium text-[#1E1E1E]">Image</label
           >
           <label
-            class="flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded h-full cursor-pointer"
+            class="flex flex-col items-center justify-center border-2 border-dashed border-gray-300 h-[222px] rounded cursor-pointer bg-gray-50 p-4"
           >
             <input
               type="file"
@@ -167,7 +216,7 @@
               <img
                 src={formData.imagePreview}
                 alt="Preview"
-                class="w-full h-60 object-cover rounded-lg"
+                class="max-w-full max-h-full object-contain rounded"
               />
             {:else}
               <span class="text-4xl text-gray-400">+</span>
@@ -176,58 +225,10 @@
           </label>
         </div>
 
-        <!-- Description -->
-        <div class="col-span-8">
-          <label
-            for="description"
-            class="block text-sm font-medium text-gray-800 mb-1"
-            >Description</label
-          >
-          <Textarea
-            bind:value={formData.description}
-            id="textarea-id"
-            placeholder="Your message"
-            rows={4}
-          />
-        </div>
-
-        <!-- Date Lost -->
-        <div class="col-span-3">
-          <label
-            for="dateLost"
-            class="block text-sm font-medium text-gray-800 mb-1"
-            >Date Lost</label
-          >
-          <DatePicker bind:selectedDate={formData.date_found} />
-        </div>
-
-        <!-- Time Lost -->
-        <div class="col-span-2">
-          <label
-            for="timeLost"
-            class="block text-sm font-medium text-gray-800 mb-1"
-            >Time Lost</label
-          >
-          <TimePicker bind:selectedTime={formData.time_found} />
-        </div>
-
-        <!-- Last Known Location -->
-        <div class="col-span-3">
-          <label
-            for="lastKnownLocation"
-            class="block text-sm font-medium text-gray-800 mb-1"
-            >Last Known Location</label
-          >
-          <input
-            bind:value={formData.location_found}
-            type="text"
-            class="w-full p-2.5 border border-gray-300 rounded-lg text-sm"
-            placeholder="Enter location"
-          />
-        </div>
-
-        <!-- Action Buttons -->
-        <div class="col-span-12 flex justify-center gap-4 mt-4">
+        <!--  Buttons -->
+        <div
+          class="col-span-6 flex justify-center gap-4 row-start-[5] col-start-1"
+        >
           <button
             type="button"
             on:click={closeModal}

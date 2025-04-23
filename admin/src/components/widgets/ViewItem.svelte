@@ -40,7 +40,7 @@
   <div
     class="overflow-y-auto fixed inset-0 z-50 flex justify-center items-center w-screen h-screen max-h-full backdrop-blur-sm bg-black/50"
   >
-    <div class="bg-white rounded-2xl w-full h-[60vh] max-w-6xl shadow-md">
+    <div class="bg-white rounded-2xl w-full max-w-6xl shadow-md">
       <!-- Header -->
       <div
         class="flex justify-between items-center px-6 py-4 border-b border-gray-300"
@@ -70,7 +70,7 @@
       </div>
 
       <!-- Form (disabled)-->
-      <div class="px-6 py-4 grid grid-cols-12 gap-4">
+      <div class="px-6 py-4 grid grid-cols-6 grid-rows-4 gap-4">
         <!-- Item Name -->
         <div class="col-span-2">
           <label for="name" class="block text-sm font-medium text-gray-800 mb-1"
@@ -80,12 +80,12 @@
             type="text"
             value={item.name}
             disabled
-            class="w-full p-2.5 border border-gray-300 rounded-lg text-sm bg-gray-50"
+            class="w-full p-2.5 border border-gray-300 rounded-lg text-sm bg-gray-50 cursor-not-allowed"
           />
         </div>
 
         <!-- Status -->
-        <div class="col-span-2">
+        <div class="col-start-3 row-start-1">
           <label
             for="status"
             class="block text-sm font-medium text-gray-800 mb-1">Status</label
@@ -94,7 +94,7 @@
         </div>
 
         <!-- Category -->
-        <div class="col-span-3">
+        <div class="col-start-4 row-start-1 col-span-2">
           <label
             for="category"
             class="block text-sm font-medium text-gray-800 mb-1">Category</label
@@ -103,7 +103,7 @@
         </div>
 
         <!-- Claimant -->
-        <div class="col-span-2">
+        <div class="col-start-6">
           <label
             for="claimant"
             class="block text-sm font-medium text-gray-800 mb-1">Claimant</label
@@ -116,45 +116,8 @@
           />
         </div>
 
-        <!-- Image -->
-        <div class="col-span-3 row-span-3">
-          <label
-            for="image"
-            class="block mb-1 text-sm font-medium text-[#1E1E1E]">Image</label
-          >
-          <div
-            class="border border-gray-300 rounded h-[290px] flex items-center justify-center bg-gray-50 p-2"
-          >
-            {#if item.photo_url}
-              <img
-                src={item.photo_url}
-                alt="Item"
-                class="max-h-full max-w-full object-contain rounded"
-              />
-            {:else}
-              <span class="text-gray-400">No image available</span>
-            {/if}
-          </div>
-        </div>
-
-        <!-- Description -->
-        <div class="col-span-9">
-          <label
-            for="description"
-            class="block text-sm font-medium text-gray-800 mb-1"
-            >Description</label
-          >
-          <Textarea
-            value={item.description}
-            id="description-view"
-            rows={4}
-            disabled
-            class="bg-gray-50 cursor-not-allowed"
-          />
-        </div>
-
-        <!-- Date Lost -->
-        <div class="col-span-3">
+        <!-- Date Picker -->
+        <div class="col-span-2 col-start-1 row-start-2">
           <label
             for="dateLost"
             class="block text-sm font-medium text-gray-800 mb-1"
@@ -163,8 +126,24 @@
           <DatePicker value={new Date(item.date_found)} disabled={true} />
         </div>
 
-        <!-- Time Lost -->
-        <div class="col-span-2">
+        <!-- Description -->
+        <div class="col-span-2 row-span-3 col-start-3 row-start-2">
+          <label
+            for="description"
+            class="block text-sm font-medium text-gray-800 mb-1"
+            >Description</label
+          >
+          <Textarea
+            value={item.description}
+            id="description-view"
+            rows={10}
+            disabled
+            class="bg-gray-50 cursor-not-allowed"
+          />
+        </div>
+
+        <!-- Time Picker -->
+        <div class="col-span-2 col-start-1 row-start-3">
           <label
             for="timeLost"
             class="block text-sm font-medium text-gray-800 mb-1"
@@ -174,7 +153,7 @@
         </div>
 
         <!-- Last Known Location -->
-        <div class="col-span-4">
+        <div class="col-span-2 col-start-1 row-start-4">
           <label
             for="lastKnownLocation"
             class="block text-sm font-medium text-gray-800 mb-1"
@@ -186,6 +165,27 @@
             disabled
             class="w-full p-2.5 border border-gray-300 rounded-lg text-sm bg-gray-50 cursor-not-allowed"
           />
+        </div>
+
+        <!-- Image -->
+        <div class="col-span-2 row-span-3 col-start-5 row-start-2">
+          <label
+            for="image"
+            class="block mb-1 text-sm font-medium text-[#1E1E1E]">Image</label
+          >
+          <div
+            class="border border-gray-300 rounded h-[222px] flex items-center justify-center bg-gray-50 p-2"
+          >
+            {#if item.photo_url}
+              <img
+                src={item.photo_url}
+                alt="Item"
+                class="max-h-full max-w-full object-contain rounded"
+              />
+            {:else}
+              <span class="text-gray-400">No image available</span>
+            {/if}
+          </div>
         </div>
       </div>
     </div>
