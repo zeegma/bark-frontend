@@ -15,6 +15,7 @@
   import EditItem from "../widgets/EditItem.svelte";
   import DeleteItem from "../widgets/DeleteItem.svelte";
   import type { Item } from "../../lib/types";
+  import { fetchItems } from "../../lib/api/items";
 
   export let item: Item;
 
@@ -24,6 +25,9 @@
   let menuRef: HTMLElement; // For closing the menu if clicked outside the menu
   let currentlyOpenMenu: string | null = null; // Check if multiple menu is open (NOT WORKING)
   let allItems: Item[] = [];
+  let loading = false;
+  export let onDelete: (id: string) => void;
+  export let onSave: (updatedItem: Item) => void;
 
   const { photo_url } = item;
   const hasImage = !!photo_url;
@@ -54,6 +58,11 @@
     }
   };
 
+  const closeMenu = () => {
+    showMenu = false;
+    currentlyOpenMenu = null;
+  };
+
   // Stop the card from being clicked when button is clicked in the dropdown
   const handleMenuItemClick = (event: MouseEvent) => {
     event.stopPropagation();
@@ -66,12 +75,29 @@
     }
   };
 
-  function handleSave(updatedItem: Item) {
-    const index = allItems.findIndex((i) => i.id === updatedItem.id);
-    if (index !== -1) {
-      allItems[index] = updatedItem;
-    } else {
-      allItems.push(updatedItem);
+  async function handleDelete() {
+    loading = true;
+    try {
+      console.log("Deleting item with ID:", item.id);
+      await onDelete(item.id);
+      closeMenu();
+    } catch (e) {
+      console.error("Error deleting item:", e);
+    } finally {
+      loading = false;
+    }
+  }
+
+  async function handleSave(updatedItem: Item) {
+    loading = true;
+    try {
+      console.log("Saving updated item from ItemCard:", updatedItem);
+      await onSave(updatedItem);
+      closeMenu();
+    } catch (error) {
+      console.error("Error saving item from ItemCard:", error);
+    } finally {
+      loading = false;
     }
   }
 
@@ -138,7 +164,7 @@
               on:click={handleMenuItemClick}
               class="w-full text-left px-1 py-1 hover:bg-gray-100 text-sm"
             >
-              <DeleteItem {item} viewType="grid" />
+              <DeleteItem {item} viewType="grid" onDelete={handleDelete} />
             </button>
           </div>
         {/if}
