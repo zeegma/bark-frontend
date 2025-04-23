@@ -105,17 +105,20 @@
   }
 
   async function handleSave(updatedItem: Item) {
-    const res = await updateItem(updatedItem);
-    if (res.ok) {
-      const index = allItems.findIndex((i) => i.id === updatedItem.id);
-      if (index !== -1) {
-        allItems[index] = updatedItem;
+    loading = true;
+    try {
+      const res = await updateItem(updatedItem);
+      if (res.ok) {
+        const fetched = await fetchItems(); // refresh data from server
+        allItems = fetched;
+        applyFiltering();
       } else {
-        allItems.push(updatedItem);
+        console.error("Failed to update/save item");
       }
-      applyFiltering();
-    } else {
-      console.error("Failed to update/save item");
+    } catch (error) {
+      console.error("Error updating item:", error);
+    } finally {
+      loading = false;
     }
   }
 
