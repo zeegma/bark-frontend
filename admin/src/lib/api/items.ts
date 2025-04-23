@@ -158,7 +158,9 @@ export async function updateItem(item: Item): Promise<Response> {
   });
 }
 
-export async function deleteItem(id: string): Promise<Response> {
+export async function deleteItem(
+  id: string,
+): Promise<{ ok: boolean; error?: string }> {
   try {
     const response = await fetch(
       `http://127.0.0.1:8000/lost-items/${id}/delete/`,
@@ -167,14 +169,24 @@ export async function deleteItem(id: string): Promise<Response> {
       },
     );
 
-    if (!response.ok) {
-      throw new Error(
-        `Error deleting claimant: ${response.status} ${response.statusText}`,
-      );
+    if (response.ok) {
+      return { ok: true };
+    } else {
+      const errorMessage = await response.text();
+      console.error("Error deleting item:", errorMessage);
+      return { ok: false, error: errorMessage };
     }
-    return response;
-  } catch (error) {
-    console.error(`Failed to delete claimant with ID ${id}:`, error);
-    throw error;
+  } catch (error: unknown) {
+    // Type assertion to handle the 'unknown' type of error
+    if (error instanceof Error) {
+      console.error(`Failed to delete claimant with ID ${id}:`, error.message);
+      return { ok: false, error: error.message };
+    } else {
+      console.error(
+        `Unknown error occurred while deleting claimant with ID ${id}:`,
+        error,
+      );
+      return { ok: false, error: "Unknown error occurred" };
+    }
   }
 }
