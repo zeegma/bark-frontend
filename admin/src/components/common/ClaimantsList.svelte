@@ -34,7 +34,7 @@
 <div class="col-span-2">
   <div class="w-full relative">
     <Button
-      class="w-full bg-white border border-gray-300 text-[#1E1E1E] justify-between hover:bg-white hover:border-gray-300 focus:outline-none focus:ring-0"
+      class="w-full bg-white border border-gray-300 text-[#1E1E1E] justify-between hover:bg-white hover:border-gray-300 focus:border-black focus:ring-2 focus:ring-red-500 focus:outline-none"
     >
       {selectedClaimant || "Claimant"}
       <ChevronDownOutline class="w-6 h-6 ms-2 text-[#1E1E1E]" />
