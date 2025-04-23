@@ -26,6 +26,7 @@
   import { onMount } from "svelte";
   import type { Item } from "../../lib/types";
   import { fetchItems, updateItem } from "../../lib/api/items";
+  import { refreshTrigger } from "../../stores/itemStore";
 
   let allItems: Item[] = [];
   let filteredItems: Item[] = [];
@@ -81,6 +82,21 @@
   selectionStore.subscribe((state) => {
     selectedIds = state.selectedIds;
     isAllSelected = state.isAllSelected;
+  });
+
+  refreshTrigger.subscribe(async () => {
+    if (loading) return;
+
+    try {
+      loading = true;
+      const fetched = await fetchItems();
+      allItems = fetched;
+      applyFiltering();
+    } catch (e) {
+      console.error("Error refreshing items:", e);
+    } finally {
+      loading = false;
+    }
   });
 
   function handleSelectAll() {
