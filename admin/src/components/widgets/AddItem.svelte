@@ -12,6 +12,7 @@
   import { PlusOutline } from "flowbite-svelte-icons";
   import { addItem } from "../../lib/api/items";
   import type { Item } from "../../lib/types";
+  import { triggerRefresh } from "../../stores/itemStore";
 
   let showModal = false;
   let formData: Item;
@@ -42,8 +43,9 @@
       if (!response.ok) {
         throw new Error("Failed to add lost item");
       }
+
       currentItem.set({ ...formData });
-      await itemsStore.loadItems();
+      triggerRefresh();
       closeModal();
     } catch (error) {
       console.error("Error submitting:", error);
