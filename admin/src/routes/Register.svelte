@@ -4,6 +4,7 @@
   import sampleImage from "../assets/sampleImage.jpg";
   import maskImage from "../assets/maskImage.png";
   import { registerAdmin } from "../lib/api/admin";
+  import { push } from "svelte-spa-router";
 
   let showPassword = false;
   let showConfirm = false;
@@ -36,6 +37,7 @@
       alert("Registered");
       name = email = number = password = confirmPassword = "";
       agreed = false;
+      push("/");
     } catch (error) {
       if (error instanceof Error) {
         errorMessage = error.message;

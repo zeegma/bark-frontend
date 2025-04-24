@@ -31,24 +31,33 @@ export async function registerAdmin(data: Admin) {
 }
 
 export async function loginAdmin(email: string, password: string) {
-  const response = await fetch("http://127.0.0.1:8000/admins/login/", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ email, password }),
-  });
-
-  let result;
   try {
-    result = await response.json();
-  } catch (err) {
-    throw new Error("Failed.");
-  }
+    // console.log("Attempting login with:", { email, password });
+    const response = await fetch("http://127.0.0.1:8000/admins/login/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email, password }),
+    });
 
-  if (!response.ok) {
-    throw new Error(result.message || "Login failed.");
-  }
+    // console.log("Status:", response.status);
+    // console.log("Status Text:", response.statusText);
 
-  return result;
+    let result;
+    try {
+      result = await response.json();
+    } catch (err) {
+      throw new Error("Failed.");
+    }
+
+    if (!response.ok) {
+      throw new Error(result.message || "Login failed.");
+    }
+
+    return result;
+  } catch (error) {
+    console.error("Login error:", error);
+    throw error;
+  }
 }
