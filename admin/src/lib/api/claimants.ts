@@ -1,8 +1,9 @@
 import type { ClaimantResponse } from "../types";
 
+// Fetch claimants
 export async function fetchClaimants(): Promise<ClaimantResponse[]> {
   try {
-    const response = await fetch(`http://127.0.0.1:8000/claim-forms`);
+    const response = await fetch(`http://127.0.0.1:8000/claim-forms/`);
 
     if (!response.ok) {
       throw new Error(`Error fetching claimants: ${response.status}`);
@@ -16,38 +17,24 @@ export async function fetchClaimants(): Promise<ClaimantResponse[]> {
   }
 }
 
-// Placeholder code to prepare for real endpoint
-export async function fetchClaimantById(id: number): Promise<ClaimantResponse> {
+// Single/bulk deletion of claimants
+export async function deleteClaimants(ids: number[]): Promise<void> {
   try {
-    const response = await fetch(`http://127.0.0.1:8000/claim-forms/${id}`);
-
-    if (!response.ok) {
-      throw new Error(`Error fetching claimant: ${response.status}`);
-    }
-
-    const data = await response.json();
-    return data;
-  } catch (error) {
-    console.error(`Failed to fetch claimant with ID ${id}:`, error);
-    throw error;
-  }
-}
-
-// Placeholder code to prepare for real endpoint
-export async function deleteClaimant(id: number): Promise<void> {
-  try {
-    const response = await fetch(
-      `http://127.0.0.1:8000/claim-forms/claimants/${id}`,
-      {
-        method: "DELETE",
+    const response = await fetch(`http://127.0.0.1:8000/claimants/delete/`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
       },
-    );
+      body: JSON.stringify({ ids }),
+    });
 
     if (!response.ok) {
-      throw new Error(`Error deleting claimant: ${response.status}`);
+      throw new Error(`Error deleting claimants: ${response.status}`);
     }
+
+    return;
   } catch (error) {
-    console.error(`Failed to delete claimant with ID ${id}:`, error);
+    console.error("Failed to delete claimants:", error);
     throw error;
   }
 }
