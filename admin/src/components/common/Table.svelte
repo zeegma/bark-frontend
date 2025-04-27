@@ -21,11 +21,16 @@
     selectionActions,
   } from "../../stores/selectionStore";
 
+  type DeleteCompleteEvent = CustomEvent<{ deletedIds: string[] }>;
+
   // For view modal
   let viewModal: boolean = false;
 
   // For delete modal
   let deleteModal: boolean = false;
+
+  // For bulk delete
+  let bulkDeleteIds: string[] = [];
 
   let selectedClaim: ClaimItem | null = null;
   let loading: boolean = true;
@@ -100,18 +105,42 @@
     selectionActions.toggleSelection(id);
   }
 
-  // Fetch data on component mount
-  onMount(async () => {
-    try {
-      const claimantData = await fetchClaimants();
-      claims = transformClaimantData(claimantData);
-      applySorting();
-    } catch (e) {
-      error = e instanceof Error ? e.message : "Failed to fetch data";
-      console.error(error);
-    } finally {
-      loading = false;
+  function handleDeletionComplete(event: DeleteCompleteEvent) {
+    const { deletedIds } = event.detail;
+    // Remove deleted items from the claims array
+    claims = claims.filter((claim) => !deletedIds.includes(claim.id));
+
+    // Clear selection if needed
+    if (deletedIds.length > 0) {
+      selectionActions.clearSelection();
     }
+  }
+
+  // Fetch data on component mount
+  onMount(() => {
+    const fetchData = async () => {
+      try {
+        const claimantData = await fetchClaimants();
+        claims = transformClaimantData(claimantData);
+        applySorting();
+      } catch (e) {
+        error = e instanceof Error ? e.message : "Failed to fetch data";
+        console.error(error);
+      } finally {
+        loading = false;
+      }
+    };
+
+    fetchData();
+
+    const handleDeleteEvent = ((e: Event) =>
+      handleDeletionComplete(e as DeleteCompleteEvent)) as EventListener;
+    document.addEventListener("deletecomplete", handleDeleteEvent);
+
+    // Return cleanup function
+    return () => {
+      document.removeEventListener("deletecomplete", handleDeleteEvent);
+    };
   });
 </script>
 
@@ -211,5 +240,9 @@
     </TableBody>
   </Table>
   <ViewModal bind:open={viewModal} claim={selectedClaim} />
-  <DeleteModal bind:open={deleteModal} claim={selectedClaim} />
+  <DeleteModal
+    bind:open={deleteModal}
+    claim={selectedClaim}
+    idsToDelete={bulkDeleteIds}
+  />
 {/if}
