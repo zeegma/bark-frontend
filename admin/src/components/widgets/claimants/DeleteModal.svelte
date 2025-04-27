@@ -64,7 +64,7 @@
 <Modal
   bind:open
   size="sm"
-  outsideclose
+  outsideclose={!deleting}
   class="bg-gray-50 rounded-3xl ring-1 ring-gray-800"
 >
   {#if claim || isBulkDelete}
