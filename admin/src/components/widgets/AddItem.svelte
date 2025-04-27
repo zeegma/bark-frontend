@@ -8,7 +8,7 @@
   import TimePicker from "../common/TimePicker.svelte";
   import Category from "../common/Category.svelte";
   import Status from "../common/Status.svelte";
-  import { Textarea } from "flowbite-svelte";
+  import { Textarea, Spinner, Button } from "flowbite-svelte";
   import { PlusOutline } from "flowbite-svelte-icons";
   import { addItem } from "../../lib/api/items";
   import type { Item } from "../../lib/types";
@@ -16,7 +16,7 @@
 
   let showModal = false;
   let formData: Item;
-  let isLoading = false;
+  let adding = false;
 
   // Reset form to create a new item
   const resetForm = () => {
@@ -37,7 +37,7 @@
 
   // Submit the form data
   const handleSubmit = async () => {
-    isLoading = true;
+    adding = true;
     try {
       const response = await addItem(formData);
       if (!response.ok) {
@@ -51,7 +51,7 @@
       console.error("Error submitting:", error);
       alert("Failed to submit item.");
     } finally {
-      isLoading = false;
+      adding = false;
     }
   };
 
@@ -231,31 +231,24 @@
         <div
           class="col-span-6 flex justify-center gap-4 row-start-[5] col-start-1"
         >
-          <button
-            type="button"
-            on:click={closeModal}
-            class="w-32 border border-red-900 text-red-900 px-6 py-2 rounded-lg hover:bg-red-900 hover:text-white cursor-pointer"
+          <Button
+            color="alternative"
+            class="w-32 hover:text-red-800 border-red-800 text-[#800000]"
+            on:click={closeModal}>Cancel</Button
           >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            class="w-32 bg-red-900 text-white px-6 py-2 rounded-lg hover:bg-red-950 cursor-pointer"
+
+          <Button color="red" type="submit" class="w-32">
+            {#if adding}
+              <div class="flex items-center gap-x-2">
+                <Spinner color="white" size={5} />
+                Adding
+              </div>
+            {:else}
+              Save item
+            {/if}</Button
           >
-            Save
-          </button>
         </div>
       </form>
-
-      {#if isLoading}
-        <div
-          class="fixed inset-0 z-60 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center"
-        >
-          <div
-            class="animate-spin w-12 h-12 border-4 border-t-4 border-white rounded-full border-t-transparent"
-          ></div>
-        </div>
-      {/if}
     </div>
   </div>
 {/if}

@@ -4,7 +4,7 @@
   import Category from "../common/Category.svelte";
   import Status from "../common/Status.svelte";
   import ClaimantsList from "../common/ClaimantsList.svelte";
-  import { Textarea } from "flowbite-svelte";
+  import { Textarea, Spinner, Button } from "flowbite-svelte";
   import { EditSolid } from "flowbite-svelte-icons";
   import { itemsStore } from "../../stores/itemStore";
   import type { Item } from "../../lib/types";
@@ -18,7 +18,7 @@
     ...item,
     accepted_claim: item.accepted_claim ?? null,
   };
-  let isLoading = false;
+  let updating = false;
 
   // Ensure date is a valid Date object
   const ensureValidDate = (date: any): Date => {
@@ -68,7 +68,7 @@
   };
 
   const handleSubmit = async () => {
-    isLoading = true;
+    updating = true;
     const itemToSave: Item = {
       ...formData,
     };
@@ -79,7 +79,7 @@
 
     onSave(itemToSave);
     showModal = false;
-    isLoading = false;
+    updating = false;
   };
 </script>
 
@@ -279,29 +279,24 @@
         <div
           class="col-span-6 flex justify-center gap-4 row-start-[5] col-start-1"
         >
-          <button
-            type="button"
-            on:click={closeModal}
-            class="w-32 border border-red-900 text-red-900 px-6 py-2 rounded-lg hover:bg-red-900 hover:text-white"
-            >Discard</button
+          <Button
+            color="alternative"
+            class="w-32 hover:text-red-800 border-red-800 text-[#800000]"
+            on:click={closeModal}>Cancel</Button
           >
-          <button
-            type="submit"
-            class="w-32 bg-red-900 text-white px-6 py-2 rounded-lg hover:bg-red-950"
-            >Save</button
+
+          <Button color="red" type="submit" class="w-32">
+            {#if updating}
+              <div class="flex items-center gap-x-2">
+                <Spinner color="white" size={5} />
+                Saving
+              </div>
+            {:else}
+              Save edit
+            {/if}</Button
           >
         </div>
       </form>
-
-      {#if isLoading}
-        <div
-          class="fixed inset-0 z-60 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center"
-        >
-          <div
-            class="animate-spin w-12 h-12 border-4 border-t-4 border-white rounded-full border-t-transparent"
-          ></div>
-        </div>
-      {/if}
     </div>
   </div>
 {/if}

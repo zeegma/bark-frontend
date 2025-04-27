@@ -5,15 +5,16 @@
   } from "flowbite-svelte-icons";
   import { itemsStore } from "../../stores/itemStore";
   import type { Item } from "../../lib/types";
+  import { Button, Spinner } from "flowbite-svelte";
 
   export let item: Item;
   export let viewType: "list" | "grid" = "list";
   export let onDelete: () => void;
   let showModal = false;
-  let isLoading = false;
+  let deleting = false;
 
   const handleDelete = async () => {
-    isLoading = true;
+    deleting = true;
     const success = await itemsStore.deleteItem(item.id);
     if (success) {
       onDelete();
@@ -21,7 +22,7 @@
     } else {
       console.error("Failed to delete item");
     }
-    isLoading = false;
+    deleting = false;
     showModal = false;
   };
 
@@ -81,38 +82,34 @@
 
       <!-- Icon centered here -->
       <div class="flex justify-center">
-        <ExclamationCircleOutline class="w-16 h-16 text-red-600 mb-4" />
+        <ExclamationCircleOutline
+          class="mx-auto mb-6 text-red-700 w-24 h-24 dark:text-gray-200"
+        />
       </div>
 
-      <h3 class="text-xl font-semibold text-gray-800 mb-2">Confirm Delete</h3>
-      <p class="text-sm text-gray-600">
-        Are you sure you want to delete <strong>{item.id}</strong>?
-      </p>
+      <h1 class="mb-2 text-4xl font-semibold text-gray-800">Delete Item</h1>
+      <h3 class="mb-8 text-lg font-normal text-gray-800 dark:text-gray-400">
+        Are you sure you want to delete item {item.id}?
+      </h3>
 
-      <div class="mt-6 flex gap-4 w-full items-center justify-center">
-        <button
-          class="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-100"
-          on:click={closeModal}
+      <div class="mb-3 flex gap-3 justify-center">
+        <Button
+          color="alternative"
+          class="hover:text-red-800 border-red-800 text-[#800000]"
+          on:click={closeModal}>No, cancel</Button
         >
-          Cancel
-        </button>
-        <button
-          class="px-4 py-2 rounded-lg bg-red-900 text-white hover:bg-red-950"
-          on:click={handleDelete}
-        >
-          Yes, delete it
-        </button>
+
+        <Button color="red" on:click={handleDelete}>
+          {#if deleting}
+            <div class="flex items-center gap-x-2">
+              <Spinner color="white" size={5} />
+              Deleting
+            </div>
+          {:else}
+            Yes, I'm sure
+          {/if}
+        </Button>
       </div>
-
-      {#if isLoading}
-        <div
-          class="fixed inset-0 z-60 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center"
-        >
-          <div
-            class="animate-spin w-12 h-12 border-4 border-t-4 border-white rounded-full border-t-transparent"
-          ></div>
-        </div>
-      {/if}
     </div>
   </div>
 {/if}
