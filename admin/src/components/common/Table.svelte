@@ -15,6 +15,7 @@
   import type { ClaimantResponse, ClaimItem } from "../../lib/types";
   import ViewModal from "../widgets/claimants/ViewModal.svelte";
   import DeleteModal from "../widgets/claimants/DeleteModal.svelte";
+  import EmptyFallback from "./EmptyFallback.svelte";
   import { sortStore, type SortOptions } from "../../stores/sortStore";
   import {
     selectionStore,
@@ -160,6 +161,8 @@
       Retry
     </button>
   </div>
+{:else if claims.length === 0}
+  <EmptyFallback />
 {:else}
   <Table hoverable={true} class="w-full table-fixed text-center overflow-auto">
     <TableHead>

@@ -2,6 +2,7 @@
   import Card from "./Card.svelte";
   import ViewModal from "../widgets/claimants/ViewModal.svelte";
   import DeleteModal from "../widgets/claimants/DeleteModal.svelte";
+  import EmptyFallback from "./EmptyFallback.svelte";
   import { Checkbox, Spinner } from "flowbite-svelte";
   import { fetchClaimants } from "../../lib/api";
   import { onMount } from "svelte";
@@ -186,6 +187,8 @@
       Retry
     </button>
   </div>
+{:else if claims.length === 0}
+  <EmptyFallback />
 {:else}
   <div>
     <!-- Select all -->
