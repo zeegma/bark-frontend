@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { Button, Modal, Spinner } from "flowbite-svelte";
-  import { ExclamationCircleOutline } from "flowbite-svelte-icons";
+  import { Button, Modal, Spinner, Toast } from "flowbite-svelte";
+  import { ExclamationCircleOutline, BanOutline } from "flowbite-svelte-icons";
   import type { ClaimItem } from "../../../lib/types";
   import { deleteClaimants } from "../../../lib/api";
 
@@ -15,6 +15,8 @@
 
   // Determine if in bulk delete mode
   $: isBulkDelete = idsToDelete.length > 0;
+
+  let toastVisible = false;
 
   async function handleDelete() {
     try {
@@ -46,12 +48,26 @@
       open = false;
     } catch (error) {
       console.error("Failed to delete:", error);
+      toastVisible = true;
     } finally {
       deleting = false;
       open = false;
     }
   }
 </script>
+
+{#if toastVisible}
+  <Toast
+    dismissable={true}
+    color="red"
+    position="bottom-right"
+    class="w-60"
+    on:close={() => (toastVisible = false)}
+  >
+    <BanOutline slot="icon" class="w-6 h-6" />
+    Failed to delete
+  </Toast>
+{/if}
 
 <Modal
   bind:open
