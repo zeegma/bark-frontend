@@ -13,11 +13,16 @@
     selectionActions,
   } from "../../stores/selectionStore";
 
+  type DeleteCompleteEvent = CustomEvent<{ deletedIds: string[] }>;
+
   // For view modal
   let viewModal: boolean = false;
 
   // For delete modal
   let deleteModal: boolean = false;
+
+  // For bulk delete
+  let bulkDeleteIds: string[] = [];
 
   let selectedClaim: ClaimItem | null = null;
   let loading: boolean = true;
@@ -102,6 +107,17 @@
     deleteModal = true;
   }
 
+  function handleDeletionComplete(event: DeleteCompleteEvent) {
+    const { deletedIds } = event.detail;
+    // Remove deleted items from the claims array
+    claims = claims.filter((claim) => !deletedIds.includes(claim.id));
+
+    // Clear selection if needed
+    if (deletedIds.length > 0) {
+      selectionActions.clearSelection();
+    }
+  }
+
   // Global click handler: close dropdowns when clicking outside
   onMount(() => {
     const handleGlobalClick = (event: MouseEvent) => {
@@ -139,9 +155,14 @@
 
     fetchData();
 
+    const handleDeleteEvent = ((e: Event) =>
+      handleDeletionComplete(e as DeleteCompleteEvent)) as EventListener;
+    document.addEventListener("deletecomplete", handleDeleteEvent);
+
     return () => {
       window.removeEventListener("click", handleGlobalClick);
       window.removeEventListener("scroll", handleScroll, true);
+      document.removeEventListener("deletecomplete", handleDeleteEvent);
     };
   });
 
@@ -195,4 +216,9 @@
     </div>
   </div>
   <ViewModal bind:open={viewModal} claim={selectedClaim} />
+  <DeleteModal
+    bind:open={deleteModal}
+    claim={selectedClaim}
+    idsToDelete={bulkDeleteIds}
+  />
 {/if}
