@@ -4,6 +4,7 @@
   import DeleteModal from "../widgets/claimants/DeleteModal.svelte";
   import EmptyFallback from "./EmptyFallback.svelte";
   import { Checkbox, Spinner } from "flowbite-svelte";
+  import { FileZipSolid } from "flowbite-svelte-icons";
   import { fetchClaimants } from "../../lib/api";
   import { onMount } from "svelte";
   import type { ClaimantResponse, ClaimItem } from "../../lib/types";
@@ -176,9 +177,8 @@
     <Spinner color="red" size={20} />
   </div>
 {:else if error}
-  <div
-    class="flex justify-center items-center h-full flex-col p-8 text-[#800000]"
-  >
+  <div class="flex justify-center items-center h-full flex-col text-gray-800">
+    <FileZipSolid class="w-20 h-20 mb-4 text-[#800000]" />
     <p>Error loading data: {error}</p>
     <button
       class="mt-4 px-4 py-2 bg-[#800000] text-white rounded"
