@@ -154,10 +154,12 @@
     <Spinner color="red" size={20} />
   </div>
 {:else if error}
-  <div class="text-center p-8 text-red-600">
+  <div
+    class="flex justify-center items-center h-full flex-col p-8 text-[#800000]"
+  >
     <p>Error loading data: {error}</p>
     <button
-      class="mt-4 px-4 py-2 bg-red-600 text-white rounded"
+      class="mt-4 px-4 py-2 bg-[#800000] text-white rounded"
       on:click={() => window.location.reload()}
     >
       Retry
