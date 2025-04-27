@@ -1,22 +1,14 @@
 <script lang="ts">
   import { Button, Modal, Spinner } from "flowbite-svelte";
   import { ExclamationCircleOutline } from "flowbite-svelte-icons";
+  import type { ClaimItem } from "../../../lib/types";
   import { deleteClaimants } from "../../../lib/api";
 
   export let open = false;
 
   let deleting = false;
 
-  export let claim: {
-    id: string;
-    name: string;
-    phone: string;
-    facebook: string;
-    dateFiled: string;
-    itemId: string;
-    itemRequested: string;
-    hasImage?: boolean;
-  } | null;
+  export let claim: ClaimItem | null;
 
   // Prop for bulk delete
   export let idsToDelete: string[] = [];
