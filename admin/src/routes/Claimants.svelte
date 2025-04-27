@@ -25,12 +25,6 @@
   function clearSelection() {
     selectionActions.clearSelection();
   }
-
-  function deleteSelectedItems() {
-    // Wait for API imple of deletion, this one's temp code
-    console.log("Deleting items:", Array.from(selectedIds));
-    selectionActions.clearSelection();
-  }
 </script>
 
 <Layout title="Claimants">
@@ -49,7 +43,6 @@
           <Indicator
             selectedCount={selectedIds.size}
             onClear={clearSelection}
-            onDelete={deleteSelectedItems}
           />
         {/if}
       </div>
