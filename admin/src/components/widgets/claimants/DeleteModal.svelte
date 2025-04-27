@@ -77,12 +77,12 @@
       </h1>
       <h3 class="mb-8 text-lg font-normal text-gray-800 dark:text-gray-400">
         {#if isBulkDelete}
-          Are you sure you want to delete {idsToDelete.length} selected claim{idsToDelete.length !==
+          Are you sure you want to delete {idsToDelete.length} Claim{idsToDelete.length !==
           1
             ? "s"
             : ""}?
         {:else if claim}
-          Are you sure you want to delete claim {claim.id}?
+          Are you sure you want to delete Claim {claim.id}?
         {/if}
       </h3>
       <div class="mb-3 flex gap-3 justify-center">
