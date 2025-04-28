@@ -20,6 +20,7 @@
   import ViewModal from "../widgets/claimants/ViewModal.svelte";
   import DeleteModal from "../widgets/claimants/DeleteModal.svelte";
   import EmptyFallback from "./EmptyFallback.svelte";
+  import SkeletonLoader from "./SkeletonLoader.svelte";
   import { sortStore, type SortOptions } from "../../stores/sortStore";
   import {
     selectionStore,
@@ -151,7 +152,7 @@
 
 {#if loading}
   <div class="flex justify-center items-center h-full pb-10">
-    <Spinner color="red" size={20} />
+    <SkeletonLoader type="table" count={6} />
   </div>
 {:else if error}
   <div class="flex justify-center items-center h-full flex-col text-gray-800">

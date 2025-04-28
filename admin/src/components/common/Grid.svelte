@@ -3,6 +3,7 @@
   import ViewModal from "../widgets/claimants/ViewModal.svelte";
   import DeleteModal from "../widgets/claimants/DeleteModal.svelte";
   import EmptyFallback from "./EmptyFallback.svelte";
+  import SkeletonLoader from "./SkeletonLoader.svelte";
   import { Checkbox, Spinner } from "flowbite-svelte";
   import { FileZipSolid } from "flowbite-svelte-icons";
   import { fetchClaimants } from "../../lib/api";
@@ -173,9 +174,7 @@
 </script>
 
 {#if loading}
-  <div class="flex justify-center items-center h-full pb-10">
-    <Spinner color="red" size={20} />
-  </div>
+  <SkeletonLoader type="grid" count={4} />
 {:else if error}
   <div class="flex justify-center items-center h-full flex-col text-gray-800">
     <FileZipSolid class="w-20 h-20 mb-4 text-[#800000]" />
