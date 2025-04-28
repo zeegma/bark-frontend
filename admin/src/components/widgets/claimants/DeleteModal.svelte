@@ -1,12 +1,9 @@
 <script lang="ts">
   import { Button, Modal, Spinner, Toast } from "flowbite-svelte";
-  import {
-    ExclamationCircleOutline,
-    CheckCircleSolid,
-    CloseCircleSolid,
-  } from "flowbite-svelte-icons";
+  import { ExclamationCircleOutline } from "flowbite-svelte-icons";
   import type { ClaimItem } from "../../../lib/types";
   import { deleteClaimants } from "../../../lib/api";
+  import { showToast } from "../../../stores/toastStore";
 
   export let open = false;
   let deleting = false;
@@ -17,31 +14,6 @@
 
   // Determine if in bulk delete mode
   $: isBulkDelete = idsToDelete.length > 0;
-
-  let toastVisible = false;
-  let toastType: "success" | "error" = "error";
-  let toastMessage = "";
-  let toastCounter = 5;
-  let toastInterval: ReturnType<typeof setInterval>;
-
-  function showToast(message: string, type: "success" | "error" = "success") {
-    toastMessage = message;
-    toastType = type;
-    toastVisible = true;
-    toastCounter = 5;
-
-    // Clear any existing interval
-    if (toastInterval) clearInterval(toastInterval);
-
-    // Set up countdown
-    toastInterval = setInterval(() => {
-      toastCounter--;
-      if (toastCounter <= 0) {
-        clearInterval(toastInterval);
-        toastVisible = false;
-      }
-    }, 1000);
-  }
 
   async function handleDelete() {
     try {
@@ -73,8 +45,10 @@
       // Show success toast when deletion is successful
       showToast(
         isBulkDelete
-          ? `Successfully deleted ${idsToDelete.length} claims`
-          : `Successfully deleted claim ${claim?.id || ""}`,
+          ? idsToDelete.length !== 1
+            ? `Successfully deleted ${idsToDelete.length} Claims`
+            : `Successfully deleted 1 Claim`
+          : `Successfully deleted Claim ${claim?.id || ""}`,
         "success",
       );
     } catch (error) {
@@ -86,26 +60,6 @@
     }
   }
 </script>
-
-{#if toastVisible}
-  <Toast
-    color={toastType === "success" ? "green" : "red"}
-    position="bottom-right"
-  >
-    <svelte:fragment slot="icon">
-      {#if toastType === "success"}
-        <CheckCircleSolid class="w-5 h-5" />
-        <span class="sr-only">Success icon</span>
-      {:else}
-        <CloseCircleSolid class="w-5 h-5" />
-        <span class="sr-only">Error icon</span>
-      {/if}
-    </svelte:fragment>
-    <div class="text-sm font-normal">
-      {toastMessage} - Autohide in {toastCounter}s.
-    </div>
-  </Toast>
-{/if}
 
 <Modal
   bind:open
