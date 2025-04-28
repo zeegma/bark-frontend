@@ -6,7 +6,7 @@
   export let view: string;
 </script>
 
-<div class="font-[Poppins] xl:px-24">
+<div class="font-[Poppins] px-2 md:px-12 xl:px-24">
   {#if view === "grid"}
     <GridView {items} />
   {:else}

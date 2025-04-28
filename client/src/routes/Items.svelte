@@ -1,5 +1,7 @@
 <script lang="ts">
   import Header from "../components/layout/Header.svelte";
+  import GridLoader from "../components/common/GridLoader.svelte";
+  import ListLoader from "../components/common/ListLoader.svelte";
   import Filters from "../components/layout/Filters.svelte";
   import Contents from "../components/layout/Contents.svelte";
   import { fetchAllItems } from "../lib/api/fetch";
@@ -26,6 +28,7 @@
   let rawItems: Item[] = [];
   let filteredItems: Item[] = [];
   let isLoading: boolean = true;
+  let view: string = localStorage.getItem("viewMode") || "grid";
 
   // Fetch all items from the backend
   onMount(async () => {
@@ -65,13 +68,41 @@
     });
   }
 
-  let view: string = "grid";
+  $: {
+    localStorage.setItem("viewMode", view);
+  }
 </script>
 
 <Header />
 {#if isLoading}
-  <p>Loading...</p>
+  {#if view === "grid"}
+    <GridLoader />
+  {:else}
+    <ListLoader />
+  {/if}
 {:else}
   <Filters bind:view />
-  <Contents items={filteredItems} {view} />
+  {#if filteredItems.length === 0}
+    <!-- Empty State -->
+    <div class="flex flex-col items-center justify-center h-88 px-8">
+      <img
+        src="/icons/nobark.svg"
+        alt=""
+        class="w-36 sm:w-48 md:w-72 mb-6 md:mb-8"
+      />
+      <h1
+        class="font-[Poppins] font-medium text-center text-base sm:text-xl md:text-2xl text-[#800000] mb-2 md:mb-3"
+      >
+        No Items Found...
+      </h1>
+      <p
+        class="font-[Poppins] font-medium text-xs sm:text-sm md:text-md text-center text-red-400 max-w-64 md:max-w-96"
+      >
+        We couldn’t find anything. Try adjusting your filters or refreshing the
+        page if the problem persists.
+      </p>
+    </div>
+  {:else}
+    <Contents items={filteredItems} {view} />
+  {/if}
 {/if}
