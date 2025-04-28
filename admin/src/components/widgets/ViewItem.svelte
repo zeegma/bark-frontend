@@ -171,7 +171,7 @@
             class="block text-sm font-medium text-gray-800 mb-1"
             >Date Lost</label
           >
-          <DatePicker selectedDate={new Date(item.dateLost)} disabled={true} />
+          <DatePicker value={new Date(item.dateLost)} disabled={true} />
         </div>
 
         <!-- Time Lost -->

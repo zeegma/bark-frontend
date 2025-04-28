@@ -36,10 +36,14 @@
 <Layout title="Items">
   <div class="p-2">
     <div class="flex row-auto justify-between">
-      <div class="flex gap-4 mb-7">
+      <div class="flex items-center gap-4 mb-7">
         <FilterDropdown />
-        <DatePicker />
-        <Toggle />
+        <div class="min-w-[300px]">
+          <DatePicker />
+        </div>
+        <div class="min-w-[96px]">
+          <Toggle />
+        </div>
       </div>
       <div class="flex flex-1 justify-end">
         {#if selectedIds.size > 0}

@@ -29,10 +29,10 @@
   }
 </script>
 
-<div class="relative inline-block text-left">
+<div class="relative flex text-left">
   <Button
     color="light"
-    class="justify-start border rounded-xl h-11 focus:ring-2 focus:ring-red-600 focus:border-gray"
+    class="justify-start border rounded-xl h-11 focus:ring-2 focus:ring-red-600 focus:border-gray whitespace-nowrap"
   >
     Filter: {formatLabel(status)}, {formatLabel(category)}
     <ChevronDownOutline class="w-5 h-5 ms-2 text-gray-600" />
