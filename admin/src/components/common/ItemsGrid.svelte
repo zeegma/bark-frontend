@@ -12,17 +12,26 @@
     selectionStore,
     selectionActions,
   } from "../../stores/selectionStore";
+  import { dropdownActions } from "../../stores/dropdownStore";
   import type { Item } from "../../lib/types";
   import { fetchItems, updateItem, deleteItem } from "../../lib/api/items";
   import { refreshTrigger } from "../../stores/itemStore";
+  import ViewItem from "../widgets/ViewItem.svelte";
+  import DeleteItem from "../widgets/DeleteItem.svelte";
+  import EditItem from "../widgets/EditItem.svelte";
 
   let allItems: Item[] = [];
   let items: Item[] = [];
+  let selectedItem: Item | null = null;
+  let itemToDelete: Item | null = null;
   let currentFilters: FilterOptions;
   let isAllSelected: boolean;
   let selectedIds: Set<string>;
   let loading = false;
   let error: string | null = null;
+  let viewModalOpen = false;
+  let editModalOpen = false;
+  let deleteModalOpen = false;
 
   filterStore.subscribe((f) => {
     currentFilters = f;
@@ -91,7 +100,32 @@
     selectionActions.toggleSelectAll(items.map((item) => item.id));
   }
 
+  function handleCardDoubleClick(item: Item) {
+    selectedItem = item;
+    viewModalOpen = true;
+  }
+
+  function handleViewClick(item: Item) {
+    selectedItem = item;
+    viewModalOpen = true;
+  }
+
+  function handleEditClick(item: Item) {
+    selectedItem = item;
+    editModalOpen = true;
+  }
+
+  function handleDeleteClick(item: Item) {
+    console.log("Open delete");
+    itemToDelete = item;
+    deleteModalOpen = true;
+  }
+
   async function handleDelete(id: string) {
+    if (!itemToDelete) {
+      console.error("Item to delete is not defined.");
+      return;
+    }
     loading = true;
     console.log("Deleting this item in the grid:", id);
 
@@ -133,6 +167,27 @@
   }
 
   onMount(async () => {
+    const handleGlobalClick = (event: MouseEvent) => {
+      const clickedOnDropdown = (event.target as Element).closest(
+        "[role='dialog']",
+      );
+      const clickedOnMenu = (event.target as Element).closest(
+        "[class^='dots-menu-']",
+      );
+
+      if (!clickedOnDropdown && !clickedOnMenu) {
+        dropdownActions.closeAll();
+      }
+    };
+
+    const handleScroll = () => {
+      dropdownActions.closeAll();
+    };
+
+    window.addEventListener("click", handleGlobalClick);
+    window.addEventListener("scroll", handleScroll, true);
+
+    // Fetch initial items
     try {
       const fetched = await fetchItems();
       allItems = fetched;
@@ -143,6 +198,9 @@
     } finally {
       loading = false;
     }
+
+    window.removeEventListener("click", handleGlobalClick);
+    window.removeEventListener("scroll", handleScroll, true);
   });
 </script>
 
@@ -177,9 +235,36 @@
 
     <!-- Main content grid -->
     <div class="grid grid-cols-3 gap-4 w-full">
-      {#each items as item (item.id)}
-        <ItemCard {item} onDelete={handleDelete} onSave={handleSave} />
+      {#each items as item, index (item.id)}
+        <ItemCard
+          {index}
+          {item}
+          onDelete={handleDelete}
+          onSave={handleSave}
+          onDoubleClick={handleCardDoubleClick}
+          onViewClick={handleViewClick}
+          onEditClick={handleEditClick}
+          onDeleteClick={handleDeleteClick}
+        />
       {/each}
     </div>
   </div>
+
+  {#if viewModalOpen && selectedItem !== null}
+    <ViewItem item={selectedItem} bind:open={viewModalOpen} />
+  {/if}
+  {#if editModalOpen && selectedItem !== null}
+    <EditItem
+      bind:open={editModalOpen}
+      item={selectedItem}
+      onSave={handleSave}
+    />
+  {/if}
+  {#if deleteModalOpen && itemToDelete}
+    <DeleteItem
+      bind:open={deleteModalOpen}
+      item={itemToDelete}
+      onDelete={() => itemToDelete && handleDelete(itemToDelete.id)}
+    />
+  {/if}
 {/if}

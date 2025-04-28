@@ -5,6 +5,7 @@
     CalendarMonthSolid,
     FileSolid,
   } from "flowbite-svelte-icons";
+  import { Dropdown, DropdownItem } from "flowbite-svelte";
   import {
     selectionStore,
     selectionActions,
@@ -15,64 +16,107 @@
   import EditItem from "../widgets/EditItem.svelte";
   import DeleteItem from "../widgets/DeleteItem.svelte";
   import type { Item } from "../../lib/types";
-  import { fetchItems } from "../../lib/api/items";
+  import {
+    openDropdownIdStore,
+    dropdownActions,
+  } from "../../stores/dropdownStore";
 
   export let item: Item;
+  export let index: number;
+  export let onDelete: (id: string) => void;
+  export let onSave: (updatedItem: Item) => void;
+  export let onDoubleClick: (item: Item) => void;
+  export let onViewClick: (item: any) => void;
+  export let onDeleteClick: (item: any) => void;
+  export let onEditClick: (item: Item) => void;
 
   let selectedIds: Set<string>;
   let isSelected: boolean;
   let showMenu = false;
-  let menuRef: HTMLElement; // For closing the menu if clicked outside the menu
-  let currentlyOpenMenu: string | null = null; // Check if multiple menu is open (NOT WORKING)
-  let allItems: Item[] = [];
+  let isDropdownOpen = false;
   let loading = false;
-  export let onDelete: (id: string) => void;
-  export let onSave: (updatedItem: Item) => void;
+  let viewModalOpen = false;
+  let editModalOpen = false;
+  let deleteModalOpen = false;
+  let itemToDelete: Item | null = null;
+  let clickTimeout: NodeJS.Timeout | null = null;
+  let currentlyOpenMenu: string | null = null; // Check if multiple menu is open (NOT WORKING)
 
   const { photo_url } = item;
   const hasImage = !!photo_url;
+  const dropdownId = `dropdown-${item.id}-${index}`;
 
   selectionStore.subscribe((state) => {
     selectedIds = state.selectedIds;
     isSelected = selectedIds.has(item.id);
   });
 
-  const handleCardClick = () => {
-    selectionActions.toggleSelection(item.id);
-  };
+  openDropdownIdStore.subscribe((openId) => {
+    isDropdownOpen = openId === dropdownId;
+  });
+
+  function handleCardClick() {
+    // Clear any existing timeout
+    if (clickTimeout) {
+      clearTimeout(clickTimeout);
+      clickTimeout = null;
+    }
+
+    // Set a new timeout
+    clickTimeout = setTimeout(() => {
+      // Only toggle selection if it wasn't a double click
+      selectionActions.toggleSelection(item.id);
+      clickTimeout = null;
+    }, 250);
+  }
+
+  function handleDoubleClick(event: MouseEvent) {
+    // Clear the timeout to prevent the click handler from firing
+    if (clickTimeout) {
+      clearTimeout(clickTimeout);
+      clickTimeout = null;
+    }
+
+    // Also, select item
+    if (!selectedIds.has(item.id)) {
+      selectionActions.toggleSelection(item.id);
+    }
+
+    onDoubleClick(item);
+  }
+
+  function toggleDropdown(event: MouseEvent) {
+    event.stopPropagation();
+    dropdownActions.toggleDropdown(dropdownId);
+  }
+
+  function handleView(event: MouseEvent) {
+    event.stopPropagation();
+    dropdownActions.closeAll();
+    onViewClick(item);
+  }
+
+  function openDeleteModal(item: Item) {
+    itemToDelete = item;
+    onDeleteClick(item);
+    dropdownActions.closeAll();
+  }
+
+  function handleEdit(event: MouseEvent) {
+    event.stopPropagation();
+    dropdownActions.closeAll();
+    onEditClick(item);
+  }
 
   function handleKeyDown(event: KeyboardEvent) {
     if (event.key === "Enter" || event.key === " ") {
-      handleCardClick();
+      handleCardClick(); // No event passed here
     }
   }
-
-  const handleMenuClick = (event: MouseEvent) => {
-    event.stopPropagation();
-    if (currentlyOpenMenu !== item.id) {
-      showMenu = true;
-      currentlyOpenMenu = item.id;
-    } else {
-      showMenu = false;
-      currentlyOpenMenu = null;
-    }
-  };
 
   const closeMenu = () => {
     showMenu = false;
     currentlyOpenMenu = null;
-  };
-
-  // Stop the card from being clicked when button is clicked in the dropdown
-  const handleMenuItemClick = (event: MouseEvent) => {
-    event.stopPropagation();
-  };
-
-  const handleClickOutside = (event: MouseEvent) => {
-    if (menuRef && !menuRef.contains(event.target as Node)) {
-      showMenu = false;
-      currentlyOpenMenu = null;
-    }
   };
 
   async function handleDelete() {
@@ -101,13 +145,21 @@
     }
   }
 
-  // Add/remove global click listener for menu (TODO: Check for other approaches)
+  // Add scroll handler to close dropdown when scrolling
   onMount(() => {
-    document.addEventListener("click", handleClickOutside);
-  });
+    const handleScroll = () => {
+      if (isDropdownOpen) {
+        dropdownActions.closeAll();
+      }
+    };
 
-  onDestroy(() => {
-    document.removeEventListener("click", handleClickOutside);
+    // Add scroll listener
+    window.addEventListener("scroll", handleScroll, true);
+
+    // Clean up on component destruction
+    return () => {
+      window.removeEventListener("scroll", handleScroll, true);
+    };
   });
 </script>
 
@@ -117,6 +169,7 @@
   aria-label="Description of card action"
   role="button"
   on:click={handleCardClick}
+  on:dblclick={handleDoubleClick}
   on:keydown={handleKeyDown}
 >
   <div
@@ -134,41 +187,28 @@
       </div>
 
       <!-- Menu trigger & dropdown -->
-      <div class="relative" bind:this={menuRef}>
-        <button
-          on:click={handleMenuClick}
-          class="text-gray-500 hover:text-gray-700"
-        >
-          <DotsVerticalOutline size="sm" />
-        </button>
-
-        {#if showMenu}
-          <div
-            class="absolute right-0 mt-2 w-24 bg-white border rounded-lg shadow z-50"
-          >
-            <button
-              on:click={(event) => {
-                handleMenuItemClick(event);
-              }}
-              class="w-full text-left px-1 py-1 hover:bg-gray-100 text-sm"
-            >
-              <ViewItem {item} viewType="grid" />
-            </button>
-            <button
-              on:click={handleMenuItemClick}
-              class="w-full text-left px-1 py-1 hover:bg-gray-100 text-sm"
-            >
-              <EditItem {item} viewType="grid" onSave={handleSave} />
-            </button>
-            <button
-              on:click={handleMenuItemClick}
-              class="w-full text-left px-1 py-1 hover:bg-gray-100 text-sm"
-            >
-              <DeleteItem {item} viewType="grid" onDelete={handleDelete} />
-            </button>
-          </div>
-        {/if}
+      <div
+        aria-label="Menu icon"
+        role="button"
+        tabindex="-2"
+        on:click={toggleDropdown}
+        on:keydown={handleKeyDown}
+      >
+        <DotsVerticalOutline class={`dots-menu-${index} dark:text-white`} />
       </div>
+
+      <Dropdown
+        triggeredBy={`.dots-menu-${index}`}
+        autosave="true"
+        bind:open={isDropdownOpen}
+        class="text-left items-start"
+      >
+        <DropdownItem on:click={handleView}>View</DropdownItem>
+        <DropdownItem on:click={handleEdit}>Edit</DropdownItem>
+        <DropdownItem on:click={() => openDeleteModal(item)}
+          >Delete</DropdownItem
+        >
+      </Dropdown>
     </div>
 
     <!-- Image area -->
@@ -259,4 +299,18 @@
       </div>
     </div>
   </div>
+
+  {#if viewModalOpen}
+    <ViewItem {item} bind:open={viewModalOpen} />
+  {/if}
+  {#if editModalOpen}
+    <EditItem bind:open={editModalOpen} {item} onSave={handleSave} />
+  {/if}
+  {#if itemToDelete}
+    <DeleteItem
+      bind:open={deleteModalOpen}
+      item={itemToDelete}
+      onDelete={handleDelete}
+    />
+  {/if}
 </div>
