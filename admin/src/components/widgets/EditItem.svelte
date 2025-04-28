@@ -4,30 +4,30 @@
   import Category from "../common/Category.svelte";
   import Status from "../common/Status.svelte";
   import ClaimantsList from "../common/ClaimantsList.svelte";
-  import { Textarea, Spinner, Button } from "flowbite-svelte";
-  import { EditSolid } from "flowbite-svelte-icons";
+  import { Textarea, Spinner, Button, Modal } from "flowbite-svelte";
+  import { MapPinAltSolid } from "flowbite-svelte-icons";
   import { itemsStore } from "../../stores/itemStore";
   import type { Item } from "../../lib/types";
 
   export let item: Item;
   export let onSave: (data: Item) => void;
-  export let viewType: "list" | "grid" = "list";
+  export let open = false;
 
-  let showModal = false;
   let formData: Item = {
     ...item,
-    accepted_claim: item.accepted_claim ?? null,
+    accepted_claim: item.accepted_claim ?? null, // Ensure it's never undefined
   };
   let updating = false;
+  let edit = true;
 
   // Ensure date is a valid Date object
   const ensureValidDate = (date: any): Date => {
     return date instanceof Date && !isNaN(date.getTime()) ? date : new Date();
   };
 
-  formData.date_found = ensureValidDate(formData.date_found);
+  // formData.date_found = ensureValidDate(formData.date_found);
 
-  const openModal = () => {
+  $: if (open && edit) {
     console.log("Opening modal for item:", item);
     formData = { ...item };
     formData.date_found = ensureValidDate(formData.date_found);
@@ -38,11 +38,11 @@
       formData.imagePreview = null;
     }
 
-    showModal = true;
-  };
+    edit = false;
+  }
 
   const closeModal = () => {
-    showModal = false;
+    open = false;
   };
 
   const handleImageUpload = (event: Event) => {
@@ -78,225 +78,170 @@
     }
 
     onSave(itemToSave);
-    showModal = false;
+    open = false;
     updating = false;
   };
 </script>
 
-<button
-  on:click={openModal}
-  class="btn capitalize {viewType === 'grid'
-    ? 'w-full px-1 m-0 text-left'
-    : ''}"
->
-  {#if viewType === "list"}
-    <EditSolid />
-  {:else}
-    Edit
-  {/if}
-</button>
-
 <!-- Modal -->
-{#if showModal}
-  <div
-    class="overflow-y-auto fixed inset-0 z-50 flex justify-center items-center w-screen h-screen max-h-full backdrop-blur-sm bg-black/50"
-  >
-    <div class="bg-white rounded-2xl w-full max-w-6xl shadow-md">
-      <!-- Header -->
-      <div
-        class="flex justify-between items-center px-6 py-4 border-b border-gray-300"
-      >
-        <h2 class="text-2xl font-bold text-gray-800">Edit Item</h2>
-        <button
-          aria-label="close"
-          type="button"
-          class="text-[#1E1E1E] bg-transparent rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center hover:bg-[#800000] hover:text-white cursor-pointer"
-          on:click={closeModal}
-        >
-          <svg
-            class="w-3 h-3"
-            aria-hidden="true"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 14 14"
-          >
-            <path
-              stroke="currentColor"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
-            />
-          </svg>
-          <span class="sr-only">Close modal</span>
-        </button>
-      </div>
-
-      <!-- Form -->
-      <form
-        class="px-6 py-4 grid grid-cols-6 grid-rows-4 gap-4"
-        on:submit|preventDefault={handleSubmit}
-      >
-        <!-- Item Name -->
-        <div class="col-span-2">
-          <label for="name" class="block text-sm font-medium text-gray-800 mb-1"
-            >Item Name</label
-          >
-          <input
-            type="text"
-            bind:value={formData.name}
-            class="w-full p-2.5 border border-gray-300 focus:border-black focus:ring-2 focus:ring-red-500 focus:outline-none rounded-lg text-sm"
-            placeholder="Enter item name"
-          />
-        </div>
-
-        <!-- Status -->
-        <div class="col-start-3 row-start-1">
-          <label
-            for="status"
-            class="block text-sm font-medium text-gray-800 mb-1">Status</label
-          >
-          <Status bind:selectedStatus={formData.status} />
-        </div>
-
-        <!-- Category -->
-        <div class="col-start-4 row-start-1 col-span-2">
-          <label
-            for="category"
-            class="block text-sm font-medium text-gray-800 mb-1">Category</label
-          >
-          <Category bind:selectedCategory={formData.category} />
-        </div>
-
-        <!-- Claimant -->
-        <div class="col-start-6">
-          <label
-            for="claimant"
-            class="block text-sm font-medium text-gray-800 mb-1">Claimant</label
-          >
-          <ClaimantsList
-            bind:selectedClaimant={formData.accepted_claim!}
-            itemId={item.id}
-          />
-        </div>
-
-        <!-- Date Picker -->
-        <div class="col-span-2 col-start-1 row-start-2">
-          <label
-            for="dateLost"
-            class="block text-sm font-medium text-gray-800 mb-1"
-            >Date Lost</label
-          >
-          <DatePicker bind:value={formData.date_found} />
-        </div>
-
-        <!-- Description -->
-        <div class="col-span-2 row-span-3 col-start-3 row-start-2">
-          <label
-            for="description"
-            class="block text-sm font-medium text-gray-800 mb-1"
-            >Description</label
-          >
-          <Textarea
-            bind:value={formData.description}
-            placeholder="Description"
-            rows={10}
-          />
-        </div>
-
-        <!-- Time Picker -->
-        <div class="col-span-2 col-start-1 row-start-3">
-          <label
-            for="timeLost"
-            class="block text-sm font-medium text-gray-800 mb-1"
-            >Time Lost</label
-          >
-          <TimePicker bind:selectedTime={formData.time_found} />
-        </div>
-
-        <!-- Last Known Location -->
-        <div class="col-span-2 col-start-1 row-start-4">
-          <label
-            for="timeLost"
-            class="block text-sm font-medium text-gray-800 mb-1"
-            >Last Known Location</label
-          >
-          <input
-            type="text"
-            bind:value={formData.location_found}
-            class="w-full p-2.5 pr-10 border border-gray-300 focus:border-black focus:ring-2 focus:ring-red-500 focus:outline-none rounded-lg text-sm"
-            placeholder="Location"
-          />
-        </div>
-
-        <!-- Image Upload -->
-        <div class="col-span-2 row-span-3 col-start-5 row-start-2">
-          <label
-            for="image"
-            class="block mb-1 text-sm font-medium text-[#1E1E1E]"
-          >
-            Image
-          </label>
-
-          <label
-            class="relative border border-gray-300 rounded h-[222px] flex items-center justify-center bg-gray-50 p-2 cursor-pointer overflow-hidden group"
-          >
-            <input
-              id="image"
-              type="file"
-              accept="image/*"
-              class="hidden"
-              on:change={handleImageUpload}
-            />
-
-            {#if formData.imagePreview}
-              <img
-                src={formData.imagePreview}
-                alt="Preview"
-                class="max-h-full max-w-full object-contain rounded transition duration-200"
-              />
-
-              <!-- Overlay -->
-              <div
-                class="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity duration-200 rounded"
-              >
-                <span class="text-white text-sm font-medium"
-                  >Click to change image</span
-                >
-              </div>
-            {:else}
-              <div
-                class="flex flex-col items-center justify-center text-center"
-              >
-                <span class="text-4xl text-gray-400">+</span>
-                <span class="text-sm mt-2">Add image</span>
-              </div>
-            {/if}
-          </label>
-        </div>
-
-        <!-- Buttons -->
-        <div
-          class="col-span-6 flex justify-center gap-4 row-start-[5] col-start-1"
-        >
-          <Button
-            color="alternative"
-            class="w-32 hover:text-red-800 border-red-800 text-[#800000]"
-            on:click={closeModal}>Cancel</Button
-          >
-
-          <Button color="red" type="submit" class="w-32">
-            {#if updating}
-              <div class="flex items-center gap-x-2">
-                <Spinner color="white" size={5} />
-                Saving
-              </div>
-            {:else}
-              Save edit
-            {/if}</Button
-          >
-        </div>
-      </form>
+<Modal bind:open size="xl" class="w-full max-w-6xl" placement="center">
+  <svelte:fragment slot="header">
+    <div class="flex justify-between items-center">
+      <h1 class="text-3xl font-bold text-gray-800">Edit Item</h1>
     </div>
-  </div>
-{/if}
+  </svelte:fragment>
+  <!-- Form -->
+  <form
+    class="px-6 py-4 grid grid-cols-6 grid-rows-4 gap-4"
+    on:submit|preventDefault={handleSubmit}
+  >
+    <!-- Item Name -->
+    <div class="col-span-2">
+      <label for="name" class="block text-sm font-medium text-gray-800 mb-1"
+        >Item Name</label
+      >
+      <input
+        type="text"
+        bind:value={formData.name}
+        class="w-full p-2.5 border border-gray-300 focus:border-black focus:ring-2 focus:ring-red-500 focus:outline-none rounded-lg text-sm"
+        placeholder="Enter item name"
+      />
+    </div>
+
+    <!-- Status -->
+    <div class="col-start-3 row-start-1">
+      <label for="status" class="block text-sm font-medium text-gray-800 mb-1"
+        >Status</label
+      >
+      <Status bind:selectedStatus={formData.status} />
+    </div>
+
+    <!-- Category -->
+    <div class="col-start-4 row-start-1 col-span-2">
+      <label for="category" class="block text-sm font-medium text-gray-800 mb-1"
+        >Category</label
+      >
+      <Category bind:selectedCategory={formData.category} />
+    </div>
+
+    <!-- Claimant -->
+    <div class="col-start-6">
+      <label for="claimant" class="block text-sm font-medium text-gray-800 mb-1"
+        >Claimant</label
+      >
+      <ClaimantsList
+        bind:selectedClaimant={formData.accepted_claim!}
+        itemId={item.id}
+      />
+    </div>
+
+    <!-- Date Picker -->
+    <div class="col-span-2 col-start-1 row-start-2">
+      <label for="dateLost" class="block text-sm font-medium text-gray-800 mb-1"
+        >Date Lost</label
+      >
+      <DatePicker bind:value={formData.date_found} />
+    </div>
+
+    <!-- Description -->
+    <div class="col-span-2 row-span-3 col-start-3 row-start-2">
+      <label
+        for="description"
+        class="block text-sm font-medium text-gray-800 mb-1">Description</label
+      >
+      <Textarea
+        bind:value={formData.description}
+        placeholder="Description"
+        rows={10}
+      />
+    </div>
+
+    <!-- Time Picker -->
+    <div class="col-span-2 col-start-1 row-start-3">
+      <label for="timeLost" class="block text-sm font-medium text-gray-800 mb-1"
+        >Time Lost</label
+      >
+      <TimePicker bind:selectedTime={formData.time_found} />
+    </div>
+
+    <!-- Last Known Location -->
+    <div class="col-span-2 col-start-1 row-start-4">
+      <label for="timeLost" class="block text-sm font-medium text-gray-800 mb-1"
+        >Last Known Location</label
+      >
+
+      <div class="relative w-full">
+        <input
+          type="text"
+          bind:value={formData.location_found}
+          class="w-full p-2.5 pr-10 border border-gray-300 focus:border-black focus:ring-2 focus:ring-red-500 focus:outline-none rounded-lg text-sm"
+          placeholder="Location"
+        />
+        <MapPinAltSolid
+          class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500"
+        />
+      </div>
+    </div>
+
+    <!-- Image Upload -->
+    <div class="col-span-2 row-span-3 col-start-5 row-start-2">
+      <label for="image" class="block mb-1 text-sm font-medium text-[#1E1E1E]">
+        Image
+      </label>
+
+      <label
+        class="relative border border-gray-300 rounded h-[222px] flex items-center justify-center bg-gray-50 p-2 cursor-pointer overflow-hidden group"
+      >
+        <input
+          id="image"
+          type="file"
+          accept="image/*"
+          class="hidden"
+          on:change={handleImageUpload}
+        />
+
+        {#if formData.imagePreview}
+          <img
+            src={formData.imagePreview}
+            alt="Preview"
+            class="max-h-full max-w-full object-contain rounded transition duration-200"
+          />
+
+          <!-- Overlay -->
+          <div
+            class="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity duration-200 rounded"
+          >
+            <span class="text-white text-sm font-medium"
+              >Click to change image</span
+            >
+          </div>
+        {:else}
+          <div class="flex flex-col items-center justify-center text-center">
+            <span class="text-4xl text-gray-400">+</span>
+            <span class="text-sm mt-2">Add image</span>
+          </div>
+        {/if}
+      </label>
+    </div>
+
+    <!-- Buttons -->
+    <div class="col-span-6 flex justify-center gap-4 row-start-[5] col-start-1">
+      <Button
+        color="alternative"
+        class="w-32 hover:text-red-800 border-red-800 text-[#800000]"
+        on:click={closeModal}>Cancel</Button
+      >
+
+      <Button color="red" type="submit" class="w-32">
+        {#if updating}
+          <div class="flex items-center gap-x-2">
+            <Spinner color="white" size={5} />
+            Saving
+          </div>
+        {:else}
+          Save edit
+        {/if}</Button
+      >
+    </div>
+  </form>
+</Modal>
