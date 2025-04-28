@@ -3,11 +3,16 @@
   import { onClickOutside } from "../../lib/utils/onClickOutside";
 
   export let value: { startDate: Date | null; endDate: Date | null };
+  export let fullWidth: boolean = false;
+  export let expanded: boolean = false;
 
   let showCalendar = false;
   let currentDate = new Date();
   let selectedStartDate: Date | null = value.startDate;
   let selectedEndDate: Date | null = value.endDate;
+  let hoveredDate: Date | null = null;
+  let isApplied = false;
+  let isCleared = false;
 
   $: {
     selectedStartDate = value.startDate;
@@ -78,13 +83,22 @@
 
   // Applies the selected date range
   function applyDateRange() {
+    if (selectedStartDate && !selectedEndDate) {
+      selectedEndDate = selectedStartDate;
+    }
+
     if (selectedStartDate && selectedEndDate) {
       selectedDateRange.set({
         startDate: selectedStartDate,
         endDate: selectedEndDate,
       });
     }
-    showCalendar = false;
+
+    isApplied = true;
+
+    setTimeout(() => {
+      isApplied = false;
+    }, 1000);
   }
 
   // Clears the selected date range
@@ -92,6 +106,12 @@
     selectedStartDate = null;
     selectedEndDate = null;
     selectedDateRange.set({ startDate: null, endDate: null });
+
+    isCleared = true;
+
+    setTimeout(() => {
+      isCleared = false;
+    }, 1000);
   }
 
   // Formats date range
@@ -106,34 +126,51 @@
     };
     return `${startDate.toLocaleDateString("en-US", options)} - ${endDate.toLocaleDateString("en-US", options)}`;
   }
+
+  // Helper function to check if a date is today
+  function isToday(date: Date): boolean {
+    const today = new Date();
+    return (
+      date.getDate() === today.getDate() &&
+      date.getMonth() === today.getMonth() &&
+      date.getFullYear() === today.getFullYear()
+    );
+  }
 </script>
 
-<div class="relative" use:onClickOutside={() => (showCalendar = false)}>
-  <div class="relative h-full flex max-w-64">
-    <input
-      type="text"
-      readonly
-      value={formatDateRange(selectedStartDate, selectedEndDate)}
-      class="px-4 border border-stone-300 rounded-lg bg-white text-sm font-medium text-[#9A4444] hover:bg-stone-100 hover:border-stone-400 transition duration-300 ease-in-out cursor-pointer"
-      on:click={() => (showCalendar = !showCalendar)}
-    />
-    <img
-      src="/icons/calendar-icon.svg"
-      alt="Search Icon"
-      class="absolute right-4 top-[14px] w-5 h-5 pointer-events-none"
-    />
-  </div>
+<div
+  class={`relative ${fullWidth ? "w-full" : "min-w-48"}`}
+  use:onClickOutside={() => (showCalendar = false)}
+>
+  {#if !expanded}
+    <div class={`relative h-full flex ${fullWidth ? "w-full" : "min-w-48"}`}>
+      <input
+        type="text"
+        readonly
+        value={formatDateRange(selectedStartDate, selectedEndDate)}
+        class={`px-4 border border-stone-300 rounded-lg bg-white text-sm font-medium text-[#9A4444] hover:bg-stone-100 hover:border-stone-400 transition duration-300 ease-in-out cursor-pointer w-full`}
+        on:click={() => (showCalendar = !showCalendar)}
+      />
+      <img
+        src="/icons/calendar-icon.svg"
+        alt="Search Icon"
+        class="absolute right-4 top-[14px] w-5 h-5 pointer-events-none"
+      />
+    </div>
+  {/if}
 
-  {#if showCalendar}
+  {#if showCalendar || expanded}
     <div
-      class="absolute z-10 bg-white border border-stone-300 rounded-lg mt-2 shadow-md w-76"
+      class={`${expanded ? "" : "absolute"} z-10 bg-white border border-stone-300 rounded-lg ${expanded ? "" : "mt-2"} shadow-md ${expanded ? "w-full" : "w-82"}`}
     >
       <!-- Month Navigation -->
-      <div class="flex justify-between mx-6 mt-6 mb-4">
+      <div
+        class={`flex justify-between ${expanded ? "mx-4 mt-4" : "mx-6 mt-6"} mb-4`}
+      >
         <!-- Previous Button-->
         <button
           on:click={() => navigateMonth("prev")}
-          class="p-2 hover:bg-stone-100 rounded-lg cursor-pointer transition duration-300 ease-in-out"
+          class="p-2 bg-[#800000] hover:bg-[#A73D3D] rounded-lg cursor-pointer transition duration-300 ease-in-out"
           aria-label="Previous Month"
         >
           <svg
@@ -141,7 +178,7 @@
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
-            class="w-5 h-5 text-[#800000] hover:text-[#500000]"
+            class="w-5 h-5 text-white"
           >
             <path
               stroke-linecap="round"
@@ -153,7 +190,7 @@
         </button>
 
         <!-- Current Month Display-->
-        <span class="flex items-center font-medium text-sm text-[#800000]">
+        <span class="flex items-center font-bold text-md text-[#800000]">
           {currentDate.toLocaleString("en-US", {
             month: "long",
             year: "numeric",
@@ -163,7 +200,7 @@
         <!-- Next Button -->
         <button
           on:click={() => navigateMonth("next")}
-          class="p-2 hover:bg-stone-100 rounded-lg cursor-pointer transition duration-300 ease-in-out"
+          class="p-2 bg-[#800000] hover:bg-[#A73D3D] rounded-lg cursor-pointer transition duration-300 ease-in-out"
           aria-label="Next Month"
         >
           <svg
@@ -171,7 +208,7 @@
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
-            class="w-5 h-5 text-[#800000] hover:text-[#500000]"
+            class="w-5 h-5 text-white"
           >
             <path
               stroke-linecap="round"
@@ -184,53 +221,82 @@
       </div>
 
       <!-- Calendar Grid -->
-      <div class="mx-6 mb-6 grid grid-cols-7 gap-1">
+      <div class="mx-6 mb-4 grid grid-cols-7 gap-1">
         {#each ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"] as dayName}
-          <div class="text-xs text-center text-stone-500 py-1">
+          <div class="text-sm text-center text-stone-500 py-1">
             {dayName}
           </div>
         {/each}
 
         <!-- Cell for each days -->
         {#each getDaysInMonth(currentDate) as day}
-          <button
-            class={`rounded-lg py-2 w-full text-xs cursor-pointer ${
-              !day.date
-                ? "text-gray-400 cursor-not-allowed"
-                : day.date.getMonth() !== currentDate.getMonth()
+          <div class="relative">
+            <button
+              class={`rounded-lg py-2 w-full text-sm cursor-pointer ${
+                !day.date
                   ? "text-gray-400 cursor-not-allowed"
-                  : day.date === selectedStartDate
-                    ? "bg-[#800000] text-white"
-                    : day.date === selectedEndDate
+                  : day.date.getMonth() !== currentDate.getMonth()
+                    ? "text-gray-400 cursor-not-allowed"
+                    : day.date === selectedStartDate
                       ? "bg-[#800000] text-white"
-                      : selectedStartDate &&
-                          selectedEndDate &&
-                          day.date >= selectedStartDate &&
-                          day.date <= selectedEndDate
-                        ? "bg-gray-200"
-                        : "hover:bg-gray-100 transition duration-100 ease-in-out"
-            }`}
-            disabled={!day.date ||
-              (day.date && day.date.getMonth() !== currentDate.getMonth())}
-            on:click={() => handleDayClick(day)}
-          >
-            {day.day || ""}
-          </button>
+                      : day.date === selectedEndDate
+                        ? "bg-[#800000] text-white"
+                        : selectedStartDate &&
+                            !selectedEndDate &&
+                            ((hoveredDate &&
+                              day.date >= selectedStartDate &&
+                              day.date <= hoveredDate) ||
+                              (hoveredDate &&
+                                day.date <= selectedStartDate &&
+                                day.date >= hoveredDate))
+                          ? "bg-red-100"
+                          : selectedStartDate &&
+                              selectedEndDate &&
+                              day.date >= selectedStartDate &&
+                              day.date <= selectedEndDate
+                            ? "bg-red-100"
+                            : isToday(day.date)
+                              ? "text-[#800000] font-bold hover:bg-red-100 transition duration-100 ease-in-out"
+                              : "hover:bg-red-100 transition duration-100 ease-in-out"
+              }`}
+              disabled={!day.date ||
+                (day.date && day.date.getMonth() !== currentDate.getMonth())}
+              on:click={() => handleDayClick(day)}
+              on:mouseenter={() =>
+                (hoveredDate =
+                  selectedStartDate && !selectedEndDate ? day.date : null)}
+              on:mouseleave={() => (hoveredDate = null)}
+            >
+              {day.day || ""}
+            </button>
+            <!--  Current day indicator -->
+            {#if day.date && isToday(day.date)}
+              <div
+                class="absolute top-0 left-1/2 transform -translate-x-1/2 text-[8px] text-[#800000]"
+              >
+                ●
+              </div>
+            {/if}
+          </div>
         {/each}
       </div>
       <span class="border-t-stone-200 border-t flex"></span>
-      <div class="flex justify-between m-4 gap-2">
+      <div class="flex justify-between m-4 gap-3">
         <button
-          class="flex flex-grow justify-center items-center px-3 py-2 border rounded-md bg-red-500 text-xs text-white hover:bg-red-400 transition duration-300 ease-in-out cursor-pointer"
+          class={`flex flex-grow justify-center items-center px-3 py-3 rounded-lg bg-stone-100 text-sm text-[#800000] font-semibold hover:bg-red-100 transition duration-300 ease-in-out cursor-pointer ${
+            isCleared ? "bg-stone-200 text-[#E37979] pointer-events-none" : ""
+          }`}
           on:click={clearDateRange}
         >
-          Clear
+          {isCleared ? "Cleared" : "Clear"}
         </button>
         <button
-          class="flex flex-grow justify-center items-center px-3 py-2 border rounded-md bg-[#800000] text-xs text-white hover:bg-[#A73D3D] transition duration-300 ease-in-out cursor-pointer"
+          class={`flex flex-grow justify-center items-center px-3 py-3 border rounded-lg bg-[#800000] text-sm text-white font-medium hover:bg-[#A73D3D] transition duration-300 ease-in-out cursor-pointer ${
+            isApplied ? "bg-stone-700 pointer-events-none" : ""
+          }`}
           on:click={applyDateRange}
         >
-          Apply
+          {isApplied ? "Applied" : "Apply"}
         </button>
       </div>
     </div>
