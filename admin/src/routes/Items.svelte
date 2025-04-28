@@ -9,12 +9,18 @@
   import { viewStore, type ViewType } from "../stores/viewStore";
   import { selectionStore, selectionActions } from "../stores/selectionStore";
   import ItemsGrid from "../components/common/ItemsGrid.svelte";
+  import { Button } from "flowbite-svelte";
+  import { PlusOutline } from "flowbite-svelte-icons";
 
   let currentView: ViewType;
   let selectedIds: Set<string>;
+  let addItemModal = false;
+
+  viewStore.set((sessionStorage.getItem("currentView") as ViewType) || "list");
 
   viewStore.subscribe((value) => {
     currentView = value;
+    sessionStorage.setItem("currentView", value);
   });
 
   selectionStore.subscribe((state) => {
@@ -55,7 +61,12 @@
         {/if}
       </div>
       <div class="ml-4">
-        <AddItem />
+        <Button
+          on:click={() => (addItemModal = true)}
+          class="h-[44px] bg-red-900 text-white px-4 py-2 flex items-center gap-2 rounded-lg hover:bg-red-950"
+        >
+          Add Item <PlusOutline />
+        </Button>
       </div>
     </div>
 
@@ -67,4 +78,6 @@
       {/if}
     </div>
   </div>
+
+  <AddItem bind:open={addItemModal} />
 </Layout>
