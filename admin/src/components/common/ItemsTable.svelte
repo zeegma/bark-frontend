@@ -27,6 +27,11 @@
   import type { Item } from "../../lib/types";
   import { fetchItems, updateItem } from "../../lib/api/items";
   import { refreshTrigger } from "../../stores/itemStore";
+  import {
+    TrashBinSolid,
+    InfoCircleOutline,
+    EditSolid,
+  } from "flowbite-svelte-icons";
 
   let allItems: Item[] = [];
   let filteredItems: Item[] = [];
@@ -35,6 +40,11 @@
   let isAllSelected: boolean;
   let loading = true;
   let error: string | null = null;
+  let deleteModalOpen = false;
+  let itemToDelete: Item | null = null;
+  let selectedItem: Item | null = null;
+  let viewModalOpen = false;
+  let editModalOpen = false;
 
   filterStore.subscribe((f) => {
     currentFilters = f;
@@ -105,6 +115,16 @@
 
   function handleSelectItem(id: string) {
     selectionActions.toggleSelection(id);
+  }
+
+  function openEditModal(item: Item) {
+    selectedItem = item;
+    editModalOpen = true;
+  }
+
+  function openDeleteModal(item: Item) {
+    itemToDelete = item;
+    deleteModalOpen = true;
   }
 
   async function handleDelete() {
@@ -274,12 +294,42 @@
           <TableBodyCell class="p-2">
             <div class="flex gap-1">
               <ViewItem {item} />
-              <EditItem {item} onSave={handleSave} />
-              <DeleteItem {item} onDelete={handleDelete} />
+              <button
+                on:click={() => {
+                  viewModalOpen = true;
+                  selectedItem = item;
+                }}
+              >
+                <InfoCircleOutline />
+              </button>
+              <button on:click={() => openEditModal(item)}>
+                <EditSolid />
+              </button>
+              <button on:click={() => openDeleteModal(item)}>
+                <TrashBinSolid />
+              </button>
             </div>
           </TableBodyCell>
         </TableBodyRow>
       {/each}
     </TableBody>
   </Table>
+
+  {#if viewModalOpen && selectedItem !== null}
+    <ViewItem item={selectedItem} bind:open={viewModalOpen} />
+  {/if}
+  {#if editModalOpen && selectedItem !== null}
+    <EditItem
+      bind:open={editModalOpen}
+      item={selectedItem}
+      onSave={handleSave}
+    />
+  {/if}
+  {#if itemToDelete}
+    <DeleteItem
+      bind:open={deleteModalOpen}
+      item={itemToDelete}
+      onDelete={handleDelete}
+    />
+  {/if}
 {/if}
