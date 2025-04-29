@@ -1,9 +1,70 @@
 <script lang="ts">
   import Layout from "../components/layout/Layout.svelte";
+  import AddItem from "../components/widgets/AddItem.svelte";
+  import DatePicker from "../components/common/DatePicker.svelte";
+  import ItemsTable from "../components/common/ItemsTable.svelte";
+  import FilterDropdown from "../components/common/FilterDropdown.svelte";
+  import Toggle from "../components/common/Toggle.svelte";
+  import Indicator from "../components/common/Indicator.svelte";
+  import { viewStore, type ViewType } from "../stores/viewStore";
+  import { selectionStore, selectionActions } from "../stores/selectionStore";
+  import ItemsGrid from "../components/common/ItemsGrid.svelte";
+
+  let currentView: ViewType;
+  let selectedIds: Set<string>;
+
+  viewStore.subscribe((value) => {
+    currentView = value;
+  });
+
+  selectionStore.subscribe((state) => {
+    selectedIds = state.selectedIds;
+  });
+
+  // Function to handle selection actions
+  function clearSelection() {
+    selectionActions.clearSelection();
+  }
+
+  function deleteSelectedItems() {
+    // Wait for API imple of deletion, this one's temp code
+    console.log("Deleting items:", Array.from(selectedIds));
+    selectionActions.clearSelection();
+  }
 </script>
 
 <Layout title="Items">
   <div class="p-2">
-    <h1>Content</h1>
+    <div class="flex row-auto justify-between">
+      <div class="flex items-center gap-4 mb-7">
+        <FilterDropdown />
+        <div class="min-w-[300px]">
+          <DatePicker />
+        </div>
+        <div class="min-w-[96px]">
+          <Toggle />
+        </div>
+      </div>
+      <div class="flex flex-1 justify-end">
+        {#if selectedIds.size > 0}
+          <Indicator
+            selectedCount={selectedIds.size}
+            onClear={clearSelection}
+            onDelete={deleteSelectedItems}
+          />
+        {/if}
+      </div>
+      <div class="ml-4">
+        <AddItem />
+      </div>
+    </div>
+
+    <div class="overflow-auto h-[calc(100vh-18rem)]">
+      {#if currentView === "list"}
+        <ItemsTable />
+      {:else}
+        <ItemsGrid />
+      {/if}
+    </div>
   </div>
 </Layout>
