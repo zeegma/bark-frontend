@@ -25,6 +25,7 @@
   }
 
   function formatSortBy(sortBy: string) {
+    if (sortBy === "id") return "ID"; // Special case
     const withSpaces = sortBy.replace(/([a-z])([A-Z])/g, "$1 $2");
     return withSpaces.charAt(0).toUpperCase() + withSpaces.slice(1);
   }
@@ -44,6 +45,15 @@
     <div class="pb-2 mb-2 border-b border-gray-200">
       <h6 class="mb-2 text-sm font-medium text-gray-900">Sort by</h6>
       <ul class="space-y-2">
+        <li>
+          <Radio
+            color="red"
+            name="sortby"
+            value="id"
+            checked={sortBy === "id"}
+            on:change={() => updateSortBy("id")}>ID</Radio
+          >
+        </li>
         <li>
           <Radio
             color="red"

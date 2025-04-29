@@ -15,6 +15,6 @@ export interface SortOptions {
 }
 
 export const sortStore = writable<SortOptions>({
-  sortBy: "name",
+  sortBy: "id",
   sortOrder: "Ascending",
 });

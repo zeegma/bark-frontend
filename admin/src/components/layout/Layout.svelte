@@ -1,6 +1,7 @@
 <script lang="ts">
   import Navbar from "./Navbar.svelte";
   import Searchbar from "../common/Searchbar.svelte";
+  import GlobalToast from "../common/GlobalToast.svelte";
   import { location } from "svelte-spa-router";
 
   export let title: string = "";
@@ -23,6 +24,7 @@
           </div>
         </div>
       {/if}
+      <GlobalToast />
       <slot />
     </div>
   </main>
