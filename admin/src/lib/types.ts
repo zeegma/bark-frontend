@@ -12,6 +12,17 @@ export interface ClaimantResponse {
   item_image_url: string;
 }
 
+export interface LostItem {
+  name: string;
+  description: string;
+  category: string;
+  date_found: string;
+  time_found: string;
+  location_found: string;
+  status: string;
+  image?: File | null;
+}
+
 // Internal application types (formatted for display)
 export interface ClaimItem {
   id: string;

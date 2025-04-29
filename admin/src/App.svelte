@@ -5,9 +5,11 @@
   import Items from "./routes/Items.svelte";
   import Claimants from "./routes/Claimants.svelte";
   import Fallback from "./routes/Fallback.svelte";
+  import Register from "./routes/Register.svelte";
 
   const routes = {
     "/": Login,
+    "/register": Register,
     "/dashboard": Dashboard,
     "/items": Items,
     "/claimants": Claimants,

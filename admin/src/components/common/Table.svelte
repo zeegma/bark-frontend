@@ -9,23 +9,34 @@
     Checkbox,
     Spinner,
   } from "flowbite-svelte";
-  import { InfoCircleOutline, TrashBinSolid } from "flowbite-svelte-icons";
+  import {
+    InfoCircleOutline,
+    TrashBinSolid,
+    FileZipSolid,
+  } from "flowbite-svelte-icons";
   import { onMount } from "svelte";
   import { fetchClaimants } from "../../lib/api";
   import type { ClaimantResponse, ClaimItem } from "../../lib/types";
   import ViewModal from "../widgets/claimants/ViewModal.svelte";
   import DeleteModal from "../widgets/claimants/DeleteModal.svelte";
+  import EmptyFallback from "./EmptyFallback.svelte";
+  import SkeletonLoader from "./SkeletonLoader.svelte";
   import { sortStore, type SortOptions } from "../../stores/sortStore";
   import {
     selectionStore,
     selectionActions,
   } from "../../stores/selectionStore";
 
+  type DeleteCompleteEvent = CustomEvent<{ deletedIds: string[] }>;
+
   // For view modal
   let viewModal: boolean = false;
 
   // For delete modal
   let deleteModal: boolean = false;
+
+  // For bulk delete
+  let bulkDeleteIds: string[] = [];
 
   let selectedClaim: ClaimItem | null = null;
   let loading: boolean = true;
@@ -100,35 +111,62 @@
     selectionActions.toggleSelection(id);
   }
 
-  // Fetch data on component mount
-  onMount(async () => {
-    try {
-      const claimantData = await fetchClaimants();
-      claims = transformClaimantData(claimantData);
-      applySorting();
-    } catch (e) {
-      error = e instanceof Error ? e.message : "Failed to fetch data";
-      console.error(error);
-    } finally {
-      loading = false;
+  function handleDeletionComplete(event: DeleteCompleteEvent) {
+    const { deletedIds } = event.detail;
+    // Remove deleted items from the claims array
+    claims = claims.filter((claim) => !deletedIds.includes(claim.id));
+
+    // Clear selection if needed
+    if (deletedIds.length > 0) {
+      selectionActions.clearSelection();
     }
+  }
+
+  // Fetch data on component mount
+  onMount(() => {
+    const fetchData = async () => {
+      try {
+        const claimantData = await fetchClaimants();
+        claims = transformClaimantData(claimantData);
+        applySorting();
+      } catch (e) {
+        error = e instanceof Error ? e.message : "Failed to fetch data";
+        console.error(error);
+      } finally {
+        loading = false;
+      }
+    };
+
+    fetchData();
+
+    const handleDeleteEvent = ((e: Event) =>
+      handleDeletionComplete(e as DeleteCompleteEvent)) as EventListener;
+    document.addEventListener("deletecomplete", handleDeleteEvent);
+
+    // Return cleanup function
+    return () => {
+      document.removeEventListener("deletecomplete", handleDeleteEvent);
+    };
   });
 </script>
 
 {#if loading}
   <div class="flex justify-center items-center h-full pb-10">
-    <Spinner color="red" size={20} />
+    <SkeletonLoader type="table" count={6} />
   </div>
 {:else if error}
-  <div class="text-center p-8 text-red-600">
+  <div class="flex justify-center items-center h-full flex-col text-gray-800">
+    <FileZipSolid class="w-20 h-20 mb-4 text-[#800000]" />
     <p>Error loading data: {error}</p>
     <button
-      class="mt-4 px-4 py-2 bg-red-600 text-white rounded"
+      class="mt-4 px-4 py-2 bg-[#800000] text-white rounded"
       on:click={() => window.location.reload()}
     >
       Retry
     </button>
   </div>
+{:else if claims.length === 0}
+  <EmptyFallback />
 {:else}
   <Table hoverable={true} class="w-full table-fixed text-center overflow-auto">
     <TableHead>
@@ -209,5 +247,9 @@
     </TableBody>
   </Table>
   <ViewModal bind:open={viewModal} claim={selectedClaim} />
-  <DeleteModal bind:open={deleteModal} claim={selectedClaim} />
+  <DeleteModal
+    bind:open={deleteModal}
+    claim={selectedClaim}
+    idsToDelete={bulkDeleteIds}
+  />
 {/if}

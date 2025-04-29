@@ -2,7 +2,10 @@
   import Card from "./Card.svelte";
   import ViewModal from "../widgets/claimants/ViewModal.svelte";
   import DeleteModal from "../widgets/claimants/DeleteModal.svelte";
+  import EmptyFallback from "./EmptyFallback.svelte";
+  import SkeletonLoader from "./SkeletonLoader.svelte";
   import { Checkbox, Spinner } from "flowbite-svelte";
+  import { FileZipSolid } from "flowbite-svelte-icons";
   import { fetchClaimants } from "../../lib/api";
   import { onMount } from "svelte";
   import type { ClaimantResponse, ClaimItem } from "../../lib/types";
@@ -13,11 +16,16 @@
     selectionActions,
   } from "../../stores/selectionStore";
 
+  type DeleteCompleteEvent = CustomEvent<{ deletedIds: string[] }>;
+
   // For view modal
   let viewModal: boolean = false;
 
   // For delete modal
   let deleteModal: boolean = false;
+
+  // For bulk delete
+  let bulkDeleteIds: string[] = [];
 
   let selectedClaim: ClaimItem | null = null;
   let loading: boolean = true;
@@ -102,6 +110,17 @@
     deleteModal = true;
   }
 
+  function handleDeletionComplete(event: DeleteCompleteEvent) {
+    const { deletedIds } = event.detail;
+    // Remove deleted items from the claims array
+    claims = claims.filter((claim) => !deletedIds.includes(claim.id));
+
+    // Clear selection if needed
+    if (deletedIds.length > 0) {
+      selectionActions.clearSelection();
+    }
+  }
+
   // Global click handler: close dropdowns when clicking outside
   onMount(() => {
     const handleGlobalClick = (event: MouseEvent) => {
@@ -139,9 +158,14 @@
 
     fetchData();
 
+    const handleDeleteEvent = ((e: Event) =>
+      handleDeletionComplete(e as DeleteCompleteEvent)) as EventListener;
+    document.addEventListener("deletecomplete", handleDeleteEvent);
+
     return () => {
       window.removeEventListener("click", handleGlobalClick);
       window.removeEventListener("scroll", handleScroll, true);
+      document.removeEventListener("deletecomplete", handleDeleteEvent);
     };
   });
 
@@ -150,19 +174,20 @@
 </script>
 
 {#if loading}
-  <div class="flex justify-center items-center h-full pb-10">
-    <Spinner color="red" size={20} />
-  </div>
+  <SkeletonLoader type="grid" count={4} />
 {:else if error}
-  <div class="text-center p-8 text-red-600">
+  <div class="flex justify-center items-center h-full flex-col text-gray-800">
+    <FileZipSolid class="w-20 h-20 mb-4 text-[#800000]" />
     <p>Error loading data: {error}</p>
     <button
-      class="mt-4 px-4 py-2 bg-red-600 text-white rounded"
+      class="mt-4 px-4 py-2 bg-[#800000] text-white rounded"
       on:click={() => window.location.reload()}
     >
       Retry
     </button>
   </div>
+{:else if claims.length === 0}
+  <EmptyFallback />
 {:else}
   <div>
     <!-- Select all -->
@@ -193,4 +218,9 @@
     </div>
   </div>
   <ViewModal bind:open={viewModal} claim={selectedClaim} />
+  <DeleteModal
+    bind:open={deleteModal}
+    claim={selectedClaim}
+    idsToDelete={bulkDeleteIds}
+  />
 {/if}

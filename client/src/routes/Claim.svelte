@@ -5,6 +5,8 @@
   import Header from "../components/layout/Header.svelte";
   import ItemDetails from "../components/common/ItemDetails.svelte";
   import ClaimForm from "../components/common/ClaimForm.svelte";
+  import ClaimLoader from "../components/common/ClaimLoader.svelte";
+  import Fallback from "./Fallback.svelte";
 
   let itemId: string | null = null;
   let itemDetails: any = null;
@@ -32,11 +34,11 @@
 <Header />
 
 {#if isLoading}
-  <p>Loading...</p>
+  <ClaimLoader />
 {:else if !itemDetails}
-  <p>Item not found.</p>
+  <Fallback />
 {:else}
-  <div class="flex flex-col px-24 mt-4 font-[Poppins]">
+  <div class="flex flex-col px-2 md:px-12 xl:px-24 mt-4 font-[Poppins]">
     <!-- Header -->
     <div
       class="flex border h-[48px] rounded-tl-2xl rounded-tr-2xl border-stone-300"
@@ -65,7 +67,7 @@
         Return
       </a>
       <h1
-        class="flex flex-grow justify-center items-center pr-32 text-sm text-[#9A4444] font-medium"
+        class="flex flex-grow justify-center items-center lg:pr-32 text-sm text-[#9A4444] font-medium truncate"
       >
         {itemDetails.name}
       </h1>
