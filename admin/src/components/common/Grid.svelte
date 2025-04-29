@@ -285,7 +285,7 @@
     />
   {:else if isFilteredEmpty}
     <EmptyFallback
-      message="No results match your date range."
+      message="No results match your filter."
       subMessage="Try adjusting or clearing the date range."
     />
   {:else}
