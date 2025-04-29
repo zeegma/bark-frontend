@@ -21,6 +21,7 @@
   import EmptyFallback from "./EmptyFallback.svelte";
   import SkeletonLoader from "./SkeletonLoader.svelte";
   import { sortStore, type SortOptions } from "../../stores/sortStore";
+  import { searchStore } from "../../stores/searchStore";
   import {
     selectionStore,
     selectionActions,
@@ -55,6 +56,9 @@
   let allClaimsData: ClaimItem[] = [];
   let isFilteredEmpty = false;
 
+  let currentSearchTerm = "";
+  let isSearchActive = false;
+
   sortStore.subscribe((options) => {
     currentSortOptions = options;
     applyFiltersAndSorting();
@@ -68,6 +72,12 @@
   selectionStore.subscribe((state) => {
     selectedIds = state.selectedIds;
     isAllSelected = state.isAllSelected;
+  });
+
+  searchStore.subscribe((term) => {
+    currentSearchTerm = term;
+    isSearchActive = term.length > 0;
+    applyFiltersAndSorting();
   });
 
   // Function to transform API response to internal format
@@ -134,6 +144,14 @@
     // First apply date filters
     filteredClaims = applyDateFilter(allClaimsData);
 
+    // Then apply search filter
+    if (currentSearchTerm) {
+      const searchTermLower = currentSearchTerm.toLowerCase();
+      filteredClaims = filteredClaims.filter((claim) =>
+        claim.name.toLowerCase().includes(searchTermLower),
+      );
+    }
+
     // Then apply sorting
     filteredClaims = [...filteredClaims].sort((a: ClaimItem, b: ClaimItem) => {
       const { sortBy, sortOrder } = currentSortOptions;
@@ -165,7 +183,8 @@
     isFilteredEmpty =
       claims.length === 0 &&
       allClaimsData.length > 0 &&
-      currentDateFilter.isActive;
+      currentDateFilter.isActive &&
+      !isSearchActive;
   }
 
   // Handle select all checkbox
@@ -237,7 +256,12 @@
     </button>
   </div>
 {:else if claims.length === 0}
-  {#if isFilteredEmpty}
+  {#if isSearchActive}
+    <EmptyFallback
+      message="No claimants match your search."
+      subMessage="Try using different keywords or clear the search."
+    />
+  {:else if isFilteredEmpty}
     <EmptyFallback
       message="No results match your filter."
       subMessage="Try adjusting or clearing the date range."
