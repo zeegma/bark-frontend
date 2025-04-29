@@ -1,29 +1,39 @@
 <script lang="ts">
+  import { Search, Button } from "flowbite-svelte";
+  import { SearchOutline } from "flowbite-svelte-icons";
+  import { searchStore, searchActions } from "../../stores/searchStore";
+
+  let searchTerm = "";
+
+  // Subscribe to store
+  searchStore.subscribe((value) => {
+    searchTerm = value;
+  });
+
+  // Update store when input changes
+  function handleSearch() {
+    searchActions.setSearchTerm(searchTerm);
+  }
+
+  // Handle input events
+  function handleInput(event: Event) {
+    const target = event.target as HTMLInputElement;
+    searchTerm = target.value;
+    handleSearch();
+  }
 </script>
 
-<div class="flex w-[710px] h-[63px] rounded-2xl overflow-hidden fixed">
-  <input
-    type="text"
-    placeholder="Search"
-    class="flex-1 px-4 py-2 outline-none rounded-2xl bg-white border-2 border-[#F0F0F0] text-black font-Poppins focus:border-red-900"
-  />
-  <div
-    class="absolute top-1/2 right-2 -translate-y-1/2 w-[50px] h-[50px] bg-red-900 flex items-center justify-center rounded-xl"
+<Search
+  size="lg"
+  placeholder="Search by name"
+  bind:value={searchTerm}
+  on:input={handleInput}
+  class="h-16 rounded-2xl bg-white text-gray-500 border-gray-200 focus:ring-red-800 focus:border-red-800"
+>
+  <Button
+    class="bg-red-800 hover:bg-red-700 w-1/8 h-full rounded-r-2xl rounded-l-none"
+    on:click={handleSearch}
   >
-    <svg
-      class="w-[24px] h-[24px] text-white"
-      aria-hidden="true"
-      xmlns="http://www.w3.org/2000/svg"
-      fill="none"
-      viewBox="0 0 20 24"
-    >
-      <path
-        stroke="currentColor"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        stroke-width="2"
-        d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
-      />
-    </svg>
-  </div>
-</div>
+    <SearchOutline class="w-7 h-7" />
+  </Button>
+</Search>
