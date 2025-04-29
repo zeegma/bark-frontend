@@ -7,7 +7,6 @@
     TableHead,
     TableHeadCell,
     Checkbox,
-    Spinner,
   } from "flowbite-svelte";
   import {
     InfoCircleOutline,
@@ -26,6 +25,10 @@
     selectionStore,
     selectionActions,
   } from "../../stores/selectionStore";
+  import {
+    dateFilterStore,
+    type DateFilterOptions,
+  } from "../../stores/dateFilterStore";
 
   type DeleteCompleteEvent = CustomEvent<{ deletedIds: string[] }>;
 
@@ -44,13 +47,22 @@
 
   // Create a local copy of the claims data to sort
   let claims: ClaimItem[] = [];
+  let filteredClaims: ClaimItem[] = [];
   let currentSortOptions: SortOptions;
+  let currentDateFilter: DateFilterOptions;
   let selectedIds: Set<string>;
   let isAllSelected: boolean;
+  let allClaimsData: ClaimItem[] = [];
+  let isFilteredEmpty = false;
 
   sortStore.subscribe((options) => {
     currentSortOptions = options;
-    applySorting();
+    applyFiltersAndSorting();
+  });
+
+  dateFilterStore.subscribe((options) => {
+    currentDateFilter = options;
+    applyFiltersAndSorting();
   });
 
   selectionStore.subscribe((state) => {
@@ -75,11 +87,55 @@
     }));
   }
 
-  // Function to sort the claims data
-  function applySorting() {
-    if (!claims.length) return;
+  // Function to apply date filters
+  function applyDateFilter(items: ClaimItem[]): ClaimItem[] {
+    if (
+      !currentDateFilter.isActive ||
+      (!currentDateFilter.startDate && !currentDateFilter.endDate)
+    ) {
+      // Return all items if no filter is active
+      return items;
+    }
 
-    claims = [...claims].sort((a: ClaimItem, b: ClaimItem) => {
+    return items.filter((item) => {
+      // Parse the dateFiled string to a Date object
+      const itemDate = new Date(item.dateFiled);
+
+      // Single date filter case (when only startDate is set)
+      if (currentDateFilter.startDate && !currentDateFilter.endDate) {
+        const filterDate = new Date(currentDateFilter.startDate);
+        return (
+          itemDate.getFullYear() === filterDate.getFullYear() &&
+          itemDate.getMonth() === filterDate.getMonth() &&
+          itemDate.getDate() === filterDate.getDate()
+        );
+      }
+
+      // Date range case
+      const startDate = currentDateFilter.startDate
+        ? new Date(currentDateFilter.startDate.setHours(0, 0, 0, 0))
+        : null;
+
+      const endDate = currentDateFilter.endDate
+        ? new Date(currentDateFilter.endDate.setHours(23, 59, 59, 999))
+        : null;
+
+      const isAfterStart = !startDate || itemDate >= startDate;
+      const isBeforeEnd = !endDate || itemDate <= endDate;
+
+      return isAfterStart && isBeforeEnd;
+    });
+  }
+
+  // Function to apply all filters and sorting
+  function applyFiltersAndSorting() {
+    if (!allClaimsData.length) return;
+
+    // First apply date filters
+    filteredClaims = applyDateFilter(allClaimsData);
+
+    // Then apply sorting
+    filteredClaims = [...filteredClaims].sort((a: ClaimItem, b: ClaimItem) => {
       const { sortBy, sortOrder } = currentSortOptions;
       const multiplier = sortOrder === "Ascending" ? 1 : -1;
 
@@ -92,13 +148,24 @@
         case "facebook":
           return a.facebook.localeCompare(b.facebook) * multiplier;
         case "dateFiled":
-          return a.dateFiled.localeCompare(b.dateFiled) * multiplier;
+          const dateA = new Date(a.dateFiled).getTime();
+          const dateB = new Date(b.dateFiled).getTime();
+          return (dateA - dateB) * multiplier;
         case "id":
           return (parseInt(a.id) - parseInt(b.id)) * multiplier;
         default:
           return 0;
       }
     });
+
+    // Update the claims variable used for rendering
+    claims = filteredClaims;
+
+    // Determine if empty is due to filtering
+    isFilteredEmpty =
+      claims.length === 0 &&
+      allClaimsData.length > 0 &&
+      currentDateFilter.isActive;
   }
 
   // Handle select all checkbox
@@ -114,7 +181,11 @@
   function handleDeletionComplete(event: DeleteCompleteEvent) {
     const { deletedIds } = event.detail;
     // Remove deleted items from the claims array
+    allClaimsData = allClaimsData.filter(
+      (claim) => !deletedIds.includes(claim.id),
+    );
     claims = claims.filter((claim) => !deletedIds.includes(claim.id));
+    applyFiltersAndSorting();
 
     // Clear selection if needed
     if (deletedIds.length > 0) {
@@ -127,8 +198,8 @@
     const fetchData = async () => {
       try {
         const claimantData = await fetchClaimants();
-        claims = transformClaimantData(claimantData);
-        applySorting();
+        allClaimsData = transformClaimantData(claimantData);
+        applyFiltersAndSorting();
       } catch (e) {
         error = e instanceof Error ? e.message : "Failed to fetch data";
         console.error(error);
@@ -166,7 +237,17 @@
     </button>
   </div>
 {:else if claims.length === 0}
-  <EmptyFallback />
+  {#if isFilteredEmpty}
+    <EmptyFallback
+      message="No results match your filter."
+      subMessage="Try adjusting or clearing the date range."
+    />
+  {:else}
+    <EmptyFallback
+      message="No claimants at the moment."
+      subMessage="Looks like nobody has requested a claim yet."
+    />
+  {/if}
 {:else}
   <Table hoverable={true} class="w-full table-fixed text-center overflow-auto">
     <TableHead>
