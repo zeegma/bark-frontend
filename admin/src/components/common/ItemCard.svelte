@@ -264,11 +264,7 @@
           </div>
           <div class="flex items-center gap-1">
             <CalendarMonthSolid class="w-4 h-4" />
-            <span
-              >{formatDate(item.date_found)} • {formatTime(
-                item.time_found,
-              )}</span
-            >
+            <span>{item.date_found} • {formatTime(item.time_found)}</span>
           </div>
           <div class="flex items-center gap-1">
             <MapPinSolid class="w-4 h-4" />

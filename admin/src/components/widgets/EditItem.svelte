@@ -12,6 +12,7 @@
   export let item: Item;
   export let onSave: (data: Item) => void;
   export let open = false;
+  let selectedDate: Date | null = null;
 
   let formData: Item = {
     ...item,
@@ -21,16 +22,16 @@
   let edit = true;
 
   // Ensure date is a valid Date object
-  const ensureValidDate = (date: any): Date => {
+  /* const ensureValidDate = (date: any): Date => {
     return date instanceof Date && !isNaN(date.getTime()) ? date : new Date();
-  };
+  }; */
 
   // formData.date_found = ensureValidDate(formData.date_found);
 
   $: if (open && edit) {
     console.log("Opening modal for item:", item);
     formData = { ...item };
-    formData.date_found = ensureValidDate(formData.date_found);
+    // formData.date_found = ensureValidDate(formData.date_found);
 
     if (typeof formData.photo_url === "string") {
       formData.imagePreview = formData.photo_url;

@@ -7,23 +7,9 @@ export function formatTime(time: string | null | undefined): string {
   return `${hour12}:${minutes.toString().padStart(2, "0")} ${ampm}`;
 }
 
-export function formatDate(date: string | Date): string {
-  // Ensure date is a valid Date object
-  const d = new Date(date);
-
-  // Check if the date is invalid
-  if (isNaN(d.getTime())) {
-    console.error("Invalid date:", date); // For debugging invalid date
-    return "";
-  }
-
-  // Format the date as "Apr 25, 2025"
-  const options: Intl.DateTimeFormatOptions = {
-    year: "numeric",
-    month: "short", // Abbreviated month (e.g., "Apr")
-    day: "numeric", // Numeric day (e.g., "25")
-  };
-
-  // Format the date and return
-  return d.toLocaleDateString("en-US", options);
+export function formatDate(date: Date): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
 }

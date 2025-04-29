@@ -260,7 +260,7 @@
             {item.category}
           </TableBodyCell>
           <TableBodyCell class="p-2 text-gray-600 text-center">
-            {formatDate(item.date_found)}
+            {item.date_found}
           </TableBodyCell>
           <TableBodyCell class="p-2 text-gray-600 text-center">
             {formatTime(item.time_found)}

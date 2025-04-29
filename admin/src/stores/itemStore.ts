@@ -77,7 +77,7 @@ export const createNewItem = (nextId: string): Item => ({
   photo_url: "",
   imagePreview: null,
   description: "",
-  date_found: new Date(), // New Date as default for dateLost
+  date_found: "",
   time_found: "",
   location_found: "",
 });

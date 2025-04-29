@@ -2,7 +2,7 @@
   import { Button, Dropdown, DropdownItem } from "flowbite-svelte";
   import { ChevronDownOutline } from "flowbite-svelte-icons";
   import { onMount } from "svelte";
-  import { fetchClaimants, fetchClaimantById } from "../../lib/api";
+  import { fetchClaimants } from "../../lib/api";
   import type { ClaimantResponse, Item } from "../../lib/types";
 
   export let selectedClaimant: number;

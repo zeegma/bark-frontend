@@ -65,7 +65,7 @@ export async function addItem(item: Item): Promise<Response> {
     status: statusMap[statusKey],
     category: categoryMap[categoryKey],
     description: item.description,
-    date_found: item.date_found.toISOString().split("T")[0],
+    date_found: item.date_found,
     time_found: item.time_found,
     location_found: item.location_found,
   };
@@ -137,7 +137,7 @@ export async function updateItem(item: Item): Promise<Response> {
     status: statusMap[statusKey],
     category: categoryMap[categoryKey],
     description: item.description,
-    date_found: item.date_found.toISOString().split("T")[0],
+    date_found: item.date_found,
     time_found: item.time_found,
     location_found: item.location_found,
     photo_url: item.photo_url,
