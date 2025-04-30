@@ -14,6 +14,17 @@
   export let open = false;
   let selectedDate: Date | null = null;
 
+  function formatDate(date: Date | null): string {
+    if (!date) return "";
+
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  }
+
+  const formattedDate = formatDate(selectedDate);
+
   let formData: Item = {
     ...item,
     accepted_claim: item.accepted_claim ?? null, // Ensure it's never undefined
@@ -24,7 +35,7 @@
   // Ensure date is a valid Date object
   /* const ensureValidDate = (date: any): Date => {
     return date instanceof Date && !isNaN(date.getTime()) ? date : new Date();
-  }; */
+  };*/
 
   // formData.date_found = ensureValidDate(formData.date_found);
 
@@ -32,7 +43,7 @@
     console.log("Opening modal for item:", item);
     formData = { ...item };
     // formData.date_found = ensureValidDate(formData.date_found);
-
+    selectedDate = item.date_found ? new Date(item.date_found) : null;
     if (typeof formData.photo_url === "string") {
       formData.imagePreview = formData.photo_url;
     } else {
@@ -72,8 +83,12 @@
     updating = true;
     const itemToSave: Item = {
       ...formData,
+      date_found: formatDate(selectedDate ?? new Date()),
     };
 
+    console.log("Date:", item.date_found);
+
+    console.log("Item to save:", itemToSave);
     if (formData.id) {
       await itemsStore.updateItem(itemToSave);
     }
@@ -141,7 +156,13 @@
       <label for="dateLost" class="block text-sm font-medium text-gray-800 mb-1"
         >Date Lost</label
       >
-      <DatePicker bind:value={formData.date_found} />
+      <DatePicker
+        bind:selectedDate
+        value={selectedDate}
+        on:apply={(event) => {
+          selectedDate = event.detail;
+        }}
+      />
     </div>
 
     <!-- Description -->

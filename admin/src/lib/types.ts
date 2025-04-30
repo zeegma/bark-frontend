@@ -47,7 +47,7 @@ export interface Item {
   accepted_claim?: number | null;
   accepted_claim_id: number | null;
   description: string;
-  date_found: string;
+  date_found: Date;
   time_found: string;
   location_found: string;
   photo_url?: string;

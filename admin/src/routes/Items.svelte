@@ -56,7 +56,6 @@
           <Indicator
             selectedCount={selectedIds.size}
             onClear={clearSelection}
-            onDelete={deleteSelectedItems}
           />
         {/if}
       </div>

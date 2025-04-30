@@ -132,12 +132,16 @@ export async function updateItem(item: Item): Promise<Response> {
 
   const formData = new FormData();
 
+  const formattedDateFound = new Date(item.date_found)
+    .toISOString()
+    .split("T")[0];
+
   const data = {
     name: item.name,
     status: statusMap[statusKey],
     category: categoryMap[categoryKey],
     description: item.description,
-    date_found: item.date_found,
+    date_found: formattedDateFound,
     time_found: item.time_found,
     location_found: item.location_found,
     photo_url: item.photo_url,

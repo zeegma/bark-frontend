@@ -38,7 +38,8 @@ function createItemsStore() {
           ),
         );
       } else {
-        console.error("Failed to edit/update");
+        const errorText = await response.text();
+        console.error("Failed to edit/update:", errorText);
       }
     },
     deleteItem: async (id: string) => {
