@@ -16,10 +16,10 @@
     <div class="bg-white rounded-3xl {padding} h-full">
       {#if showSearchBar}
         <div class="flex mb-5 justify-between">
-          <div class="p-2">
+          <div class="w-2/4 p-2">
             <h1 class={`text-5xl font-semibold`}>{title}</h1>
           </div>
-          <div class="w-2/3 flex justify-end">
+          <div class="w-3/4 flex justify-end px-2">
             <Searchbar />
           </div>
         </div>

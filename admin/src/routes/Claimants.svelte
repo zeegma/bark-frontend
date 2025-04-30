@@ -33,7 +33,7 @@
     <div class="flex gap-4 mb-7">
       <SortDropdown />
       <div class="w-1/4">
-        <DatePicker />
+        <DatePicker ranged={true} />
       </div>
       <Toggle />
 
