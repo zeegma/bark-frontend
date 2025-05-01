@@ -16,8 +16,12 @@
     errorMessage = "";
 
     try {
-      await loginAdmin(email, password);
-      alert("Login");
+      const result = await loginAdmin(email, password);
+      localStorage.setItem("accessToken", result.tokens.access);
+      localStorage.setItem("refreshToken", result.tokens.refresh);
+      localStorage.setItem("admin", JSON.stringify(result.admin));
+      console.log("Result:", result);
+      console.log("Login successfully.");
       push("/dashboard");
     } catch (error) {
       if (error instanceof Error) {

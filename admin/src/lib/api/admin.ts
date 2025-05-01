@@ -1,3 +1,6 @@
+import { get } from "svelte/store";
+import { accessToken } from "../../stores/authStore";
+
 export interface Admin {
   name: string;
   email: string;
@@ -41,8 +44,8 @@ export async function loginAdmin(email: string, password: string) {
       body: JSON.stringify({ email, password }),
     });
 
-    // console.log("Status:", response.status);
-    // console.log("Status Text:", response.statusText);
+    console.log("Status:", response.status);
+    console.log("Status Text:", response.statusText);
 
     let result;
     try {
@@ -58,6 +61,33 @@ export async function loginAdmin(email: string, password: string) {
     return result;
   } catch (error) {
     console.error("Login error:", error);
+    throw error;
+  }
+}
+
+export async function logoutAdmin(refreshToken: string) {
+  try {
+    const token = get(accessToken);
+    console.log("Sending logout request with refreshToken:", refreshToken);
+    const response = await fetch("http://127.0.0.1:8000/admins/logout/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+
+      body: JSON.stringify({ refreshToken }),
+    });
+
+    if (!response.ok) {
+      console.log("Logout response status:", response.status);
+      throw new Error("Logout failed.");
+    }
+
+    const result = await response.json();
+    return result;
+  } catch (error) {
+    console.error("Logout error:", error);
     throw error;
   }
 }
