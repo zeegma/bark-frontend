@@ -1,11 +1,15 @@
 <script lang="ts">
   import { push, location } from "svelte-spa-router";
+  import AdminModal from "../widgets/administrator/AdminModal.svelte";
+
+  let showAdminModal = false;
 
   // Nav links metadata
   const navItems = [
     { path: "/dashboard", label: "Dashboard" },
     { path: "/items", label: "Items" },
     { path: "/claimants", label: "Claimants" },
+    { label: "Account", isModal: true },
   ];
 
   // Active route check
@@ -38,11 +42,18 @@
       <nav class="flex flex-col gap-4 w-full">
         {#each navItems as item}
           <a
-            href="/#${item.path}"
-            class="block px-6 py-3 text-lg hover:font-[600] {isActive(item.path)
+            href={item.path ? `/#${item.path}` : "#"}
+            class="block px-6 py-3 text-lg hover:font-[600] {item.path &&
+            isActive(item.path)
               ? 'opacity-100 font-[600]'
               : 'opacity-80'}"
-            on:click|preventDefault={() => push(item.path)}
+            on:click|preventDefault={() => {
+              if (item.isModal) {
+                showAdminModal = true;
+              } else if (item.path) {
+                push(item.path);
+              }
+            }}
           >
             {item.label}
           </a>
@@ -51,3 +62,10 @@
     </div>
   </div>
 </aside>
+
+{#if showAdminModal}
+  <AdminModal
+    bind:showModal={showAdminModal}
+    closeModal={() => (showAdminModal = false)}
+  />
+{/if}
