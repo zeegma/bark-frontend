@@ -91,3 +91,46 @@ export async function logoutAdmin(refreshToken: string) {
     throw error;
   }
 }
+
+export async function getAdminDetail(adminId: number, token: string) {
+  const response = await fetch(`http://127.0.0.1:8000/admins/${adminId}/`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) throw new Error("Failed to fetch admin details.");
+  return await response.json();
+}
+
+export async function deleteAdminAccount(adminId: number): Promise<boolean> {
+  const token = get(accessToken);
+  if (!token) {
+    console.error("No access token available.");
+    return false;
+  }
+
+  try {
+    const response = await fetch(
+      `http://127.0.0.1:8000/admins/${adminId}/delete/`,
+      {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    );
+
+    if (!response.ok) {
+      console.error("Delete response status:", response.status);
+      return false;
+    }
+
+    console.log("Admin account deleted successfully.");
+    return true;
+  } catch (error) {
+    console.error("Error deleting admin account:", error);
+    return false;
+  }
+}
