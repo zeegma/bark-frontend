@@ -9,9 +9,9 @@
     Checkbox,
     Spinner,
   } from "flowbite-svelte";
-  import DeleteItem from "../widgets/DeleteItem.svelte";
-  import EditItem from "../widgets/EditItem.svelte";
-  import ViewItem from "../widgets/ViewItem.svelte";
+  import DeleteItem from "../widgets/items/DeleteItem.svelte";
+  import EditItem from "../widgets/items/EditItem.svelte";
+  import ViewItem from "../widgets/items/ViewItem.svelte";
   import {
     filterStore,
     type FilterOptions,

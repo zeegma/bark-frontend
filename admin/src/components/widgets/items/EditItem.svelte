@@ -1,22 +1,17 @@
 <script lang="ts">
-  import {
-    currentItem,
-    createNewItem,
-    itemsStore,
-  } from "../../stores/itemStore";
-  import DatePicker from "../common/DatePicker.svelte";
-  import TimePicker from "../common/TimePicker.svelte";
-  import Category from "../common/Category.svelte";
-  import Status from "../common/Status.svelte";
+  import DatePicker from "../../common/DatePicker.svelte";
+  import TimePicker from "../../common/TimePicker.svelte";
+  import Category from "../../common/Category.svelte";
+  import Status from "../../common/Status.svelte";
+  import ClaimantsList from "../../common/ClaimantsList.svelte";
   import { Textarea, Spinner, Button, Modal } from "flowbite-svelte";
   import { MapPinAltSolid } from "flowbite-svelte-icons";
-  import { addItem } from "../../lib/api/items";
-  import type { Item } from "../../lib/types";
-  import { triggerRefresh } from "../../stores/itemStore";
+  import { itemsStore } from "../../../stores/itemStore";
+  import type { Item } from "../../../lib/types";
 
+  export let item: Item;
+  export let onSave: (data: Item) => void;
   export let open = false;
-  let formData: Item;
-  let adding = false;
   let selectedDate: Date | null = null;
 
   function formatDate(date: Date | null): string {
@@ -30,85 +25,98 @@
 
   const formattedDate = formatDate(selectedDate);
 
-  // Reset form to create a new item
-  const resetForm = () => {
-    const nextId = itemsStore.getNextId();
-    formData = createNewItem(nextId);
+  let formData: Item = {
+    ...item,
+    accepted_claim: item.accepted_claim ?? null, // Ensure it's never undefined
   };
+  let updating = false;
+  let edit = true;
 
-  // Open modal for adding item
-  $: if (open) {
-    resetForm();
+  // Ensure date is a valid Date object
+  /* const ensureValidDate = (date: any): Date => {
+    return date instanceof Date && !isNaN(date.getTime()) ? date : new Date();
+  };*/
+
+  // formData.date_found = ensureValidDate(formData.date_found);
+
+  $: if (open && edit) {
+    console.log("Opening modal for item:", item);
+    formData = { ...item };
+    // formData.date_found = ensureValidDate(formData.date_found);
+    selectedDate = item.date_found ? new Date(item.date_found) : null;
+    if (typeof formData.photo_url === "string") {
+      formData.imagePreview = formData.photo_url;
+    } else {
+      formData.imagePreview = null;
+    }
+
+    edit = false;
   }
 
-  // Close the modal
   const closeModal = () => {
     open = false;
   };
 
-  // Submit the form data
-  const handleSubmit = async () => {
-    adding = true;
-    formData.date_found = formatDate(selectedDate ?? new Date());
-    try {
-      console.log("Submitting formData:", formData);
-      const response = await addItem(formData);
-      console.log("Response from addItem:", response);
-      if (!response.ok) {
-        throw new Error("Failed to add lost item");
-      }
-
-      currentItem.set({ ...formData });
-      triggerRefresh();
-      closeModal();
-    } catch (error) {
-      console.error("Error submitting:", error);
-      alert("Failed to submit item.");
-    } finally {
-      adding = false;
-    }
-  };
-
-  // Handle image upload
   const handleImageUpload = (event: Event) => {
     const target = event.target as HTMLInputElement;
     const file = target?.files?.[0];
+
     if (file) {
+      console.log("Image selected:", file.name);
       formData.image = file;
+
       const reader = new FileReader();
       reader.onload = (e) => {
         formData.imagePreview = e.target?.result as string;
+        console.log("Image preview generated.");
+      };
+      reader.onerror = (e) => {
+        console.error("Failed to load image preview:", e);
       };
       reader.readAsDataURL(file);
+    } else {
+      console.warn("No file selected.");
     }
+  };
+
+  const handleSubmit = async () => {
+    updating = true;
+    const itemToSave: Item = {
+      ...formData,
+      date_found: formatDate(selectedDate ?? new Date()),
+    };
+
+    console.log("Date:", item.date_found);
+
+    console.log("Item to save:", itemToSave);
+    if (formData.id) {
+      await itemsStore.updateItem(itemToSave);
+    }
+
+    onSave(itemToSave);
+    open = false;
+    updating = false;
   };
 </script>
 
-<Modal
-  bind:open
-  size="xl"
-  class="w-full max-w-6xl overflow-visible"
-  placement="center"
->
-  <!-- Header -->
+<!-- Modal -->
+<Modal bind:open size="xl" class="w-full max-w-6xl" placement="center">
   <svelte:fragment slot="header">
     <div class="flex justify-between items-center">
-      <h1 class="text-3xl font-bold text-gray-800">Add Item</h1>
+      <h1 class="text-3xl font-bold text-gray-800">Edit Item</h1>
     </div>
   </svelte:fragment>
-
   <!-- Form -->
   <form
-    class="px-6 py-4 grid grid-cols-6 grid-rows-4 gap-x-4 gap-y-2 overflow-visible"
+    class="px-6 py-4 grid grid-cols-6 grid-rows-4 gap-4"
     on:submit|preventDefault={handleSubmit}
   >
     <!-- Item Name -->
-    <div class="col-span-3">
+    <div class="col-span-2">
       <label for="name" class="block text-sm font-medium text-gray-800 mb-1"
         >Item Name</label
       >
       <input
-        id="name"
         type="text"
         bind:value={formData.name}
         class="w-full p-2.5 border border-gray-300 focus:border-black focus:ring-2 focus:ring-red-500 focus:outline-none rounded-lg text-sm"
@@ -117,7 +125,7 @@
     </div>
 
     <!-- Status -->
-    <div class="col-start-4 row-start-1">
+    <div class="col-start-3 row-start-1">
       <label for="status" class="block text-sm font-medium text-gray-800 mb-1"
         >Status</label
       >
@@ -125,20 +133,32 @@
     </div>
 
     <!-- Category -->
-    <div class="col-start-5 row-start-1 col-span-2">
+    <div class="col-start-4 row-start-1 col-span-2">
       <label for="category" class="block text-sm font-medium text-gray-800 mb-1"
         >Category</label
       >
       <Category bind:selectedCategory={formData.category} />
     </div>
 
+    <!-- Claimant -->
+    <div class="col-start-6">
+      <label for="claimant" class="block text-sm font-medium text-gray-800 mb-1"
+        >Claimant</label
+      >
+      <ClaimantsList
+        bind:selectedClaimant={formData.accepted_claim!}
+        itemId={item.id}
+      />
+    </div>
+
     <!-- Date Picker -->
-    <div class="col-span-2 col-start-1 row-start-2 overflow-visible">
+    <div class="col-span-2 col-start-1 row-start-2">
       <label for="dateLost" class="block text-sm font-medium text-gray-800 mb-1"
         >Date Lost</label
       >
       <DatePicker
         bind:selectedDate
+        value={selectedDate}
         on:apply={(event) => {
           selectedDate = event.detail;
         }}
@@ -153,8 +173,7 @@
       >
       <Textarea
         bind:value={formData.description}
-        id="textarea-id"
-        placeholder="Your message"
+        placeholder="Description"
         rows={10}
       />
     </div>
@@ -169,19 +188,16 @@
 
     <!-- Last Known Location -->
     <div class="col-span-2 col-start-1 row-start-4">
-      <label
-        for="lastKnownLocation"
-        class="block text-sm font-medium text-gray-800 mb-1"
+      <label for="timeLost" class="block text-sm font-medium text-gray-800 mb-1"
         >Last Known Location</label
       >
 
       <div class="relative w-full">
         <input
-          bind:value={formData.location_found}
           type="text"
-          id="lastKnownLocation"
+          bind:value={formData.location_found}
           class="w-full p-2.5 pr-10 border border-gray-300 focus:border-black focus:ring-2 focus:ring-red-500 focus:outline-none rounded-lg text-sm"
-          placeholder="Enter location"
+          placeholder="Location"
         />
         <MapPinAltSolid
           class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500"
@@ -191,49 +207,61 @@
 
     <!-- Image Upload -->
     <div class="col-span-2 row-span-3 col-start-5 row-start-2">
-      <label for="image" class="block mb-1 text-sm font-medium text-[#1E1E1E]"
-        >Image</label
-      >
+      <label for="image" class="block mb-1 text-sm font-medium text-[#1E1E1E]">
+        Image
+      </label>
+
       <label
-        class="flex flex-col items-center justify-center border-2 border-dashed border-gray-300 h-[222px] rounded cursor-pointer bg-gray-50 p-4"
+        class="relative border border-gray-300 rounded h-[222px] flex items-center justify-center bg-gray-50 p-2 cursor-pointer overflow-hidden group"
       >
         <input
+          id="image"
           type="file"
           accept="image/*"
           class="hidden"
           on:change={handleImageUpload}
         />
+
         {#if formData.imagePreview}
           <img
             src={formData.imagePreview}
             alt="Preview"
-            class="max-w-full max-h-full object-contain rounded"
+            class="max-h-full max-w-full object-contain rounded transition duration-200"
           />
+
+          <!-- Overlay -->
+          <div
+            class="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity duration-200 rounded"
+          >
+            <span class="text-white text-sm font-medium"
+              >Click to change image</span
+            >
+          </div>
         {:else}
-          <span class="text-4xl text-gray-400">+</span>
-          <span class="text-sm mt-2">Add image</span>
+          <div class="flex flex-col items-center justify-center text-center">
+            <span class="text-4xl text-gray-400">+</span>
+            <span class="text-sm mt-2">Add image</span>
+          </div>
         {/if}
       </label>
     </div>
 
-    <!--  Buttons -->
-    <div
-      class="col-span-6 flex mt-4 justify-center gap-4 row-start-[5] col-start-1"
-    >
+    <!-- Buttons -->
+    <div class="col-span-6 flex justify-center gap-4 row-start-[5] col-start-1">
       <Button
         color="alternative"
         class="w-32 hover:text-red-800 border-red-800 text-[#800000]"
         on:click={closeModal}>Cancel</Button
       >
 
-      <Button type="submit" color="red" class="w-32">
-        {#if adding}
+      <Button color="red" type="submit" class="w-32">
+        {#if updating}
           <div class="flex items-center gap-x-2">
             <Spinner color="white" size={5} />
-            Adding
+            Saving
           </div>
         {:else}
-          Save item
+          Save edit
         {/if}</Button
       >
     </div>

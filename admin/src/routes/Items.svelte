@@ -1,6 +1,6 @@
 <script lang="ts">
   import Layout from "../components/layout/Layout.svelte";
-  import AddItem from "../components/widgets/AddItem.svelte";
+  import AddItem from "../components/widgets/items/AddItem.svelte";
   import DatePicker from "../components/common/DatePicker.svelte";
   import ItemsTable from "../components/common/ItemsTable.svelte";
   import FilterDropdown from "../components/common/FilterDropdown.svelte";

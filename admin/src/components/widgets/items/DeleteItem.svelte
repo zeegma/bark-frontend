@@ -1,10 +1,7 @@
 <script lang="ts">
-  import {
-    ExclamationCircleOutline,
-    TrashBinSolid,
-  } from "flowbite-svelte-icons";
-  import { itemsStore } from "../../stores/itemStore";
-  import type { Item } from "../../lib/types";
+  import { ExclamationCircleOutline } from "flowbite-svelte-icons";
+  import { itemsStore } from "../../../stores/itemStore";
+  import type { Item } from "../../../lib/types";
   import { Button, Spinner, Modal } from "flowbite-svelte";
 
   export let item: Item;

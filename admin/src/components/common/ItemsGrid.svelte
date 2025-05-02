@@ -16,9 +16,9 @@
   import type { Item } from "../../lib/types";
   import { fetchItems, updateItem, deleteItem } from "../../lib/api/items";
   import { refreshTrigger } from "../../stores/itemStore";
-  import ViewItem from "../widgets/ViewItem.svelte";
-  import DeleteItem from "../widgets/DeleteItem.svelte";
-  import EditItem from "../widgets/EditItem.svelte";
+  import ViewItem from "../widgets/items/ViewItem.svelte";
+  import DeleteItem from "../widgets/items/DeleteItem.svelte";
+  import EditItem from "../widgets/items/EditItem.svelte";
 
   let allItems: Item[] = [];
   let items: Item[] = [];

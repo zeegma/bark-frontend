@@ -12,9 +12,9 @@
   } from "../../stores/selectionStore";
   import { formatDate, formatTime } from "../../lib/formatDateTime";
   import { onMount, onDestroy } from "svelte";
-  import ViewItem from "../widgets/ViewItem.svelte";
-  import EditItem from "../widgets/EditItem.svelte";
-  import DeleteItem from "../widgets/DeleteItem.svelte";
+  import ViewItem from "../widgets/items/ViewItem.svelte";
+  import EditItem from "../widgets/items/EditItem.svelte";
+  import DeleteItem from "../widgets/items/DeleteItem.svelte";
   import type { Item } from "../../lib/types";
   import {
     openDropdownIdStore,

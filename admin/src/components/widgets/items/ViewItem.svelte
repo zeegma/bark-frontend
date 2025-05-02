@@ -1,11 +1,11 @@
 <script lang="ts">
-  import DatePicker from "../common/DatePicker.svelte";
-  import TimePicker from "../common/TimePicker.svelte";
-  import Category from "../common/Category.svelte";
-  import Status from "../common/Status.svelte";
+  import DatePicker from "../../common/DatePicker.svelte";
+  import TimePicker from "../../common/TimePicker.svelte";
+  import Category from "../../common/Category.svelte";
+  import Status from "../../common/Status.svelte";
   import { Textarea, Modal } from "flowbite-svelte";
   import { MapPinAltSolid } from "flowbite-svelte-icons";
-  import type { Item } from "../../lib/types";
+  import type { Item } from "../../../lib/types";
 
   export let item: Item;
   export let open = false;
