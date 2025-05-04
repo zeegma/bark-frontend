@@ -35,7 +35,6 @@ export async function registerAdmin(data: Admin) {
 
 export async function loginAdmin(email: string, password: string) {
   try {
-    // console.log("Attempting login with:", { email, password });
     const response = await fetch("http://127.0.0.1:8000/admins/login/", {
       method: "POST",
       headers: {
@@ -44,8 +43,8 @@ export async function loginAdmin(email: string, password: string) {
       body: JSON.stringify({ email, password }),
     });
 
-    console.log("Status:", response.status);
-    console.log("Status Text:", response.statusText);
+    console.log("Login Status:", response.status);
+    console.log("Login Status Text:", response.statusText);
 
     let result;
     try {
@@ -68,7 +67,6 @@ export async function loginAdmin(email: string, password: string) {
 export async function logoutAdmin(refreshToken: string) {
   try {
     const token = get(accessToken);
-    console.log("Sending logout request with refreshToken:", refreshToken);
     const response = await fetch("http://127.0.0.1:8000/admins/logout/", {
       method: "POST",
       headers: {

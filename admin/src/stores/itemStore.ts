@@ -83,8 +83,9 @@ export const createNewItem = (nextId: string): Item => ({
   location_found: "",
 });
 
-export const refreshTrigger = writable(0);
+export const refreshTrigger = writable<boolean>(false);
 
 export function triggerRefresh() {
-  refreshTrigger.update((n) => n + 1);
+  refreshTrigger.update((v) => !v);
+  console.log("Refresh triggered");
 }
