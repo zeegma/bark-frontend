@@ -11,6 +11,7 @@
   import ItemsGrid from "../components/common/ItemsGrid.svelte";
   import { Button } from "flowbite-svelte";
   import { PlusOutline } from "flowbite-svelte-icons";
+  import { refreshTrigger } from "../stores/itemStore";
 
   let currentView: ViewType;
   let selectedIds: Set<string>;
@@ -27,15 +28,9 @@
     selectedIds = state.selectedIds;
   });
 
-  // Function to handle selection actions
-  function clearSelection() {
+  async function clearSelection() {
     selectionActions.clearSelection();
-  }
-
-  function deleteSelectedItems() {
-    // Wait for API imple of deletion, this one's temp code
-    console.log("Deleting items:", Array.from(selectedIds));
-    selectionActions.clearSelection();
+    refreshTrigger.set(true);
   }
 </script>
 
@@ -54,6 +49,7 @@
       <div class="flex flex-1 justify-end">
         {#if selectedIds.size > 0}
           <Indicator
+            type="items"
             selectedCount={selectedIds.size}
             onClear={clearSelection}
           />

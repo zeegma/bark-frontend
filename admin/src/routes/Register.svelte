@@ -34,7 +34,6 @@
 
     try {
       await registerAdmin({ name, email, number, password });
-      alert("Registered");
       name = email = number = password = confirmPassword = "";
       agreed = false;
       push("/");
