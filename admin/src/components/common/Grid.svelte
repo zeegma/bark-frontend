@@ -174,7 +174,7 @@
 </script>
 
 {#if loading}
-  <SkeletonLoader type="grid" count={4} />
+  <SkeletonLoader type="grid" count={4} view="claimants" />
 {:else if error}
   <div class="flex justify-center items-center h-full flex-col text-gray-800">
     <FileZipSolid class="w-20 h-20 mb-4 text-[#800000]" />

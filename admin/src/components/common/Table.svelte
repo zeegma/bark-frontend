@@ -166,7 +166,7 @@
     </button>
   </div>
 {:else if claims.length === 0}
-  <EmptyFallback />
+  <EmptyFallback type="claimants" />
 {:else}
   <Table hoverable={true} class="w-full table-fixed text-center overflow-auto">
     <TableHead>
