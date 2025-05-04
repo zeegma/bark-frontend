@@ -44,12 +44,12 @@
         type="text"
         value={item.name}
         disabled
-        class="w-full p-2.5 border border-gray-300 rounded-lg text-sm bg-gray-50 cursor-not-allowed"
+        class="w-full p-2.5 border border-gray-300 rounded-lg text-sm bg-gray-50 cursor-auto"
       />
     </div>
 
     <!-- Status -->
-    <div class="col-start-3 row-start-1">
+    <div class="col-span-2 col-start-1 row-start-3">
       <label for="status" class="block text-sm font-medium text-gray-800 mb-1"
         >Status</label
       >
@@ -57,7 +57,7 @@
     </div>
 
     <!-- Category -->
-    <div class="col-start-4 row-start-1 col-span-2">
+    <div class="col-span-2 col-start-1 row-start-2">
       <label for="category" class="block text-sm font-medium text-gray-800 mb-1"
         >Category</label
       >
@@ -73,12 +73,12 @@
         value={item.accepted_claim_id}
         type="text"
         disabled
-        class="w-full p-2.5 border border-gray-300 rounded-lg text-sm bg-gray-50 cursor-not-allowed"
+        class="w-full p-2.5 border border-gray-300 rounded-lg text-sm bg-gray-50 cursor-auto"
       />
     </div>
 
     <!-- Date Picker -->
-    <div class="col-span-2 col-start-1 row-start-2">
+    <div class="col-start-4 row-start-1 col-span-2">
       <label for="dateLost" class="block text-sm font-medium text-gray-800 mb-1"
         >Date Lost</label
       >
@@ -96,12 +96,12 @@
         id="description-view"
         rows={10}
         disabled
-        class="bg-gray-50 cursor-not-allowed"
+        class="bg-gray-50 cursor-auto"
       />
     </div>
 
     <!-- Time Picker -->
-    <div class="col-span-2 col-start-1 row-start-3">
+    <div class="col-start-3 row-start-1">
       <label for="timeLost" class="block text-sm font-medium text-gray-800 mb-1"
         >Time Lost</label
       >
@@ -121,7 +121,7 @@
           value={item.location_found}
           type="text"
           disabled
-          class="w-full p-2.5 border border-gray-300 rounded-lg text-sm bg-gray-50 cursor-not-allowed"
+          class="w-full p-2.5 border border-gray-300 rounded-lg text-sm bg-gray-50 cursor-auto"
         />
         <MapPinAltSolid
           class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500"

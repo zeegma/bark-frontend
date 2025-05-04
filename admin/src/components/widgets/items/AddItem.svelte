@@ -9,10 +9,11 @@
   import TimePicker from "../../common/TimePicker.svelte";
   import Category from "../../common/Category.svelte";
   import Status from "../../common/Status.svelte";
-  import { Textarea, Spinner, Button, Modal } from "flowbite-svelte";
+  import { Textarea, Spinner, Button, Modal, Toast } from "flowbite-svelte";
   import { MapPinAltSolid } from "flowbite-svelte-icons";
   import { addItem } from "../../../lib/api/items";
   import type { Item } from "../../../lib/types";
+  import { showToast } from "../../../stores/toastStore";
 
   export let open = false;
   let formData: Item;
@@ -28,8 +29,6 @@
     return `${year}-${month}-${day}`;
   }
 
-  const formattedDate = formatDate(selectedDate);
-
   // Reset form to create a new item
   const resetForm = () => {
     const nextId = itemsStore.getNextId();
@@ -44,6 +43,7 @@
   // Close the modal
   const closeModal = () => {
     open = false;
+    triggerRefresh();
   };
 
   // Submit the form data
@@ -51,7 +51,24 @@
     adding = true;
     formData.date_found = formatDate(selectedDate ?? new Date());
     try {
-      console.log("Submitting formData:", formData);
+      if (!formData.name?.trim()) throw new Error("Item name is required");
+      if (!formData.status?.trim()) throw new Error("Status is required");
+      if (!formData.category?.trim()) throw new Error("Category is required");
+      if (!selectedDate) throw new Error("Date lost is required");
+      if (!formData.time_found?.trim())
+        throw new Error("Time lost is required");
+      if (!formData.description?.trim())
+        throw new Error("Description is required");
+      if (!formData.location_found?.trim())
+        throw new Error("Last known location is required");
+      if (!formData.image) throw new Error("Image is required");
+
+      // Format date
+      formData.date_found = formatDate(selectedDate);
+      if (!formData.date_found) {
+        throw new Error("Formatted date is invalid");
+      }
+
       const response = await addItem(formData);
       console.log("Response from addItem:", response);
       if (!response.ok) {
@@ -59,11 +76,11 @@
       }
 
       currentItem.set({ ...formData });
-      triggerRefresh();
+      showToast("Item created successfully!", "success");
       closeModal();
-    } catch (error) {
+    } catch (error: any) {
+      showToast(error.message || "Failed to create item.", "error");
       console.error("Error submitting:", error);
-      alert("Failed to submit item.");
     } finally {
       adding = false;
     }
@@ -84,12 +101,7 @@
   };
 </script>
 
-<Modal
-  bind:open
-  size="xl"
-  class="w-full max-w-6xl overflow-visible"
-  placement="center"
->
+<Modal bind:open size="xl" class="w-full max-w-6xl" placement="center">
   <!-- Header -->
   <svelte:fragment slot="header">
     <div class="flex justify-between items-center">
@@ -111,38 +123,25 @@
         id="name"
         type="text"
         bind:value={formData.name}
-        class="w-full p-2.5 border border-gray-300 focus:border-black focus:ring-2 focus:ring-red-500 focus:outline-none rounded-lg text-sm"
+        class="w-full p-2.5 border border-gray-300 focus:border-black focus:ring-2 focus:ring-red-500 focus:outline-none rounded-lg text-sm text-[#1E1E1E]"
         placeholder="Enter item name"
       />
     </div>
 
     <!-- Status -->
-    <div class="col-start-4 row-start-1">
+    <div class="col-span-2 col-start-1 row-start-3">
       <label for="status" class="block text-sm font-medium text-gray-800 mb-1"
         >Status</label
       >
-      <Status bind:selectedStatus={formData.status} />
+      <Status bind:selectedStatus={formData.status} modalType="add" />
     </div>
 
     <!-- Category -->
-    <div class="col-start-5 row-start-1 col-span-2">
+    <div class="col-span-2 col-start-1 row-start-2 overflow-visible">
       <label for="category" class="block text-sm font-medium text-gray-800 mb-1"
         >Category</label
       >
       <Category bind:selectedCategory={formData.category} />
-    </div>
-
-    <!-- Date Picker -->
-    <div class="col-span-2 col-start-1 row-start-2 overflow-visible">
-      <label for="dateLost" class="block text-sm font-medium text-gray-800 mb-1"
-        >Date Lost</label
-      >
-      <DatePicker
-        bind:selectedDate
-        on:apply={(event) => {
-          selectedDate = event.detail;
-        }}
-      />
     </div>
 
     <!-- Description -->
@@ -159,8 +158,21 @@
       />
     </div>
 
+    <!-- Date Picker -->
+    <div class="col-start-5 row-start-1 col-span-2">
+      <label for="dateLost" class="block text-sm font-medium text-gray-800 mb-1"
+        >Date Lost</label
+      >
+      <DatePicker
+        bind:selectedDate
+        on:apply={(event) => {
+          selectedDate = event.detail;
+        }}
+      />
+    </div>
+
     <!-- Time Picker -->
-    <div class="col-span-2 col-start-1 row-start-3">
+    <div class="col-start-4 row-start-1">
       <label for="timeLost" class="block text-sm font-medium text-gray-800 mb-1"
         >Time Lost</label
       >
@@ -180,7 +192,7 @@
           bind:value={formData.location_found}
           type="text"
           id="lastKnownLocation"
-          class="w-full p-2.5 pr-10 border border-gray-300 focus:border-black focus:ring-2 focus:ring-red-500 focus:outline-none rounded-lg text-sm"
+          class="w-full p-2.5 pr-10 border border-gray-300 focus:border-black focus:ring-2 focus:ring-red-500 focus:outline-none rounded-lg text-sm text-[#1E1E1E]"
           placeholder="Enter location"
         />
         <MapPinAltSolid
@@ -198,6 +210,7 @@
         class="flex flex-col items-center justify-center border-2 border-dashed border-gray-300 h-[222px] rounded cursor-pointer bg-gray-50 p-4"
       >
         <input
+          id="image"
           type="file"
           accept="image/*"
           class="hidden"
@@ -207,11 +220,13 @@
           <img
             src={formData.imagePreview}
             alt="Preview"
-            class="max-w-full max-h-full object-contain rounded"
+            class="max-h-full max-w-full object-contain rounded"
           />
         {:else}
-          <span class="text-4xl text-gray-400">+</span>
-          <span class="text-sm mt-2">Add image</span>
+          <div class="flex flex-col items-center justify-center text-center">
+            <span class="text-4xl text-gray-400">+</span>
+            <span class="text-sm mt-2">Add image</span>
+          </div>
         {/if}
       </label>
     </div>

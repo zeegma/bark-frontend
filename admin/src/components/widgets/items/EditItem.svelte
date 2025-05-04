@@ -4,15 +4,22 @@
   import Category from "../../common/Category.svelte";
   import Status from "../../common/Status.svelte";
   import ClaimantsList from "../../common/ClaimantsList.svelte";
-  import { Textarea, Spinner, Button, Modal } from "flowbite-svelte";
+  import { Textarea, Spinner, Button, Modal, Toast } from "flowbite-svelte";
   import { MapPinAltSolid } from "flowbite-svelte-icons";
-  import { itemsStore } from "../../../stores/itemStore";
+  import { itemsStore, triggerRefresh } from "../../../stores/itemStore";
   import type { Item } from "../../../lib/types";
+  import { showToast } from "../../../stores/toastStore";
 
   export let item: Item;
   export let onSave: (data: Item) => void;
   export let open = false;
   let selectedDate: Date | null = null;
+  let formData: Item = {
+    ...item,
+    accepted_claim: item.accepted_claim ?? null, // Ensure it's never undefined
+  };
+  let updating = false;
+  let edit = true;
 
   function formatDate(date: Date | null): string {
     if (!date) return "";
@@ -23,27 +30,13 @@
     return `${year}-${month}-${day}`;
   }
 
-  const formattedDate = formatDate(selectedDate);
-
-  let formData: Item = {
-    ...item,
-    accepted_claim: item.accepted_claim ?? null, // Ensure it's never undefined
-  };
-  let updating = false;
-  let edit = true;
-
-  // Ensure date is a valid Date object
-  /* const ensureValidDate = (date: any): Date => {
-    return date instanceof Date && !isNaN(date.getTime()) ? date : new Date();
-  };*/
-
-  // formData.date_found = ensureValidDate(formData.date_found);
-
   $: if (open && edit) {
     console.log("Opening modal for item:", item);
     formData = { ...item };
-    // formData.date_found = ensureValidDate(formData.date_found);
     selectedDate = item.date_found ? new Date(item.date_found) : null;
+    if (formData.time_found && formData.time_found.length === 8) {
+      formData.time_found = formData.time_found.slice(0, 5);
+    }
     if (typeof formData.photo_url === "string") {
       formData.imagePreview = formData.photo_url;
     } else {
@@ -80,27 +73,43 @@
   };
 
   const handleSubmit = async () => {
-    updating = true;
-    const itemToSave: Item = {
-      ...formData,
-      date_found: formatDate(selectedDate ?? new Date()),
-    };
+    try {
+      updating = true;
 
-    console.log("Date:", item.date_found);
+      const itemToSave: Item = {
+        ...formData,
+        date_found: formatDate(selectedDate ?? new Date()),
+      };
 
-    console.log("Item to save:", itemToSave);
-    if (formData.id) {
-      await itemsStore.updateItem(itemToSave);
+      console.log("Date:", itemToSave.date_found);
+      console.log("Item to save:", itemToSave);
+
+      if (formData.id) {
+        await itemsStore.updateItem(itemToSave);
+      }
+      let success = true;
+
+      if (success) {
+        showToast(`Successfully edited item ${item.id}`);
+      } else {
+        showToast(`Failed to edit item ${item.id}`, "error");
+      }
+      onSave(itemToSave);
+      triggerRefresh();
+      open = false;
+    } catch (error) {
+      // Handle any errors here
+      console.error("Error while submitting item:", error);
+      showToast("Failed to save item. Please try again.", "error");
+    } finally {
+      updating = false; // Ensure updating is set to false regardless of success or failure
     }
-
-    onSave(itemToSave);
-    open = false;
-    updating = false;
   };
 </script>
 
 <!-- Modal -->
 <Modal bind:open size="xl" class="w-full max-w-6xl" placement="center">
+  <!-- Header -->
   <svelte:fragment slot="header">
     <div class="flex justify-between items-center">
       <h1 class="text-3xl font-bold text-gray-800">Edit Item</h1>
@@ -108,7 +117,7 @@
   </svelte:fragment>
   <!-- Form -->
   <form
-    class="px-6 py-4 grid grid-cols-6 grid-rows-4 gap-4"
+    class="px-6 py-4 grid grid-cols-6 grid-rows-4 gap-x-4 gap-y-2 overflow-visible"
     on:submit|preventDefault={handleSubmit}
   >
     <!-- Item Name -->
@@ -119,21 +128,21 @@
       <input
         type="text"
         bind:value={formData.name}
-        class="w-full p-2.5 border border-gray-300 focus:border-black focus:ring-2 focus:ring-red-500 focus:outline-none rounded-lg text-sm"
+        class="w-full p-2.5 border border-gray-300 focus:border-black focus:ring-2 focus:ring-red-500 focus:outline-none rounded-lg text-sm text-[#1E1E1E]"
         placeholder="Enter item name"
       />
     </div>
 
     <!-- Status -->
-    <div class="col-start-3 row-start-1">
+    <div class="col-span-2 col-start-1 row-start-3">
       <label for="status" class="block text-sm font-medium text-gray-800 mb-1"
         >Status</label
       >
-      <Status bind:selectedStatus={formData.status} />
+      <Status bind:selectedStatus={formData.status} modalType="edit" />
     </div>
 
     <!-- Category -->
-    <div class="col-start-4 row-start-1 col-span-2">
+    <div class="col-span-2 col-start-1 row-start-2">
       <label for="category" class="block text-sm font-medium text-gray-800 mb-1"
         >Category</label
       >
@@ -151,20 +160,6 @@
       />
     </div>
 
-    <!-- Date Picker -->
-    <div class="col-span-2 col-start-1 row-start-2">
-      <label for="dateLost" class="block text-sm font-medium text-gray-800 mb-1"
-        >Date Lost</label
-      >
-      <DatePicker
-        bind:selectedDate
-        value={selectedDate}
-        on:apply={(event) => {
-          selectedDate = event.detail;
-        }}
-      />
-    </div>
-
     <!-- Description -->
     <div class="col-span-2 row-span-3 col-start-3 row-start-2">
       <label
@@ -178,8 +173,22 @@
       />
     </div>
 
+    <!-- Date Picker -->
+    <div class="col-start-4 row-start-1 col-span-2">
+      <label for="dateLost" class="block text-sm font-medium text-gray-800 mb-1"
+        >Date Lost</label
+      >
+      <DatePicker
+        bind:selectedDate
+        value={selectedDate}
+        on:apply={(event) => {
+          selectedDate = event.detail;
+        }}
+      />
+    </div>
+
     <!-- Time Picker -->
-    <div class="col-span-2 col-start-1 row-start-3">
+    <div class="col-start-3 row-start-1">
       <label for="timeLost" class="block text-sm font-medium text-gray-800 mb-1"
         >Time Lost</label
       >
@@ -196,7 +205,7 @@
         <input
           type="text"
           bind:value={formData.location_found}
-          class="w-full p-2.5 pr-10 border border-gray-300 focus:border-black focus:ring-2 focus:ring-red-500 focus:outline-none rounded-lg text-sm"
+          class="w-full p-2.5 pr-10 border border-gray-300 focus:border-black focus:ring-2 focus:ring-red-500 focus:outline-none rounded-lg text-sm text-[#1E1E1E]"
           placeholder="Location"
         />
         <MapPinAltSolid
@@ -247,7 +256,9 @@
     </div>
 
     <!-- Buttons -->
-    <div class="col-span-6 flex justify-center gap-4 row-start-[5] col-start-1">
+    <div
+      class="col-span-6 flex mt-4 justify-center gap-4 row-start-[5] col-start-1"
+    >
       <Button
         color="alternative"
         class="w-32 hover:text-red-800 border-red-800 text-[#800000]"
