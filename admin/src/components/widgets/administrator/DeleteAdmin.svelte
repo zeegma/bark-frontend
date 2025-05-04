@@ -11,15 +11,24 @@
 
   const handleDelete = async () => {
     deleting = true;
-    const success = await deleteAdminAccount(adminId);
-    if (success) {
-      logout(); // clear tokens
-      push("/"); // go to login
-    } else {
-      console.error("Failed to delete admin account");
+    try {
+      const success = await deleteAdminAccount(adminId);
+      if (success) {
+        logout(); // clear tokens
+        push("/").then(() => {
+          setTimeout(() => {
+            window.location.reload();
+          }, 100);
+        });
+      } else {
+        console.error("Failed to delete admin account");
+      }
+    } catch (error) {
+      console.error("Error during delete operation:", error);
+    } finally {
+      deleting = false;
+      open = false;
     }
-    deleting = false;
-    open = false;
   };
 
   const closeModal = () => {

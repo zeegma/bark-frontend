@@ -23,8 +23,9 @@
       const currentAdmin = get(admin);
       const token = get(accessToken);
       adminDetails = await getAdminDetail(currentAdmin.id, token!);
-    } catch (err) {
-      error = "Failed to load admin details.";
+    } catch (err: any) {
+      console.error(err);
+      error = err.message;
     } finally {
       loading = false;
     }
@@ -35,31 +36,35 @@
       if (refreshToken) {
         await logoutAdmin(refreshToken);
       }
-      console.log("Logging out with refreshToken:", refreshToken);
-      // Clear auth state and redirecting
       logout();
       closeModal();
-      push("/");
+      push("/").then(() => {
+        setTimeout(() => {
+          window.location.reload();
+        }, 100);
+      });
     } catch (error) {
       console.error("Logout failed:", error);
     }
   };
 
-  const handleDelete = async () => {
-    try {
-      const currentAdmin = get(admin);
-      const token = get(accessToken);
-      await deleteAdminAccount(currentAdmin.id);
-      logout();
-      closeModal();
-      location.reload();
-    } catch (err) {
-      alert("Failed to delete account.");
-    }
+  const handleDeleteClick = () => {
+    showDeleteModal = true;
+    console.log("Delete account button clicked.");
+  };
+
+  const onDeleteModalClose = () => {
+    showDeleteModal = false;
+    console.log("DeleteAdmin modal closed.");
   };
 </script>
 
-<Modal size="lg" bind:open={showModal} on:close={closeModal}>
+<Modal
+  size="lg"
+  bind:open={showModal}
+  on:close={closeModal}
+  class={showDeleteModal ? "opacity-0 pointer-events-none" : ""}
+>
   <div class="p-4">
     <h3 class="text-xl font-bold mb-2">Admin Details</h3>
 
@@ -83,7 +88,7 @@
           Logout
         </button>
         <button
-          on:click={() => (showDeleteModal = true)}
+          on:click={handleDeleteClick}
           class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
         >
           Delete Account
@@ -94,5 +99,9 @@
 </Modal>
 
 {#if showDeleteModal}
-  <DeleteAdmin bind:open={showDeleteModal} adminId={adminDetails.id} />
+  <DeleteAdmin
+    bind:open={showDeleteModal}
+    adminId={adminDetails.id}
+    on:close={onDeleteModalClose}
+  />
 {/if}
