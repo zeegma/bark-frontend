@@ -22,7 +22,7 @@
     selectionStore,
     selectionActions,
   } from "../../stores/selectionStore";
-  import { formatDate, formatTime } from "../../lib/formatDateTime";
+  import { formatTime } from "../../lib/formatDateTime";
   import { onMount } from "svelte";
   import type { Item } from "../../lib/types";
   import { fetchItems, updateItem } from "../../lib/api/items";
@@ -31,14 +31,17 @@
     TrashBinSolid,
     InfoCircleOutline,
     EditSolid,
+    FileZipSolid,
   } from "flowbite-svelte-icons";
+  import SkeletonLoader from "./SkeletonLoader.svelte";
+  import EmptyFallback from "./EmptyFallback.svelte";
 
   let allItems: Item[] = [];
   let filteredItems: Item[] = [];
   let currentFilters: FilterOptions;
   let selectedIds: Set<string>;
   let isAllSelected: boolean;
-  let loading = true;
+  let loading: boolean = true;
   let error: string | null = null;
   let deleteModalOpen = false;
   let itemToDelete: Item | null = null;
@@ -85,7 +88,7 @@
       }
     }
 
-    filtered.sort((a, b) => String(b.id).localeCompare(String(a.id)));
+    filtered.sort((a, b) => Number(b.id) - Number(a.id));
     filteredItems = filtered;
   }
 
@@ -115,6 +118,16 @@
 
   function handleSelectItem(id: string) {
     selectionActions.toggleSelection(id);
+  }
+
+  function formatCategoryKey(key: string): string {
+    if (!key) return "";
+    return key
+      .toLowerCase()
+      .replace(/_/g, " ")
+      .replace(/&/g, "&")
+      .replace(/\b\w/g, (c) => c.toUpperCase())
+      .replace(/\s+&\s+/g, " & ");
   }
 
   function openEditModal(item: Item) {
@@ -173,13 +186,12 @@
 </script>
 
 {#if loading}
-  <div
-    class="flex justify-center items-center h-full flex-col p-8 text-[#800000]"
-  >
-    <Spinner color="red" size={20} />
+  <div class="flex justify-center items-center h-full pb-10">
+    <SkeletonLoader type="table" count={6} />
   </div>
 {:else if error}
-  <div class="text-center p-8 text-red-600">
+  <div class="flex justify-center items-center h-full flex-col text-gray-800">
+    <FileZipSolid class="w-20 h-20 mb-4 text-[#800000]" />
     <p>Error loading data: {error}</p>
     <button
       class="mt-4 px-4 py-2 bg-[#800000] text-white rounded"
@@ -188,6 +200,8 @@
       Retry
     </button>
   </div>
+{:else if allItems.length === 0}
+  <EmptyFallback type="items" />
 {:else}
   <Table hoverable class="w-full table-fixed overflow-auto">
     <TableHead>
@@ -257,7 +271,11 @@
             {item.description}
           </TableBodyCell>
           <TableBodyCell class="p-2 text-gray-600 text-center">
-            {item.category}
+            {formatCategoryKey(
+              Object.keys(categoryMap).find(
+                (key) => categoryMap[key] === item.category,
+              ) || "",
+            )}
           </TableBodyCell>
           <TableBodyCell class="p-2 text-gray-600 text-center">
             {item.date_found}

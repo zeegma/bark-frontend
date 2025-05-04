@@ -10,8 +10,8 @@
     selectionStore,
     selectionActions,
   } from "../../stores/selectionStore";
-  import { formatDate, formatTime } from "../../lib/formatDateTime";
-  import { onMount, onDestroy } from "svelte";
+  import { formatTime } from "../../lib/formatDateTime";
+  import { onMount } from "svelte";
   import ViewItem from "../widgets/items/ViewItem.svelte";
   import EditItem from "../widgets/items/EditItem.svelte";
   import DeleteItem from "../widgets/items/DeleteItem.svelte";
@@ -96,7 +96,8 @@
     onViewClick(item);
   }
 
-  function openDeleteModal(item: Item) {
+  function openDeleteModal(item: Item, event: MouseEvent) {
+    event.stopPropagation();
     itemToDelete = item;
     onDeleteClick(item);
     dropdownActions.closeAll();
@@ -205,7 +206,7 @@
       >
         <DropdownItem on:click={handleView}>View</DropdownItem>
         <DropdownItem on:click={handleEdit}>Edit</DropdownItem>
-        <DropdownItem on:click={() => openDeleteModal(item)}
+        <DropdownItem on:click={(e) => openDeleteModal(item, e)}
           >Delete</DropdownItem
         >
       </Dropdown>

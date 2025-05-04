@@ -29,6 +29,6 @@
     showActionButtons
     placeholder="Date"
     autohide={false}
-    inputClass="border border-gray-300 bg-white text-gray-600 hover:bg-gray-100 rounded-xl h-11"
+    inputClass="border border-gray-300 bg-white text-[#1E1E1E] rounded-xl h-11"
   />
 </div>

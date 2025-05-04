@@ -14,11 +14,13 @@
   } from "../../stores/selectionStore";
   import { dropdownActions } from "../../stores/dropdownStore";
   import type { Item } from "../../lib/types";
-  import { fetchItems, updateItem, deleteItem } from "../../lib/api/items";
+  import { fetchItems, updateItem } from "../../lib/api/items";
   import { refreshTrigger } from "../../stores/itemStore";
   import ViewItem from "../widgets/items/ViewItem.svelte";
   import DeleteItem from "../widgets/items/DeleteItem.svelte";
   import EditItem from "../widgets/items/EditItem.svelte";
+  import SkeletonLoader from "./SkeletonLoader.svelte";
+  import EmptyFallback from "./EmptyFallback.svelte";
 
   let allItems: Item[] = [];
   let items: Item[] = [];
@@ -27,7 +29,7 @@
   let currentFilters: FilterOptions;
   let isAllSelected: boolean;
   let selectedIds: Set<string>;
-  let loading = false;
+  let loading: boolean = true;
   let error: string | null = null;
   let viewModalOpen = false;
   let editModalOpen = false;
@@ -72,7 +74,7 @@
       }
     }
 
-    filtered.sort((a, b) => String(b.id).localeCompare(String(a.id)));
+    filtered.sort((a, b) => Number(b.id) - Number(a.id));
     items = filtered;
   }
 
@@ -205,9 +207,7 @@
 </script>
 
 {#if loading}
-  <div class="flex justify-center items-center h-40">
-    <Spinner color="red" size={20} />
-  </div>
+  <SkeletonLoader type="grid" count={3} view="items" />
 {:else if error}
   <div
     class="flex justify-center items-center h-full flex-col p-8 text-[#800000]"
@@ -220,6 +220,8 @@
       Retry
     </button>
   </div>
+{:else if allItems.length === 0}
+  <EmptyFallback type="items" />
 {:else}
   <div class="mr-2">
     <!-- Select all -->
