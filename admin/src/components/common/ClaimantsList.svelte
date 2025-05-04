@@ -39,7 +39,7 @@
       {selectedClaimant || "Claimant"}
       <ChevronDownOutline class="w-6 h-6 ms-2 text-[#1E1E1E]" />
     </Button>
-    <Dropdown class="w-full">
+    <Dropdown class="w-full max-h-48 overflow-y-auto">
       {#if claimantOptions.length > 0}
         {#each claimantOptions as claimant}
           <DropdownItem on:click={() => selectClaimant(claimant)}>
