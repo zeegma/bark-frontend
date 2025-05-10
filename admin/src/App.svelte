@@ -6,13 +6,17 @@
   import Claimants from "./routes/Claimants.svelte";
   import Fallback from "./routes/Fallback.svelte";
   import Register from "./routes/Register.svelte";
+  import Unauthorized from "./routes/Unauthorized.svelte";
   import { accessToken } from "./stores/authStore";
   import { get } from "svelte/store";
 
   const isAuthenticated = () => !!get(accessToken);
 
   const protectedRoute = (component: any) => {
-    return isAuthenticated() ? component : Login;
+    if (!isAuthenticated()) {
+      return Unauthorized;
+    }
+    return component;
   };
 
   const routes = {
@@ -21,6 +25,7 @@
     "/dashboard": protectedRoute(Dashboard),
     "/items": protectedRoute(Items),
     "/claimants": protectedRoute(Claimants),
+    "/unauthorized": Unauthorized,
     "*": Fallback,
   };
 </script>
