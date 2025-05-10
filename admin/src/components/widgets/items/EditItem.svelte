@@ -4,7 +4,7 @@
   import Category from "../../common/Category.svelte";
   import Status from "../../common/Status.svelte";
   import ClaimantsList from "../../common/ClaimantsList.svelte";
-  import { Textarea, Spinner, Button, Modal, Toast } from "flowbite-svelte";
+  import { Textarea, Spinner, Button, Modal } from "flowbite-svelte";
   import { MapPinAltSolid } from "flowbite-svelte-icons";
   import { itemsStore, triggerRefresh } from "../../../stores/itemStore";
   import type { Item } from "../../../lib/types";

@@ -91,14 +91,24 @@ export async function logoutAdmin(refreshToken: string) {
 }
 
 export async function getAdminDetail(adminId: number, token: string) {
-  const response = await fetch(`http://127.0.0.1:8000/admins/${adminId}/`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
+  try {
+    const response = await fetch(`http://127.0.0.1:8000/admins/${adminId}/`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
 
-  if (!response.ok) throw new Error("Failed to fetch admin details.");
-  return await response.json();
+    if (!response.ok) {
+      throw new Error("Failed to fetch admin details.");
+    }
+
+    const adminDetails = await response.json();
+
+    return adminDetails; // Make sure to return the details
+  } catch (error) {
+    console.error("Error fetching admin details:", error);
+    throw error; // Re-throw the error for better error handling
+  }
 }
 
 export async function deleteAdminAccount(adminId: number): Promise<boolean> {

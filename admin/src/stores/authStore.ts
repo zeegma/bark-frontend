@@ -11,18 +11,28 @@ export const admin = writable<any>(
 );
 
 accessToken.subscribe((value) => {
-  if (value) localStorage.setItem("accessToken", value);
-  else localStorage.removeItem("accessToken");
+  if (value) {
+    localStorage.setItem("accessToken", value);
+  } else {
+    localStorage.removeItem("accessToken");
+    console.warn("Access token has expired or been cleared.");
+  }
 });
 
 refreshToken.subscribe((value) => {
-  if (value) localStorage.setItem("refreshToken", value);
-  else localStorage.removeItem("refreshToken");
+  if (value) {
+    localStorage.setItem("refreshToken", value);
+  } else {
+    localStorage.removeItem("refreshToken");
+  }
 });
 
 admin.subscribe((value) => {
-  if (value) localStorage.setItem("admin", JSON.stringify(value));
-  else localStorage.removeItem("admin");
+  if (value) {
+    localStorage.setItem("admin", JSON.stringify(value));
+  } else {
+    localStorage.removeItem("admin");
+  }
 });
 
 export const logout = () => {
