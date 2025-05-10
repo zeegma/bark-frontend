@@ -1,12 +1,12 @@
 <script lang="ts">
-  import { Modal } from "flowbite-svelte";
+  import { Modal, Input, Label } from "flowbite-svelte";
   import { onMount } from "svelte";
-  import { getAdminDetail, deleteAdminAccount } from "../../../lib/api/admin";
-  import { accessToken, admin, logout } from "../../../stores/authStore";
-  import { logoutAdmin } from "../../../lib/api/admin";
+  import { getAdminDetail } from "../../../lib/api/admin";
+  import { accessToken, admin } from "../../../stores/authStore";
   import { get } from "svelte/store";
-  import { push } from "svelte-spa-router";
   import DeleteAdmin from "./DeleteAdmin.svelte";
+  import { formatDate } from "../../../lib/formatDateTime";
+  import { UserCircleSolid } from "flowbite-svelte-icons";
 
   export let showModal: boolean;
   export let closeModal: () => void;
@@ -15,7 +15,7 @@
   let adminDetails: any = null;
   let loading = false;
   let error: string | null = null;
-  let refreshToken: string | null = localStorage.getItem("refreshToken");
+  let dropdownOpen = false;
 
   onMount(async () => {
     try {
@@ -23,6 +23,7 @@
       const currentAdmin = get(admin);
       const token = get(accessToken);
       adminDetails = await getAdminDetail(currentAdmin.id, token!);
+      console.log("Fetched Admin Details:", adminDetails);
     } catch (err: any) {
       console.error(err);
       error = err.message;
@@ -30,23 +31,6 @@
       loading = false;
     }
   });
-
-  const handleLogout = async () => {
-    try {
-      if (refreshToken) {
-        await logoutAdmin(refreshToken);
-      }
-      logout();
-      closeModal();
-      push("/").then(() => {
-        setTimeout(() => {
-          window.location.reload();
-        }, 100);
-      });
-    } catch (error) {
-      console.error("Logout failed:", error);
-    }
-  };
 
   const handleDeleteClick = () => {
     showDeleteModal = true;
@@ -60,36 +44,59 @@
 </script>
 
 <Modal
-  size="lg"
+  size="sm"
   bind:open={showModal}
-  on:close={closeModal}
+  on:close={() => {
+    closeModal();
+    dropdownOpen = false;
+  }}
   class={showDeleteModal ? "opacity-0 pointer-events-none" : ""}
 >
-  <div class="p-4">
-    <h3 class="text-xl font-bold mb-2">Admin Details</h3>
+  <svelte:fragment slot="header">
+    <div class="flex justify-between items-center">
+      <h1 class="text-3xl font-bold text-gray-800">Admin Details</h1>
+    </div>
+  </svelte:fragment>
 
+  <div class="px-4 pb-4">
     {#if loading}
       <p>Loading...</p>
     {:else if error}
       <p class="text-red-500">{error}</p>
     {:else if adminDetails}
-      <div class="space-y-2 text-sm">
-        <p><strong>Name:</strong> {adminDetails.name}</p>
-        <p><strong>Email:</strong> {adminDetails.email}</p>
-        <p><strong>Number:</strong> {adminDetails.number}</p>
-        <p><strong>Last Login:</strong> {adminDetails.last_login || "N/A"}</p>
+      <div class="space-y-4 text-md">
+        <div class="flex justify-center">
+          <UserCircleSolid class="w-20 h-20 text-red-800" />
+        </div>
+        <div>
+          <Label for="name" class="font-semibold mb-1">Name</Label>
+          <Input id="name" value={adminDetails.name} disabled />
+        </div>
+
+        <div>
+          <Label for="email" class="font-semibold mb-1">Email</Label>
+          <Input id="email" value={adminDetails.email} disabled />
+        </div>
+
+        <div>
+          <Label for="number" class="font-semibold mb-1">Number</Label>
+          <Input id="number" value={adminDetails.number} disabled />
+        </div>
+
+        <div>
+          <Label for="last_login" class="font-semibold mb-1">Last Login</Label>
+          <Input
+            id="last_login"
+            value={formatDate(adminDetails.last_login) || "N/A"}
+            disabled
+          />
+        </div>
       </div>
 
-      <div class="mt-6 flex gap-4">
-        <button
-          on:click={handleLogout}
-          class="px-4 py-2 bg-red-800 text-white rounded hover:bg-red-900"
-        >
-          Logout
-        </button>
+      <div class="mt-8 flex justify-end">
         <button
           on:click={handleDeleteClick}
-          class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+          class="px-4 py-2 bg-red-800 text-white rounded hover:bg-red-900"
         >
           Delete Account
         </button>
