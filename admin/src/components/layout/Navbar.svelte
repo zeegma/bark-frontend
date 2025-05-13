@@ -2,14 +2,7 @@
   import { push, location } from "svelte-spa-router";
   import AdminModal from "../widgets/administrator/AdminModal.svelte";
   import LogoutModal from "../widgets/administrator/LogoutModal.svelte";
-  import {
-    Button,
-    Dropdown,
-    DropdownItem,
-    DropdownHeader,
-    DropdownDivider,
-    Avatar,
-  } from "flowbite-svelte";
+  import { Button, Dropdown, DropdownItem, Avatar } from "flowbite-svelte";
   import { admin } from "../../stores/authStore";
   import { onMount } from "svelte";
   import { ChevronDownOutline } from "flowbite-svelte-icons";
@@ -107,61 +100,56 @@
     </div>
 
     <div class="mt-auto py-4">
-      <Button
-        color="alternative"
-        class="w-full text-[#800000] border-[#800000] hover:text-red-800 focus:text-red-800 active:text-red-800 focus:ring-0 focus:outline-none bg-white shadow-md rounded-lg"
-        on:click={() => (dropdownOpen = !dropdownOpen)}
-      >
-        <div class="flex items-center justify-between w-full">
-          <div class="flex items-center gap-3">
-            <Avatar>{userInitials}</Avatar>
-            <span class="text-left">Account</span>
+      <div class="relative">
+        <Button
+          color="alternative"
+          class="w-full text-[#800000] border-[#800000] hover:text-red-800 focus:text-red-800 active:text-red-800 focus:ring-0 focus:outline-none bg-white shadow-md rounded-lg"
+          on:click={() => (dropdownOpen = !dropdownOpen)}
+        >
+          <div class="flex items-center justify-between w-full">
+            <div class="flex items-center gap-3">
+              <Avatar>{userInitials}</Avatar>
+              <span class="text-left">Account</span>
+            </div>
+            <ChevronDownOutline
+              class={`h-5 w-5 transition-transform duration-200 ${dropdownOpen ? "rotate-180" : ""}`}
+              style="color: #800000;"
+            />
           </div>
-          <ChevronDownOutline
-            class={`h-5 w-5 transition-transform duration-200 ${dropdownOpen ? "rotate-180" : ""}`}
-            style="color: #800000;"
-          />
-        </div>
-      </Button>
-      <Dropdown
-        id="dropdownMenu"
-        class="w-48 bg-white text-gray-800 rounded-xl shadow-lg"
-      >
-        <DropdownItem
-          class="text-gray-800"
-          on:click={() => {
-            showAdminModal = true;
-            dropdownOpen = false;
-          }}
+        </Button>
+
+        <Dropdown
+          id="dropdownMenu"
+          class="w-48 bg-white text-gray-800 rounded-xl shadow-lg"
         >
-          Account Details
-        </DropdownItem>
-        <DropdownItem
-          class="text-gray-800"
-          on:click={() => {
-            showLogoutModal = true;
-            dropdownOpen = false;
-          }}
-        >
-          Log Out
-        </DropdownItem>
-      </Dropdown>
+          <DropdownItem
+            class="text-gray-800"
+            on:click={() => {
+              showAdminModal = true;
+              dropdownOpen = false;
+            }}
+          >
+            Account Details
+          </DropdownItem>
+          <DropdownItem
+            class="text-gray-800"
+            on:click={() => {
+              showLogoutModal = true;
+              dropdownOpen = false;
+            }}
+          >
+            Log Out
+          </DropdownItem>
+        </Dropdown>
+      </div>
     </div>
   </div>
 </aside>
 
 {#if showAdminModal}
-  <AdminModal
-    bind:showModal={showAdminModal}
-    closeModal={() => {
-      showAdminModal = false;
-    }}
-  />
+  <AdminModal bind:open={showAdminModal} />
 {/if}
 
 {#if showLogoutModal}
-  <LogoutModal
-    bind:showModal={showLogoutModal}
-    closeModal={() => (showLogoutModal = false)}
-  />
+  <LogoutModal bind:open={showLogoutModal} />
 {/if}

@@ -98,11 +98,14 @@ export async function getAdminDetail(adminId: number, token: string) {
       },
     });
 
+    console.log("Response status:", response.status);
+
     if (!response.ok) {
       throw new Error("Failed to fetch admin details.");
     }
 
     const adminDetails = await response.json();
+    console.log("Admin details: ", adminDetails);
 
     return adminDetails; // Make sure to return the details
   } catch (error) {

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Modal, Input, Label } from "flowbite-svelte";
+  import { Modal, Input, Label, Spinner } from "flowbite-svelte";
   import { onMount } from "svelte";
   import { getAdminDetail } from "../../../lib/api/admin";
   import { accessToken, admin } from "../../../stores/authStore";
@@ -8,8 +8,10 @@
   import { formatDate } from "../../../lib/formatDateTime";
   import { UserCircleSolid } from "flowbite-svelte-icons";
 
-  export let showModal: boolean;
-  export let closeModal: () => void;
+  export let open = false;
+  const closeModal = () => {
+    open = false;
+  };
 
   let showDeleteModal = false;
   let adminDetails: any = null;
@@ -22,7 +24,21 @@
       loading = true;
       const currentAdmin = get(admin);
       const token = get(accessToken);
+
+      if (!currentAdmin || !currentAdmin.id) {
+        throw new Error("Admin data is missing or invalid");
+      }
+
+      if (!token) {
+        throw new Error("Authentication token is missing");
+      }
+
       adminDetails = await getAdminDetail(currentAdmin.id, token!);
+
+      if (!adminDetails) {
+        throw new Error("Failed to retrieve admin details");
+      }
+
       console.log("Fetched Admin Details:", adminDetails);
     } catch (err: any) {
       console.error(err);
@@ -45,7 +61,7 @@
 
 <Modal
   size="sm"
-  bind:open={showModal}
+  bind:open
   on:close={() => {
     closeModal();
     dropdownOpen = false;
@@ -60,7 +76,9 @@
 
   <div class="px-4 pb-4">
     {#if loading}
-      <p>Loading...</p>
+      <div class="text-center">
+        <Spinner color="red" size="8" />
+      </div>
     {:else if error}
       <p class="text-red-500">{error}</p>
     {:else if adminDetails}

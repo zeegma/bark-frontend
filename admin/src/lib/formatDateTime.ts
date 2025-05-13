@@ -7,9 +7,18 @@ export function formatTime(time: string | null | undefined): string {
   return `${hour12}:${minutes.toString().padStart(2, "0")} ${ampm}`;
 }
 
-export function formatDate(date: Date): string {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
+export function formatDate(date: Date | string | null | undefined): string {
+  if (!date) return "N/A";
+
+  try {
+    const parsedDate = typeof date === "string" ? new Date(date) : date;
+    if (isNaN(parsedDate.getTime())) return "Invalid Date";
+
+    const year = parsedDate.getFullYear();
+    const month = String(parsedDate.getMonth() + 1).padStart(2, "0");
+    const day = String(parsedDate.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  } catch {
+    return "Invalid Date";
+  }
 }

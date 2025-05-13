@@ -5,8 +5,10 @@
   import { push } from "svelte-spa-router";
   import { ArrowRightToBracketOutline } from "flowbite-svelte-icons";
 
-  export let showModal: boolean;
-  export let closeModal: () => void;
+  export let open = false;
+  const closeModal = () => {
+    open = false;
+  };
   let loggingOut = false;
 
   let loading = false;
@@ -37,7 +39,7 @@
 
 <Modal
   size="xs"
-  bind:open={showModal}
+  bind:open
   on:close={closeModal}
   class="bg-white rounded-xl p-6 w-full max-w-md shadow-lg flex flex-col text-center"
   placement="center"
