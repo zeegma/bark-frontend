@@ -29,7 +29,7 @@
   <img
     src={item.photo_url}
     alt={item.name}
-    class="my-6 rounded-2xl object-cover w-full h-64 sm:h-96"
+    class="my-6 border border-stone-300 rounded-xl object-cover w-full h-64 sm:h-96"
   />
   <div class="flex flex-col gap-4">
     <InfoRow label="Item Description" value={item.description} />
