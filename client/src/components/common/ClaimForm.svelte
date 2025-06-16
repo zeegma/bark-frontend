@@ -103,7 +103,7 @@
 
       setTimeout(() => {
         isSubmitted = false;
-      }, 2000);
+      }, 1000);
     } catch (error) {
       console.error("Error submitting claim:", error);
       errorMessage = "An error occurred while submitting your claim.";
@@ -114,11 +114,6 @@
 </script>
 
 <div class="flex flex-col">
-  {#if errorMessage}
-    <div class="bg-red-500 p-6">
-      <p class="text-white text-xs">{errorMessage}</p>
-    </div>
-  {/if}
   <div class="px-6 pt-12 lg:pt-6 pb-6 md:px-12 xl:px-16 xl:py-12">
     <form on:submit|preventDefault={handleSubmit} class="flex flex-col gap-4">
       <!-- Full Name -->
@@ -254,4 +249,9 @@
       </button>
     </form>
   </div>
+  {#if errorMessage}
+    <div class="bg-red-500 p-6">
+      <p class="text-white text-xs">{errorMessage}</p>
+    </div>
+  {/if}
 </div>
