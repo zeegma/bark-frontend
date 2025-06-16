@@ -32,14 +32,13 @@
   });
 </script>
 
-<Header />
 
 {#if isLoading}
   <ClaimLoader />
 {:else if !itemDetails}
   <Fallback />
 {:else}
-  <div class="flex flex-col px-2 md:px-12 xl:px-24 mt-4 font-[Poppins]">
+  <div class="flex flex-col px-2 md:px-12 xl:px-24 mt-8 font-[Poppins]">
     <!-- Header -->
     <div
       class="flex border h-[48px] rounded-tl-2xl rounded-tr-2xl border-stone-300"
