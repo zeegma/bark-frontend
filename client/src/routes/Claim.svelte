@@ -7,6 +7,7 @@
   import ClaimForm from "../components/common/ClaimForm.svelte";
   import ClaimLoader from "../components/common/ClaimLoader.svelte";
   import Fallback from "./Fallback.svelte";
+  import Footer from "../components/layout/Footer.svelte";
 
   let itemId: string | null = null;
   let itemDetails: any = null;
@@ -84,3 +85,5 @@
     </div>
   </div>
 {/if}
+
+<Footer />

@@ -4,6 +4,7 @@
   import ListLoader from "../components/common/ListLoader.svelte";
   import Filters from "../components/layout/Filters.svelte";
   import Contents from "../components/layout/Contents.svelte";
+  import Footer from "../components/layout/Footer.svelte";
   import { fetchAllItems } from "../lib/api/fetch";
   import { onMount } from "svelte";
   import {
@@ -106,3 +107,5 @@
     <Contents items={filteredItems} {view} />
   {/if}
 {/if}
+
+<Footer />
