@@ -7,7 +7,7 @@
 </script>
 
 <div
-  class="flex flex-col px-6 py-6 md:px-12 xl:px-16 xl:py-12 border-b-1 lg:border-r-1 border-stone-300"
+  class="flex flex-col px-6 py-6 md:px-12 xl:px-16 xl:py-12 lg:border-r-1 border-stone-300"
 >
   <div class="flex row-auto justify-between">
     <div class="flex flex-col">
