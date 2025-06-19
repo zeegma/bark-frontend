@@ -1,7 +1,7 @@
 <script lang="ts">
   import { Input, Label, Button } from "flowbite-svelte";
   import { EyeOutline, EyeSlashOutline } from "flowbite-svelte-icons";
-  import { link, push } from "svelte-spa-router";
+  import { link } from "svelte-spa-router";
   import sampleImage from "../assets/sampleImage.jpg";
   import maskImage from "../assets/maskImage.png";
   import { loginAdmin } from "../lib/api/admin";
@@ -16,9 +16,13 @@
     errorMessage = "";
 
     try {
-      await loginAdmin(email, password);
-      alert("Login");
-      push("/dashboard");
+      const result = await loginAdmin(email, password);
+      localStorage.setItem("accessToken", result.tokens.access);
+      localStorage.setItem("refreshToken", result.tokens.refresh);
+      localStorage.setItem("admin", JSON.stringify(result.admin));
+      console.log("Login successfully.");
+      window.location.href = "/#/dashboard";
+      window.location.reload();
     } catch (error) {
       if (error instanceof Error) {
         errorMessage = error.message;

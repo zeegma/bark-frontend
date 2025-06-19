@@ -7,6 +7,8 @@
     type CategoryFilter,
     categoryOptions,
     statusOptions,
+    reverseCategoryMap,
+    reverseStatusMap,
   } from "../../stores/filterStore";
 
   // Assign the status and category values from the store
@@ -40,11 +42,11 @@
 
   <Dropdown placement="bottom-start" class="w-72 p-3 shadow-lg z-20">
     <!-- Filter by Status -->
-    <div class="pb-2 mb-2 border-b border-gray-200">
+    <div class="pb-2 px-2 mb-2 border-b border-gray-200">
       <h6 class="mb-2 text-sm font-medium text-gray-900">Filter by Status</h6>
       <ul class="space-y-2">
         {#each statusOptions as stat}
-          <li>
+          <li class="pl-2">
             <Radio
               name="status"
               color="red"
@@ -62,11 +64,11 @@
     <!-- Filter by Category 
     TODO: Limit the view, use scrollbar
     -->
-    <div>
+    <div class="max-h-60 overflow-y-auto p-2">
       <h6 class="mb-2 text-sm font-medium text-gray-900">Filter by Category</h6>
       <ul class="space-y-2">
         {#each categoryOptions as cat}
-          <li>
+          <li class="pl-2">
             <Radio
               color="red"
               name="category"

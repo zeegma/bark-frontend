@@ -41,6 +41,7 @@
         <!-- Selection Indicator -->
         {#if selectedIds.size > 0}
           <Indicator
+            type="claimants"
             selectedCount={selectedIds.size}
             onClear={clearSelection}
           />

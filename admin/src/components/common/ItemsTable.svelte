@@ -7,24 +7,47 @@
     TableHead,
     TableHeadCell,
     Checkbox,
+    Spinner,
   } from "flowbite-svelte";
-  import DeleteItem from "../widgets/DeleteItem.svelte";
-  import EditItem from "../widgets/EditItem.svelte";
-  import ViewItem from "../widgets/ViewItem.svelte";
-  import { filterStore, type FilterOptions } from "../../stores/filterStore";
+  import DeleteItem from "../widgets/items/DeleteItem.svelte";
+  import EditItem from "../widgets/items/EditItem.svelte";
+  import ViewItem from "../widgets/items/ViewItem.svelte";
+  import {
+    filterStore,
+    type FilterOptions,
+    categoryMap,
+    statusMap,
+  } from "../../stores/filterStore";
   import {
     selectionStore,
     selectionActions,
   } from "../../stores/selectionStore";
-  import { formatDate, formatTime } from "../../lib/formatDateTime";
+  import { formatTime } from "../../lib/formatDateTime";
   import { onMount } from "svelte";
-  import { type Item } from "../../stores/itemStore";
+  import type { Item } from "../../lib/types";
+  import { fetchItems, updateItem } from "../../lib/api/items";
+  import { refreshTrigger } from "../../stores/itemStore";
+  import {
+    TrashBinSolid,
+    InfoCircleOutline,
+    EditSolid,
+    FileZipSolid,
+  } from "flowbite-svelte-icons";
+  import SkeletonLoader from "./SkeletonLoader.svelte";
+  import EmptyFallback from "./EmptyFallback.svelte";
 
   let allItems: Item[] = [];
   let filteredItems: Item[] = [];
   let currentFilters: FilterOptions;
   let selectedIds: Set<string>;
   let isAllSelected: boolean;
+  let loading: boolean = true;
+  let error: string | null = null;
+  let deleteModalOpen = false;
+  let itemToDelete: Item | null = null;
+  let selectedItem: Item | null = null;
+  let viewModalOpen = false;
+  let editModalOpen = false;
 
   filterStore.subscribe((f) => {
     currentFilters = f;
@@ -35,24 +58,58 @@
     let filtered = [...allItems];
 
     if (currentFilters.status !== "All") {
-      filtered = filtered.filter(
-        (item) => item.status === currentFilters.status,
-      );
+      const statusKey = currentFilters.status
+        .toUpperCase()
+        .replace(/\s+/g, "_");
+      const statusCode = statusMap[statusKey];
+
+      if (statusCode) {
+        filtered = filtered.filter((item) => item.status === statusCode);
+      } else {
+        console.warn(`Unknown status filter: ${currentFilters.status}`);
+        filtered = [];
+        filteredItems = filtered;
+        return;
+      }
     }
 
     if (currentFilters.category !== "All") {
-      filtered = filtered.filter(
-        (item) => item.category === currentFilters.category,
-      );
+      const categoryKey = currentFilters.category
+        .toUpperCase()
+        .replace(/\s*&\s*/g, "_&_") // Replace "& " with "_&_"
+        .replace(/\s+/g, "_");
+      const categoryCode = categoryMap[categoryKey];
+
+      if (categoryCode) {
+        filtered = filtered.filter((item) => item.category === categoryCode);
+      } else {
+        console.warn(`Unknown category filter: ${currentFilters.category}`);
+        filtered = [];
+      }
     }
 
-    filtered.sort((a, b) => b.id.localeCompare(a.id));
+    filtered.sort((a, b) => Number(b.id) - Number(a.id));
     filteredItems = filtered;
   }
 
   selectionStore.subscribe((state) => {
     selectedIds = state.selectedIds;
     isAllSelected = state.isAllSelected;
+  });
+
+  refreshTrigger.subscribe(async () => {
+    if (loading) return;
+
+    try {
+      loading = true;
+      const fetched = await fetchItems();
+      allItems = fetched;
+      applyFiltering();
+    } catch (e) {
+      console.error("Error refreshing items:", e);
+    } finally {
+      loading = false;
+    }
   });
 
   function handleSelectAll() {
@@ -63,141 +120,234 @@
     selectionActions.toggleSelection(id);
   }
 
-  function handleDelete(id: string) {
-    allItems = allItems.filter((i) => i.id !== id);
-    localStorage.setItem("items", JSON.stringify(allItems));
-    applyFiltering();
+  function formatCategoryKey(key: string): string {
+    if (!key) return "";
+    return key
+      .toLowerCase()
+      .replace(/_/g, " ")
+      .replace(/&/g, "&")
+      .replace(/\b\w/g, (c) => c.toUpperCase())
+      .replace(/\s+&\s+/g, " & ");
   }
 
-  function handleSave(updatedItem: Item) {
-    const index = allItems.findIndex((i) => i.id === updatedItem.id);
-    if (index !== -1) {
-      allItems[index] = updatedItem;
-    } else {
-      allItems.push(updatedItem);
+  function openEditModal(item: Item) {
+    selectedItem = item;
+    editModalOpen = true;
+  }
+
+  function openDeleteModal(item: Item) {
+    itemToDelete = item;
+    deleteModalOpen = true;
+  }
+
+  async function handleDelete() {
+    loading = true;
+    try {
+      const fetched = await fetchItems();
+      allItems = fetched;
+      applyFiltering();
+    } catch (e) {
+      console.error("Error deleting item:", e);
+    } finally {
+      loading = false;
     }
-
-    localStorage.setItem("items", JSON.stringify(allItems));
-    applyFiltering();
   }
 
-  // Load items from localStorage
-  onMount(() => {
-    allItems = JSON.parse(localStorage.getItem("items") || "[]");
-    applyFiltering();
+  async function handleSave(updatedItem: Item) {
+    loading = true;
+    try {
+      const res = await updateItem(updatedItem);
+      if (res.ok) {
+        const fetched = await fetchItems(); // refresh data from server
+        allItems = fetched;
+        applyFiltering();
+      } else {
+        console.error("Failed to update/save item");
+      }
+    } catch (error) {
+      console.error("Error updating item:", error);
+    } finally {
+      loading = false;
+    }
+  }
+
+  onMount(async () => {
+    try {
+      const fetched = await fetchItems();
+      allItems = fetched;
+      applyFiltering();
+    } catch (e) {
+      error = e instanceof Error ? e.message : "Failed to fetch items";
+      console.error(error);
+    } finally {
+      loading = false;
+    }
   });
 </script>
 
-<Table hoverable class="w-full table-fixed overflow-auto">
-  <TableHead>
-    <TableHeadCell class="p-4 w-16 text-center">
-      <Checkbox
-        checked={isAllSelected}
-        on:change={handleSelectAll}
-        color="red"
-        class="cursor-pointer"
-      />
-    </TableHeadCell>
-    <TableHeadCell class="p-4 whitespace-nowrap w-20 text-center"
-      >ID</TableHeadCell
+{#if loading}
+  <div class="flex justify-center items-center h-full pb-10">
+    <SkeletonLoader type="table" count={6} />
+  </div>
+{:else if error}
+  <div class="flex justify-center items-center h-full flex-col text-gray-800">
+    <FileZipSolid class="w-20 h-20 mb-4 text-[#800000]" />
+    <p>Error loading data: {error}</p>
+    <button
+      class="mt-4 px-4 py-2 bg-[#800000] text-white rounded"
+      on:click={() => window.location.reload()}
     >
-    <TableHeadCell class="p-4 whitespace-nowrap w-32 text-center"
-      >Item Name</TableHeadCell
-    >
-    <TableHeadCell class="p-4 whitespace-nowrap w-36 text-center"
-      >Description</TableHeadCell
-    >
-    <TableHeadCell class="p-4 whitespace-nowrap w-36 text-center"
-      >Category</TableHeadCell
-    >
-    <TableHeadCell class="p-4 whitespace-nowrap w-24 text-center"
-      >Date Lost</TableHeadCell
-    >
-    <TableHeadCell class="p-4 whitespace-nowrap w-20 text-center"
-      >Time Lost</TableHeadCell
-    >
-    <TableHeadCell class="p-4 whitespace-nowrap w-32 text-center"
-      >Location</TableHeadCell
-    >
-    <TableHeadCell class="p-4 whitespace-nowrap w-28 text-center"
-      >Status</TableHeadCell
-    >
-    <TableHeadCell class="p-4 w-24">
-      <span class="sr-only">Actions</span>
-    </TableHeadCell>
-  </TableHead>
-
-  <TableBody tableBodyClass="divide-y">
-    {#each filteredItems as item}
-      <!-- Using 'filteredItems' here -->
-      <TableBodyRow
-        class={selectedIds.has(item.id)
-          ? "h-16 bg-red-100 hover:bg-red-200"
-          : "h-16"}
+      Retry
+    </button>
+  </div>
+{:else if allItems.length === 0}
+  <EmptyFallback type="items" />
+{:else}
+  <Table hoverable class="w-full table-fixed overflow-auto">
+    <TableHead>
+      <TableHeadCell class="p-4 w-16 text-center">
+        <Checkbox
+          checked={isAllSelected}
+          on:change={handleSelectAll}
+          color="red"
+          class="cursor-pointer"
+        />
+      </TableHeadCell>
+      <TableHeadCell class="p-4 whitespace-nowrap w-20 text-center"
+        >ID</TableHeadCell
       >
-        <TableBodyCell class="p-4">
-          <Checkbox
-            checked={selectedIds.has(item.id)}
-            on:change={() => handleSelectItem(item.id)}
-            color="red"
-            class="cursor-pointer"
-          />
-        </TableBodyCell>
-        <TableBodyCell class="p-2 text-gray-600 text-center">
-          {item.id}
-        </TableBodyCell>
-        <TableBodyCell class="p-2 text-gray-600 text-center">
-          {item.name}
-        </TableBodyCell>
-        <TableBodyCell
-          class="p-2 text-gray-600 truncate text-center max-w-[18rem]"
-          title={item.description}
+      <TableHeadCell class="p-4 whitespace-nowrap w-32 text-center"
+        >Item Name</TableHeadCell
+      >
+      <TableHeadCell class="p-4 whitespace-nowrap w-36 text-center"
+        >Description</TableHeadCell
+      >
+      <TableHeadCell class="p-4 whitespace-nowrap w-36 text-center"
+        >Category</TableHeadCell
+      >
+      <TableHeadCell class="p-4 whitespace-nowrap w-24 text-center"
+        >Date Lost</TableHeadCell
+      >
+      <TableHeadCell class="p-4 whitespace-nowrap w-20 text-center"
+        >Time Lost</TableHeadCell
+      >
+      <TableHeadCell class="p-4 whitespace-nowrap w-32 text-center"
+        >Location</TableHeadCell
+      >
+      <TableHeadCell class="p-4 whitespace-nowrap w-28 text-center"
+        >Status</TableHeadCell
+      >
+      <TableHeadCell class="p-4 w-24">
+        <span class="sr-only">Actions</span>
+      </TableHeadCell>
+    </TableHead>
+
+    <TableBody tableBodyClass="divide-y">
+      {#each filteredItems as item}
+        <!-- Using 'filteredItems' here -->
+        <TableBodyRow
+          class={selectedIds.has(item.id)
+            ? "h-16 bg-red-100 hover:bg-red-200"
+            : "h-16"}
         >
-          {item.description}
-        </TableBodyCell>
-        <TableBodyCell class="p-2 text-gray-600 text-center">
-          {item.category}
-        </TableBodyCell>
-        <TableBodyCell class="p-2 text-gray-600 text-center">
-          {formatDate(item.dateLost)}
-        </TableBodyCell>
-        <TableBodyCell class="p-2 text-gray-600 text-center">
-          {formatTime(item.timeLost)}
-        </TableBodyCell>
-        <TableBodyCell
-          class="p-2 text-gray-600 truncate text-center max-w-[18rem]"
-        >
-          {item.lastKnownLocation}
-        </TableBodyCell>
-        <TableBodyCell class="p-2 text-gray-600 text-center">
-          {#if item.status === "Unclaimed"}
-            <span
-              class="inline-block w-[100px] bg-[#A79F00]/10 border border-[#A79F00] text-[#A79F00] font-medium p-2 rounded-lg"
-            >
-              {item.status}
-            </span>
-          {:else if item.status === "Claimed"}
-            <span
-              class="inline-block w-[100px] bg-[#4BA83D]/10 border border-[#4BA83D] text-[#4BA83D] font-medium p-2 rounded-lg"
-            >
-              {item.status}
-            </span>
-          {:else if item.status === "Expired"}
-            <span
-              class="inline-block w-[100px] bg-[#800000]/10 border border-[#800000] text-[#800000] font-medium p-2 rounded-lg"
-            >
-              {item.status}
-            </span>
-          {/if}
-        </TableBodyCell>
-        <TableBodyCell class="p-2">
-          <div class="flex gap-1">
-            <ViewItem {item} />
-            <EditItem {item} onSave={handleSave} />
-            <DeleteItem {item} />
-          </div>
-        </TableBodyCell>
-      </TableBodyRow>
-    {/each}
-  </TableBody>
-</Table>
+          <TableBodyCell class="p-4">
+            <Checkbox
+              checked={selectedIds.has(item.id)}
+              on:change={() => handleSelectItem(item.id)}
+              color="red"
+              class="cursor-pointer"
+            />
+          </TableBodyCell>
+          <TableBodyCell class="p-2 text-gray-600 text-center">
+            {item.id}
+          </TableBodyCell>
+          <TableBodyCell class="p-2 text-gray-600 truncate text-center">
+            {item.name}
+          </TableBodyCell>
+          <TableBodyCell
+            class="p-2 text-gray-600 truncate text-center max-w-[18rem]"
+            title={item.description}
+          >
+            {item.description}
+          </TableBodyCell>
+          <TableBodyCell class="p-2 text-gray-600 text-center">
+            {formatCategoryKey(
+              Object.keys(categoryMap).find(
+                (key) => categoryMap[key] === item.category,
+              ) || "",
+            )}
+          </TableBodyCell>
+          <TableBodyCell class="p-2 text-gray-600 text-center">
+            {item.date_found}
+          </TableBodyCell>
+          <TableBodyCell class="p-2 text-gray-600 text-center">
+            {formatTime(item.time_found)}
+          </TableBodyCell>
+          <TableBodyCell
+            class="p-2 text-gray-600 truncate text-center max-w-[18rem]"
+          >
+            {item.location_found}
+          </TableBodyCell>
+          <TableBodyCell class="p-2 text-gray-600 text-center">
+            {#if item.status === "UC"}
+              <span
+                class="inline-block w-[100px] bg-[#A79F00]/10 border border-[#A79F00] text-[#A79F00] font-medium p-2 rounded-lg"
+              >
+                Unclaimed
+              </span>
+            {:else if item.status === "CL"}
+              <span
+                class="inline-block w-[100px] bg-[#4BA83D]/10 border border-[#4BA83D] text-[#4BA83D] font-medium p-2 rounded-lg"
+              >
+                Claimed
+              </span>
+            {:else if item.status === "EX"}
+              <span
+                class="inline-block w-[100px] bg-[#800000]/10 border border-[#800000] text-[#800000] font-medium p-2 rounded-lg"
+              >
+                Expired
+              </span>
+            {/if}
+          </TableBodyCell>
+          <TableBodyCell class="p-2">
+            <div class="flex gap-1">
+              <ViewItem {item} />
+              <button
+                on:click={() => {
+                  viewModalOpen = true;
+                  selectedItem = item;
+                }}
+              >
+                <InfoCircleOutline />
+              </button>
+              <button on:click={() => openEditModal(item)}>
+                <EditSolid />
+              </button>
+              <button on:click={() => openDeleteModal(item)}>
+                <TrashBinSolid />
+              </button>
+            </div>
+          </TableBodyCell>
+        </TableBodyRow>
+      {/each}
+    </TableBody>
+  </Table>
+
+  {#if viewModalOpen && selectedItem !== null}
+    <ViewItem item={selectedItem} bind:open={viewModalOpen} />
+  {/if}
+  {#if editModalOpen && selectedItem !== null}
+    <EditItem
+      bind:open={editModalOpen}
+      item={selectedItem}
+      onSave={handleSave}
+    />
+  {/if}
+  {#if itemToDelete}
+    <DeleteItem
+      bind:open={deleteModalOpen}
+      item={itemToDelete}
+      onDelete={handleDelete}
+    />
+  {/if}
+{/if}

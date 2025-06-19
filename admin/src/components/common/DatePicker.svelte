@@ -29,31 +29,15 @@
 </script>
 
 <div class="w-full">
-  {#if ranged}
-    <Datepicker
-      range
-      bind:rangeFrom={dateRange.from}
-      bind:rangeTo={dateRange.to}
-      on:clear={handleClear}
-      on:apply={handleApply}
-      {disabled}
-      color="red"
-      showActionButtons
-      placeholder="Date"
-      autohide={false}
-      inputClass="border border-gray-300 bg-white text-gray-600 hover:bg-gray-100 rounded-xl h-11"
-    />
-  {:else}
-    <Datepicker
-      bind:value={selectedDate}
-      on:clear={handleClear}
-      on:apply={handleApply}
-      {disabled}
-      color="red"
-      showActionButtons
-      placeholder="Date"
-      autohide={false}
-      inputClass="border border-gray-300 bg-white text-gray-600 hover:bg-gray-100 rounded-xl h-11"
-    />
-  {/if}
+  <Datepicker
+    bind:value={selectedDate}
+    on:clear={handleClear}
+    on:apply={handleApply}
+    {disabled}
+    color="red"
+    showActionButtons
+    placeholder="Date"
+    autohide={false}
+    inputClass="border border-gray-300 bg-white text-[#1E1E1E] rounded-xl h-11"
+  />
 </div>

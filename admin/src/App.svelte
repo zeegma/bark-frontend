@@ -6,18 +6,22 @@
   import Claimants from "./routes/Claimants.svelte";
   import Fallback from "./routes/Fallback.svelte";
   import Register from "./routes/Register.svelte";
+  import Unauthorized from "./routes/Unauthorized.svelte";
+  import ProtectedDashboard from "./routes/ProtectedDashboard.svelte";
+  import ProtectedItems from "./routes/ProtectedItems.svelte";
+  import ProtectedClaimants from "./routes/ProtectedClaimants.svelte";
 
   const routes = {
     "/": Login,
     "/register": Register,
-    "/dashboard": Dashboard,
-    "/items": Items,
-    "/claimants": Claimants,
+    "/dashboard": ProtectedDashboard,
+    "/items": ProtectedItems,
+    "/claimants": ProtectedClaimants,
+    "/unauthorized": Unauthorized,
     "*": Fallback,
   };
 </script>
 
-<!-- Iwan ko muna as white yung bg para visible yung nav -->
 <main class="w-full h-full text-[#1E1E1E]">
   <Router {routes} />
 </main>

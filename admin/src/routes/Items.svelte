@@ -1,6 +1,6 @@
 <script lang="ts">
   import Layout from "../components/layout/Layout.svelte";
-  import AddItem from "../components/widgets/AddItem.svelte";
+  import AddItem from "../components/widgets/items/AddItem.svelte";
   import DatePicker from "../components/common/DatePicker.svelte";
   import ItemsTable from "../components/common/ItemsTable.svelte";
   import FilterDropdown from "../components/common/FilterDropdown.svelte";
@@ -9,27 +9,28 @@
   import { viewStore, type ViewType } from "../stores/viewStore";
   import { selectionStore, selectionActions } from "../stores/selectionStore";
   import ItemsGrid from "../components/common/ItemsGrid.svelte";
+  import { Button } from "flowbite-svelte";
+  import { PlusOutline } from "flowbite-svelte-icons";
+  import { refreshTrigger } from "../stores/itemStore";
 
   let currentView: ViewType;
   let selectedIds: Set<string>;
+  let addItemModal = false;
+
+  viewStore.set((sessionStorage.getItem("currentView") as ViewType) || "list");
 
   viewStore.subscribe((value) => {
     currentView = value;
+    sessionStorage.setItem("currentView", value);
   });
 
   selectionStore.subscribe((state) => {
     selectedIds = state.selectedIds;
   });
 
-  // Function to handle selection actions
-  function clearSelection() {
+  async function clearSelection() {
     selectionActions.clearSelection();
-  }
-
-  function deleteSelectedItems() {
-    // Wait for API imple of deletion, this one's temp code
-    console.log("Deleting items:", Array.from(selectedIds));
-    selectionActions.clearSelection();
+    refreshTrigger.set(true);
   }
 </script>
 
@@ -48,14 +49,19 @@
       <div class="flex flex-1 justify-end">
         {#if selectedIds.size > 0}
           <Indicator
+            type="items"
             selectedCount={selectedIds.size}
             onClear={clearSelection}
-            onDelete={deleteSelectedItems}
           />
         {/if}
       </div>
       <div class="ml-4">
-        <AddItem />
+        <Button
+          on:click={() => (addItemModal = true)}
+          class="h-[44px] bg-red-900 text-white px-4 py-2 flex items-center gap-2 rounded-lg hover:bg-red-950"
+        >
+          Add Item <PlusOutline />
+        </Button>
       </div>
     </div>
 
@@ -67,4 +73,6 @@
       {/if}
     </div>
   </div>
+
+  <AddItem bind:open={addItemModal} />
 </Layout>

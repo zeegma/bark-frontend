@@ -256,22 +256,7 @@
     </button>
   </div>
 {:else if claims.length === 0}
-  {#if isSearchActive}
-    <EmptyFallback
-      message="No claimants match your search."
-      subMessage="Try using different keywords or clear the search."
-    />
-  {:else if isFilteredEmpty}
-    <EmptyFallback
-      message="No results match your filter."
-      subMessage="Try adjusting or clearing the date range."
-    />
-  {:else}
-    <EmptyFallback
-      message="No claimants at the moment."
-      subMessage="Looks like nobody has requested a claim yet."
-    />
-  {/if}
+  <EmptyFallback type="claimants" />
 {:else}
   <Table hoverable={true} class="w-full table-fixed text-center overflow-auto">
     <TableHead>
