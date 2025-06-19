@@ -114,7 +114,7 @@
 </script>
 
 <div class="flex flex-col">
-  <div class="px-6 pt-12 lg:pt-6 pb-6 md:px-12 xl:px-16 xl:py-12">
+  <div class="px-6 pt-6 sm:pt-8 md:pt-12 lg:pt-6 pb-6 md:px-12 xl:px-16 xl:py-12">
     <form on:submit|preventDefault={handleSubmit} class="flex flex-col gap-4">
       <!-- Full Name -->
       <label class="flex flex-col gap-2 text-stone-700">
