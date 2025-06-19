@@ -26,6 +26,7 @@
   import { onMount } from "svelte";
   import type { Item } from "../../lib/types";
   import { fetchItems, updateItem } from "../../lib/api/items";
+  import { searchStore } from "../../stores/searchStore";
   import { refreshTrigger } from "../../stores/itemStore";
   import {
     TrashBinSolid,
@@ -48,6 +49,14 @@
   let selectedItem: Item | null = null;
   let viewModalOpen = false;
   let editModalOpen = false;
+  let currentSearchTerm = "";
+  let isSearchActive = false;
+
+  searchStore.subscribe((term) => {
+    currentSearchTerm = term;
+    isSearchActive = term.length > 0;
+    applyFiltering();
+  });
 
   filterStore.subscribe((f) => {
     currentFilters = f;
@@ -55,6 +64,7 @@
   });
 
   function applyFiltering() {
+    if (!currentFilters) return;
     let filtered = [...allItems];
 
     if (currentFilters.status !== "All") {
@@ -86,6 +96,13 @@
         console.warn(`Unknown category filter: ${currentFilters.category}`);
         filtered = [];
       }
+    }
+
+    if (currentSearchTerm.trim() !== "") {
+      const search = currentSearchTerm.trim().toLowerCase();
+      filtered = filtered.filter((item) =>
+        item.name?.toLowerCase().includes(search),
+      );
     }
 
     filtered.sort((a, b) => Number(b.id) - Number(a.id));
