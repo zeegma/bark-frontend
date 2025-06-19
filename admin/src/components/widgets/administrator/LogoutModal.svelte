@@ -13,7 +13,7 @@
 
   let loading = false;
   let error: string | null = null;
-  let refreshToken: string | null = localStorage.getItem("refreshToken");
+  let refreshToken: string | null = sessionStorage.getItem("refreshToken");
 
   const handleLogout = async () => {
     try {

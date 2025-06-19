@@ -1,37 +1,47 @@
 import { writable } from "svelte/store";
+import { tick } from "svelte";
+
+export const authInitialized = writable(false);
 
 export const accessToken = writable<string | null>(
-  localStorage.getItem("accessToken"),
+  sessionStorage.getItem("accessToken"),
 );
 export const refreshToken = writable<string | null>(
-  localStorage.getItem("refreshToken"),
+  sessionStorage.getItem("refreshToken"),
 );
 export const admin = writable<any>(
-  JSON.parse(localStorage.getItem("admin") || "null"),
+  JSON.parse(sessionStorage.getItem("admin") || "null"),
 );
+
+export const initializeAuth = async () => {
+  const token = sessionStorage.getItem("accessToken");
+  accessToken.set(token);
+  await tick();
+  authInitialized.set(true);
+};
 
 accessToken.subscribe((value) => {
   if (value) {
-    localStorage.setItem("accessToken", value);
+    sessionStorage.setItem("accessToken", value);
   } else {
-    localStorage.removeItem("accessToken");
+    sessionStorage.removeItem("accessToken");
     console.warn("Access token has expired or been cleared.");
   }
 });
 
 refreshToken.subscribe((value) => {
   if (value) {
-    localStorage.setItem("refreshToken", value);
+    sessionStorage.setItem("refreshToken", value);
   } else {
-    localStorage.removeItem("refreshToken");
+    sessionStorage.removeItem("refreshToken");
   }
 });
 
 admin.subscribe((value) => {
   if (value) {
-    localStorage.setItem("admin", JSON.stringify(value));
+    sessionStorage.setItem("admin", JSON.stringify(value));
   } else {
-    localStorage.removeItem("admin");
+    sessionStorage.removeItem("admin");
   }
 });
 

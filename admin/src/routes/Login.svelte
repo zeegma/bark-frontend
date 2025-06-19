@@ -17,9 +17,9 @@
 
     try {
       const result = await loginAdmin(email, password);
-      localStorage.setItem("accessToken", result.tokens.access);
-      localStorage.setItem("refreshToken", result.tokens.refresh);
-      localStorage.setItem("admin", JSON.stringify(result.admin));
+      sessionStorage.setItem("accessToken", result.tokens.access);
+      sessionStorage.setItem("refreshToken", result.tokens.refresh);
+      sessionStorage.setItem("admin", JSON.stringify(result.admin));
       console.log("Login successfully.");
       window.location.href = "/#/dashboard";
       window.location.reload();

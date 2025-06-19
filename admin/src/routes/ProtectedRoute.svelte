@@ -1,22 +1,16 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { get } from "svelte/store";
   import { Spinner } from "flowbite-svelte";
-  import { accessToken } from "../stores/authStore";
+  // import { accessToken } from "../stores/authStore";
   import Unauthorized from "./Unauthorized.svelte";
 
   export let component: any;
 
-  let authInitialized = false;
   let isAuthenticated = false;
-
-  const delay = (ms: number) =>
-    new Promise((resolve) => setTimeout(resolve, ms));
+  let authInitialized = false;
 
   onMount(async () => {
-    await delay(150);
-
-    const token = get(accessToken);
+    const token = sessionStorage.getItem("accessToken");
     isAuthenticated = !!token;
     authInitialized = true;
   });
@@ -24,9 +18,7 @@
 
 {#if !authInitialized}
   <div class="flex items-center justify-center min-h-screen">
-    <div class="text-center">
-      <Spinner color="red" />
-    </div>
+    <Spinner color="red" />
   </div>
 {:else if !isAuthenticated}
   <Unauthorized />
