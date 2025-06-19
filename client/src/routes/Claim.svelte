@@ -46,7 +46,7 @@
       >
         <a
           href="/"
-          class="flex h-full items-center gap-2 px-6 border-r-1 border-stone-300 text-sm text-[#9A4444] font-medium"
+          class="flex h-full items-center gap-2 px-6 rounded-tl-2xl border-r-1 border-stone-300 hover:bg-stone-100 text-sm text-[#9A4444] font-medium"
         >
           <svg
             class="w-6 h-6 text-[#9A4444]"
