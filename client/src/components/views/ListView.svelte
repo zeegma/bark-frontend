@@ -3,12 +3,28 @@
   import { formatTime } from "../../lib/utils/timeFormatter";
   import Tooltip from "../common/Tooltip.svelte";
   export let items: any[];
+
+  interface Item {
+    name: string;
+    status: "UC" | "C" | string;
+  }
+
+  $: sortedItems = [...items].sort((a: Item, b: Item) => {
+    if (a.status === "UC" && b.status !== "UC") {
+      return -1;
+    }
+    if (a.status !== "UC" && b.status === "UC") {
+      return 1;
+    }
+
+    return a.name.localeCompare(b.name);
+  });
 </script>
 
 <section class=" border px-4 md:px-8 rounded-2xl border-stone-300">
   <table class="min-w-full table-auto border-separate border-spacing-y-4">
     <tbody>
-      {#each items as item (item.id)}
+      {#each sortedItems as item (item.id)}
         <tr class="bg-white border border-stone-500 rounded-xl">
           <!-- Icon, Name, and Description -->
           <td class="min-w-0 max-w-48 md:max-w-34 py-0 md:py-4">
