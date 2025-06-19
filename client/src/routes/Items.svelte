@@ -6,7 +6,7 @@
   import Contents from "../components/layout/Contents.svelte";
   import Footer from "../components/layout/Footer.svelte";
   import { fetchAllItems } from "../lib/api/fetch";
-  import { onMount } from "svelte";
+  import { onMount, onDestroy } from "svelte";
   import {
     selectedCategory,
     selectedStatus,
@@ -30,16 +30,31 @@
   let filteredItems: Item[] = [];
   let isLoading: boolean = true;
   let view: string = localStorage.getItem("viewMode") || "grid";
+  let pollingInterval: any;
 
-  // Fetch all items from the backend
-  onMount(async () => {
+  async function loadItems() {
     try {
-      rawItems = await fetchAllItems();
-      console.log("Fetched Items:", rawItems);
+      const newItems = await fetchAllItems();
+      rawItems = newItems;
+      console.log("Refreshed Items:", rawItems);
     } catch (error) {
-      console.error("Error fetching items:", error);
-    } finally {
-      isLoading = false;
+      console.error("Error refreshing items:", error);
+    }
+  }
+
+  onMount(async () => {
+    isLoading = true;
+    await loadItems();
+    isLoading = false;
+
+    // Start polling every 10 seconds
+    const POLLING_RATE_MS = 10000;
+    pollingInterval = setInterval(loadItems, POLLING_RATE_MS);
+  });
+
+  onDestroy(() => {
+    if (pollingInterval) {
+      clearInterval(pollingInterval);
     }
   });
 
@@ -78,7 +93,7 @@
 
 <div class="flex flex-col justify-between h-screen">
   <div>
-    {#if isLoading}
+    {#if isLoading && rawItems.length === 0}
       {#if view === "grid"}
         <GridLoader />
       {:else}
