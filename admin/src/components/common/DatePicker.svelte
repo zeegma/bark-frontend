@@ -1,21 +1,30 @@
 <script lang="ts">
   import { Datepicker } from "flowbite-svelte";
+  import { dateFilterActions } from "../../stores/dateFilterStore";
 
   export let disabled: boolean = false;
   export let value: Date | null = null;
   export let selectedDate: Date | null = value;
+  export let ranged: boolean = false;
+
   let lastAction: string = "";
+  let dateRange = { from: null, to: null };
 
   $: selectedDate = value;
 
   function handleClear(): void {
     lastAction = "Cleared";
     selectedDate = null;
+    dateFilterActions.clearDateFilter();
   }
 
   function handleApply(event: CustomEvent<Date>): void {
     lastAction = "Applied";
     selectedDate = event.detail;
+
+    ranged
+      ? dateFilterActions.setDateRange(dateRange.from, dateRange.to)
+      : dateFilterActions.setDateRange(event.detail, event.detail);
   }
 </script>
 
