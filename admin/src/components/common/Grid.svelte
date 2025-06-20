@@ -17,9 +17,9 @@
     selectionActions,
   } from "../../stores/selectionStore";
   import {
-    dateFilterStore,
+    claimantsDateFilterStore,
     type DateFilterOptions,
-  } from "../../stores/dateFilterStore";
+  } from "../../stores/claimantsDateFilterStore";
 
   type DeleteCompleteEvent = CustomEvent<{ deletedIds: string[] }>;
 
@@ -54,7 +54,7 @@
     applyFiltersAndSorting();
   });
 
-  dateFilterStore.subscribe((options) => {
+  claimantsDateFilterStore.subscribe((options) => {
     currentDateFilter = options;
     applyFiltersAndSorting();
   });
