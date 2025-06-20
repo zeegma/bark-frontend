@@ -265,7 +265,7 @@
         on:click={closeModal}>Cancel</Button
       >
 
-      <Button color="red" type="submit" class="w-32">
+      <Button color="red" type="submit" class="w-32" disabled={updating}>
         {#if updating}
           <div class="flex items-center gap-x-2">
             <Spinner color="white" size={5} />

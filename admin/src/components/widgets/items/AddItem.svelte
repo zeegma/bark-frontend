@@ -241,7 +241,7 @@
         on:click={closeModal}>Cancel</Button
       >
 
-      <Button type="submit" color="red" class="w-32">
+      <Button type="submit" color="red" class="w-32" disabled={adding}>
         {#if adding}
           <div class="flex items-center gap-x-2">
             <Spinner color="white" size={5} />

@@ -115,7 +115,7 @@
         disabled={deleting}>No, cancel</Button
       >
 
-      <Button color="red" on:click={handleDelete}>
+      <Button color="red" on:click={handleDelete} disabled={deleting}>
         {#if deleting}
           <div class="flex items-center gap-x-2">
             <Spinner color="white" size={5} />
