@@ -23,9 +23,9 @@
   } from "../../stores/selectionStore";
   import { sortStore, type SortOptions } from "../../stores/sortStore";
   import {
-    dateFilterStore,
+    itemDateFilterStore,
     type DateFilterOptions,
-  } from "../../stores/dateFilterStore";
+  } from "../../stores/itemDateFilterStore";
   import { formatTime } from "../../lib/formatDateTime";
   import { onMount } from "svelte";
   import type { Item } from "../../lib/types";
@@ -65,7 +65,7 @@
     applyFiltering();
   });
 
-  dateFilterStore.subscribe((options) => {
+  itemDateFilterStore.subscribe((options) => {
     currentDateFilter = options;
     applyFiltering();
   });

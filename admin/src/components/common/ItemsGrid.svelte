@@ -14,9 +14,9 @@
     selectionActions,
   } from "../../stores/selectionStore";
   import {
-    dateFilterStore,
+    itemDateFilterStore,
     type DateFilterOptions,
-  } from "../../stores/dateFilterStore";
+  } from "../../stores/itemDateFilterStore";
   import { sortStore, type SortOptions } from "../../stores/sortStore";
   import { dropdownActions } from "../../stores/dropdownStore";
   import type { Item } from "../../lib/types";
@@ -52,7 +52,7 @@
     applyFiltering();
   });
 
-  dateFilterStore.subscribe((options) => {
+  itemDateFilterStore.subscribe((options) => {
     currentDateFilter = options;
     applyFiltering();
   });
@@ -336,7 +336,7 @@
 {:else}
   <div class="mr-2">
     <!-- Select all -->
-    <div class="sticky top-0 z-10 bg-white pb-3 pl-1 pt-1 flex items-center">
+    <div class="sticky top-0 bg-white pb-3 pl-1 flex items-center">
       <Checkbox
         checked={isAllSelected}
         on:change={handleSelectAll}
