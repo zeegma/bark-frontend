@@ -89,7 +89,7 @@
     isSticked ? "shadow-xl" : ""
   }`}
 >
-  {#if windowWidth < 1280}
+  {#if windowWidth < 768}
     <!-- Side Panel Button -->
     <button
       on:click={toggleSidePanel}
@@ -147,21 +147,21 @@
     />
 
     <!-- View Toggle -->
-    <div class="flex border border-stone-300 rounded-lg overflow-hidden">
+    <div class="flex border border-stone-300 rounded-lg min-w-26 overflow-hidden">
       <!-- Grid Button -->
       <button
-        class={`flex items-center gap-2 px-6 py-2 hover:bg-stone-100 hover:border-stone-400 transition duration-300 ease-in-out cursor-pointer ${isGrid ? "bg-red-100 text-white" : "bg-white"}`}
+        class={`flex items-center gap-2 px-4 xl:px-6 py-2 hover:bg-stone-100 hover:border-stone-400 transition duration-300 ease-in-out cursor-pointer ${isGrid ? "bg-red-100 text-white" : "bg-white"}`}
         on:click={() => (isGrid = true)}
       >
-        <img src="/icons/grid-icon.svg" alt="Grid View" class="w-5 h-5" />
+        <img src="/icons/grid-icon.svg" alt="Grid View" class="min-w-5 min-h-5" />
       </button>
 
       <!-- List Button -->
       <button
-        class={`flex items-center gap-2 px-6 py-2 hover:bg-stone-100 hover:border-stone-400 transition duration-300 ease-in-out cursor-pointer ${!isGrid ? "bg-red-100 text-white" : "bg-white"}`}
+        class={`flex items-center gap-2 px-4 xl:px-6 py-2 hover:bg-stone-100 hover:border-stone-400 transition duration-300 ease-in-out cursor-pointer ${!isGrid ? "bg-red-100 text-white" : "bg-white"}`}
         on:click={() => (isGrid = false)}
       >
-        <img src="/icons/list-icon.svg" alt="List View" class="w-4 h-4" />
+        <img src="/icons/list-icon.svg" alt="List View" class="min-w-4 min-h-4" />
       </button>
     </div>
   {/if}
