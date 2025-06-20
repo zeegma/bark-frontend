@@ -179,10 +179,20 @@
             class="gap-1 rtl:space-x-reverse"
           >
             I agree with the
-            <A href="/" class="text-primary-900  hover:underline">
+            <A
+              href="https://www.pup.edu.ph/about/vm"
+              class="text-primary-900  hover:underline"
+            >
               terms and conditions
             </A>
           </Checkbox>
+        </div>
+
+        <div class="mt-2 text-center">
+          <p class="text-sm text-gray-900">
+            Already have an account?
+            <A href="/" class="text-primary-900 hover:underline">Log In</A>
+          </p>
         </div>
 
         {#if errorMessage}

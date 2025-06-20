@@ -1,8 +1,10 @@
 <script lang="ts">
+  import { onDestroy } from "svelte";
   import { CloseOutline } from "flowbite-svelte-icons";
   import DeleteModal from "../widgets/claimants/DeleteModal.svelte";
   import DeleteItem from "../widgets/items/DeleteItem.svelte";
-  import { selectionStore } from "../../stores/selectionStore";
+  import { claimantsSelectionStore } from "../../stores/claimantsSelectionStore";
+  import { itemSelectionStore } from "../../stores/itemSelectionStore";
 
   // For delete modal
   let deleteModal: boolean = false;
@@ -10,8 +12,24 @@
   let bulkDeleteIds: string[] = [];
   let selectedIds: Set<string>;
 
-  selectionStore.subscribe((state) => {
-    selectedIds = state.selectedIds;
+  let unsubscribe: () => void;
+
+  $: {
+    if (unsubscribe) unsubscribe();
+
+    if (type === "claimants") {
+      unsubscribe = claimantsSelectionStore.subscribe((state) => {
+        selectedIds = state.selectedIds;
+      });
+    } else {
+      unsubscribe = itemSelectionStore.subscribe((state) => {
+        selectedIds = state.selectedIds;
+      });
+    }
+  }
+
+  onDestroy(() => {
+    if (unsubscribe) unsubscribe();
   });
 
   // Props

@@ -66,14 +66,14 @@
     <div class="pt-10 px-6 flex flex-col items-start gap-1">
       <div class="bg-white rounded-lg p-2 mb-2">
         <img
-          src="/src/assets/svelte.svg"
+          src="/src/assets/templogo.svg"
           alt="PUP-BARK Logo"
-          class="h-12 w-12"
+          class="h-16 w-16"
         />
       </div>
       <div>
         <h1 class="text-2xl font-bold">PUP-BARK</h1>
-        <p class="text-sm text-gray-300 pt-3">What the fuck is this</p>
+        <p class="text-sm text-gray-300 pt-3">Find. Fetch. Retrieve.</p>
       </div>
     </div>
 

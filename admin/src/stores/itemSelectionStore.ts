@@ -10,13 +10,13 @@ const initialState: SelectionStore = {
   isAllSelected: false,
 };
 
-export const selectionStore = writable<SelectionStore>(initialState);
+export const itemSelectionStore = writable<SelectionStore>(initialState);
 
 // Helper functions for the store
-export const selectionActions = {
+export const itemSelectionActions = {
   // Toggle a single item selection
   toggleSelection: (id: string) => {
-    selectionStore.update((state) => {
+    itemSelectionStore.update((state) => {
       const newSelectedIds = new Set(state.selectedIds);
 
       if (newSelectedIds.has(id)) {
@@ -36,7 +36,7 @@ export const selectionActions = {
 
   // Toggle select all items
   toggleSelectAll: (ids: string[]) => {
-    selectionStore.update((state) => {
+    itemSelectionStore.update((state) => {
       // If all items are already selected, clear the selection
       if (state.isAllSelected) {
         return {
@@ -55,7 +55,7 @@ export const selectionActions = {
 
   // Clear all selections
   clearSelection: () => {
-    selectionStore.update(() => ({
+    itemSelectionStore.update(() => ({
       selectedIds: new Set<string>(),
       isAllSelected: false,
     }));

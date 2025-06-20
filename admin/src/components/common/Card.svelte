@@ -5,9 +5,9 @@
   import { onMount } from "svelte";
   import type { ClaimItem } from "../../lib/types";
   import {
-    selectionStore,
-    selectionActions,
-  } from "../../stores/selectionStore";
+    claimantsSelectionStore,
+    claimantsSelectionActions,
+  } from "../../stores/claimantsSelectionStore";
   import {
     openDropdownIdStore,
     dropdownActions,
@@ -37,7 +37,7 @@
     isDropdownOpen = openId === dropdownId;
   });
 
-  selectionStore.subscribe((state) => {
+  claimantsSelectionStore.subscribe((state) => {
     selectedIds = state.selectedIds;
     isSelected = selectedIds.has(id);
   });
@@ -70,7 +70,7 @@
     // Set a new timeout
     clickTimeout = setTimeout(() => {
       // Only toggle selection if it wasn't a double click
-      selectionActions.toggleSelection(id);
+      claimantsSelectionActions.toggleSelection(id);
       clickTimeout = null;
     }, 250);
   }
@@ -84,7 +84,7 @@
 
     // Also, select item
     if (!selectedIds.has(id)) {
-      selectionActions.toggleSelection(id);
+      claimantsSelectionActions.toggleSelection(id);
     }
 
     // Trigger double click
@@ -192,8 +192,12 @@
       class={`p-2 ${isSelected ? "bg-red-100 group-hover:bg-red-200" : "bg-white group-hover:bg-gray-50"}`}
     >
       <div class="flex flex-col">
-        <span class="text-xs font-semibold text-gray-800 truncate">{claim.name}</span>
-        <span class="text-xs text-gray-800 truncate">Item > {claim.itemRequested}</span>
+        <span class="text-xs font-semibold text-gray-800 truncate"
+          >{claim.name}</span
+        >
+        <span class="text-xs text-gray-800 truncate"
+          >Item > {claim.itemRequested}</span
+        >
         <div class="flex text-xs text-gray-500 space-x-1">
           <span>•</span>
           <span>{claim.dateFiled}</span>

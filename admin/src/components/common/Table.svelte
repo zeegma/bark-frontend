@@ -23,13 +23,13 @@
   import { sortStore, type SortOptions } from "../../stores/sortStore";
   import { searchStore } from "../../stores/searchStore";
   import {
-    selectionStore,
-    selectionActions,
-  } from "../../stores/selectionStore";
+    claimantsSelectionStore,
+    claimantsSelectionActions,
+  } from "../../stores/claimantsSelectionStore";
   import {
-    dateFilterStore,
+    claimantsDateFilterStore,
     type DateFilterOptions,
-  } from "../../stores/dateFilterStore";
+  } from "../../stores/claimantsDateFilterStore";
 
   type DeleteCompleteEvent = CustomEvent<{ deletedIds: string[] }>;
 
@@ -64,12 +64,12 @@
     applyFiltersAndSorting();
   });
 
-  dateFilterStore.subscribe((options) => {
+  claimantsDateFilterStore.subscribe((options) => {
     currentDateFilter = options;
     applyFiltersAndSorting();
   });
 
-  selectionStore.subscribe((state) => {
+  claimantsSelectionStore.subscribe((state) => {
     selectedIds = state.selectedIds;
     isAllSelected = state.isAllSelected;
   });
@@ -189,12 +189,12 @@
 
   // Handle select all checkbox
   function handleSelectAll() {
-    selectionActions.toggleSelectAll(claims.map((claim) => claim.id));
+    claimantsSelectionActions.toggleSelectAll(claims.map((claim) => claim.id));
   }
 
   // Handle individual item selection
   function handleSelectItem(id: string) {
-    selectionActions.toggleSelection(id);
+    claimantsSelectionActions.toggleSelection(id);
   }
 
   function handleDeletionComplete(event: DeleteCompleteEvent) {
@@ -208,7 +208,7 @@
 
     // Clear selection if needed
     if (deletedIds.length > 0) {
-      selectionActions.clearSelection();
+      claimantsSelectionActions.clearSelection();
     }
   }
 
@@ -256,7 +256,25 @@
     </button>
   </div>
 {:else if claims.length === 0}
-  <EmptyFallback type="claimants" />
+  {#if isSearchActive}
+    <EmptyFallback
+      type="claimants"
+      message="No claimants match your search."
+      subMessage="Try using different keywords or clear the search."
+    />
+  {:else if isFilteredEmpty}
+    <EmptyFallback
+      type="claimants"
+      message="No results match your filter."
+      subMessage="Try adjusting or clearing the date range."
+    />
+  {:else}
+    <EmptyFallback
+      type="claimants"
+      message="No claimants at the moment."
+      subMessage="Looks like nobody has requested a claim yet."
+    />
+  {/if}
 {:else}
   <Table hoverable={true} class="w-full table-fixed text-center overflow-auto">
     <TableHead>

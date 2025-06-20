@@ -7,9 +7,9 @@
   } from "flowbite-svelte-icons";
   import { Dropdown, DropdownItem } from "flowbite-svelte";
   import {
-    selectionStore,
-    selectionActions,
-  } from "../../stores/selectionStore";
+    itemSelectionStore,
+    itemSelectionActions,
+  } from "../../stores/itemSelectionStore";
   import { formatTime } from "../../lib/formatDateTime";
   import { onMount } from "svelte";
   import ViewItem from "../widgets/items/ViewItem.svelte";
@@ -46,7 +46,7 @@
   const hasImage = !!photo_url;
   const dropdownId = `dropdown-${item.id}-${index}`;
 
-  selectionStore.subscribe((state) => {
+  itemSelectionStore.subscribe((state) => {
     selectedIds = state.selectedIds;
     isSelected = selectedIds.has(item.id);
   });
@@ -65,7 +65,7 @@
     // Set a new timeout
     clickTimeout = setTimeout(() => {
       // Only toggle selection if it wasn't a double click
-      selectionActions.toggleSelection(item.id);
+      itemSelectionActions.toggleSelection(item.id);
       clickTimeout = null;
     }, 250);
   }
@@ -79,7 +79,7 @@
 
     // Also, select item
     if (!selectedIds.has(item.id)) {
-      selectionActions.toggleSelection(item.id);
+      itemSelectionActions.toggleSelection(item.id);
     }
 
     onDoubleClick(item);

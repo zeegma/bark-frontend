@@ -7,15 +7,24 @@
   import Toggle from "../components/common/Toggle.svelte";
   import Indicator from "../components/common/Indicator.svelte";
   import { viewStore, type ViewType } from "../stores/viewStore";
-  import { selectionStore, selectionActions } from "../stores/selectionStore";
+  import {
+    itemSelectionStore,
+    itemSelectionActions,
+  } from "../stores/itemSelectionStore";
+  import { itemDateFilterActions } from "../stores/itemDateFilterStore";
   import ItemsGrid from "../components/common/ItemsGrid.svelte";
   import { Button } from "flowbite-svelte";
   import { PlusOutline } from "flowbite-svelte-icons";
   import { refreshTrigger } from "../stores/itemStore";
+  import { onMount, onDestroy } from "svelte";
 
   let currentView: ViewType;
   let selectedIds: Set<string>;
   let addItemModal = false;
+
+  onMount(() => {
+    itemSelectionActions.clearSelection();
+  });
 
   viewStore.set((sessionStorage.getItem("currentView") as ViewType) || "list");
 
@@ -24,14 +33,19 @@
     sessionStorage.setItem("currentView", value);
   });
 
-  selectionStore.subscribe((state) => {
+  itemSelectionStore.subscribe((state) => {
     selectedIds = state.selectedIds;
   });
 
   async function clearSelection() {
-    selectionActions.clearSelection();
+    itemSelectionActions.clearSelection();
     refreshTrigger.set(true);
   }
+
+  // Clear filter when coming from a diff page
+  onDestroy(() => {
+    itemDateFilterActions.clearDateFilter();
+  });
 </script>
 
 <Layout title="Items">
@@ -40,7 +54,11 @@
       <div class="flex items-center gap-4 mb-7">
         <FilterDropdown />
         <div class="min-w-[300px]">
-          <DatePicker />
+          <DatePicker
+            ranged={true}
+            setDateRange={itemDateFilterActions.setDateRange}
+            clearDateFilter={itemDateFilterActions.clearDateFilter}
+          />
         </div>
         <div class="min-w-[96px]">
           <Toggle />

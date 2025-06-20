@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import ItemCard from "./ItemCard.svelte";
-  import { Checkbox, Spinner } from "flowbite-svelte";
+  import { Checkbox } from "flowbite-svelte";
   import {
     filterStore,
     type FilterOptions,
@@ -10,9 +10,14 @@
   } from "../../stores/filterStore";
   import { searchStore } from "../../stores/searchStore";
   import {
-    selectionStore,
-    selectionActions,
-  } from "../../stores/selectionStore";
+    itemSelectionStore,
+    itemSelectionActions,
+  } from "../../stores/itemSelectionStore";
+  import {
+    itemDateFilterStore,
+    type DateFilterOptions,
+  } from "../../stores/itemDateFilterStore";
+  import { sortStore, type SortOptions } from "../../stores/sortStore";
   import { dropdownActions } from "../../stores/dropdownStore";
   import type { Item } from "../../lib/types";
   import { fetchItems, updateItem } from "../../lib/api/items";
@@ -28,6 +33,8 @@
   let selectedItem: Item | null = null;
   let itemToDelete: Item | null = null;
   let currentFilters: FilterOptions;
+  let currentSortOptions: SortOptions;
+  let currentDateFilter: DateFilterOptions;
   let isAllSelected: boolean;
   let selectedIds: Set<string>;
   let loading: boolean = true;
@@ -37,10 +44,21 @@
   let deleteModalOpen = false;
   let currentSearchTerm = "";
   let isSearchActive = false;
+  let isFilteredEmpty = false;
 
   searchStore.subscribe((term) => {
     currentSearchTerm = term;
     isSearchActive = term.length > 0;
+    applyFiltering();
+  });
+
+  itemDateFilterStore.subscribe((options) => {
+    currentDateFilter = options;
+    applyFiltering();
+  });
+
+  sortStore.subscribe((options) => {
+    currentSortOptions = options;
     applyFiltering();
   });
 
@@ -49,9 +67,51 @@
     applyFiltering();
   });
 
+  // Function to apply date filters
+  function applyDateFilter(items: Item[]): Item[] {
+    if (
+      !currentDateFilter.isActive ||
+      (!currentDateFilter.startDate && !currentDateFilter.endDate)
+    ) {
+      // Return all items if no filter is active
+      return items;
+    }
+
+    return items.filter((item) => {
+      // Parse the dateFiled string to a Date object
+      const itemDate = new Date(item.date_found);
+
+      // Single date filter case (when only startDate is set)
+      if (currentDateFilter.startDate && !currentDateFilter.endDate) {
+        const filterDate = new Date(currentDateFilter.startDate);
+        return (
+          itemDate.getFullYear() === filterDate.getFullYear() &&
+          itemDate.getMonth() === filterDate.getMonth() &&
+          itemDate.getDate() === filterDate.getDate()
+        );
+      }
+
+      // Date range case
+      const startDate = currentDateFilter.startDate
+        ? new Date(currentDateFilter.startDate.setHours(0, 0, 0, 0))
+        : null;
+
+      const endDate = currentDateFilter.endDate
+        ? new Date(currentDateFilter.endDate.setHours(23, 59, 59, 999))
+        : null;
+
+      const isAfterStart = !startDate || itemDate >= startDate;
+      const isBeforeEnd = !endDate || itemDate <= endDate;
+
+      return isAfterStart && isBeforeEnd;
+    });
+  }
+
   function applyFiltering() {
     if (!currentFilters) return;
     let filtered = [...allItems];
+
+    filtered = applyDateFilter(allItems);
 
     if (currentFilters.status !== "All") {
       const statusKey = currentFilters.status
@@ -91,11 +151,26 @@
       );
     }
 
+    // Then apply sorting
+    filtered = [...filtered].sort((a: Item, b: Item) => {
+      const dateA = new Date(a.date_found).getTime();
+      const dateB = new Date(b.date_found).getTime();
+
+      const multiplier = currentSortOptions.sortOrder === "Ascending" ? 1 : -1;
+      return (dateA - dateB) * multiplier;
+    });
+
     filtered.sort((a, b) => Number(b.id) - Number(a.id));
     items = filtered;
+
+    isFilteredEmpty =
+      items.length === 0 &&
+      allItems.length > 0 &&
+      currentDateFilter.isActive &&
+      !isSearchActive;
   }
 
-  selectionStore.subscribe((state) => {
+  itemSelectionStore.subscribe((state) => {
     selectedIds = state.selectedIds;
     isAllSelected = state.isAllSelected;
   });
@@ -116,7 +191,7 @@
   });
 
   function handleSelectAll() {
-    selectionActions.toggleSelectAll(items.map((item) => item.id));
+    itemSelectionActions.toggleSelectAll(items.map((item) => item.id));
   }
 
   function handleCardDoubleClick(item: Item) {
@@ -237,19 +312,38 @@
       Retry
     </button>
   </div>
-{:else if allItems.length === 0}
-  <EmptyFallback type="items" />
+  <!-- allItems -->
+{:else if items.length === 0}
+  {#if isSearchActive}
+    <EmptyFallback
+      type="items"
+      message="No items match your search."
+      subMessage="Try using different keywords or clear the search."
+    />
+  {:else if isFilteredEmpty}
+    <EmptyFallback
+      type="items"
+      message="No results match your filter."
+      subMessage="Try adjusting or clearing the date range."
+    />
+  {:else}
+    <EmptyFallback
+      type="items"
+      message="No items at the moment."
+      subMessage="Looks like nobody has requested a claim yet."
+    />
+  {/if}
 {:else}
   <div class="mr-2">
     <!-- Select all -->
-    <div class="sticky top-0 z-10 bg-white pb-3 pl-1 pt-1 flex items-center">
+    <div class="sticky top-0 bg-white pb-3 pl-1 flex items-center">
       <Checkbox
         checked={isAllSelected}
         on:change={handleSelectAll}
         color="red"
         class="cursor-pointer"
       />
-      <span class="ml-2 text-sm text-gray-700">Select All</span>
+      <span class="ml-2 mt-1 text-sm text-gray-700">Select All</span>
     </div>
 
     <!-- Main content grid -->

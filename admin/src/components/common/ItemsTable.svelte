@@ -7,7 +7,6 @@
     TableHead,
     TableHeadCell,
     Checkbox,
-    Spinner,
   } from "flowbite-svelte";
   import DeleteItem from "../widgets/items/DeleteItem.svelte";
   import EditItem from "../widgets/items/EditItem.svelte";
@@ -19,9 +18,14 @@
     statusMap,
   } from "../../stores/filterStore";
   import {
-    selectionStore,
-    selectionActions,
-  } from "../../stores/selectionStore";
+    itemSelectionStore,
+    itemSelectionActions,
+  } from "../../stores/itemSelectionStore";
+  import { sortStore, type SortOptions } from "../../stores/sortStore";
+  import {
+    itemDateFilterStore,
+    type DateFilterOptions,
+  } from "../../stores/itemDateFilterStore";
   import { formatTime } from "../../lib/formatDateTime";
   import { onMount } from "svelte";
   import type { Item } from "../../lib/types";
@@ -40,6 +44,8 @@
   let allItems: Item[] = [];
   let filteredItems: Item[] = [];
   let currentFilters: FilterOptions;
+  let currentSortOptions: SortOptions;
+  let currentDateFilter: DateFilterOptions;
   let selectedIds: Set<string>;
   let isAllSelected: boolean;
   let loading: boolean = true;
@@ -51,10 +57,21 @@
   let editModalOpen = false;
   let currentSearchTerm = "";
   let isSearchActive = false;
+  let isFilteredEmpty = false;
 
   searchStore.subscribe((term) => {
     currentSearchTerm = term;
     isSearchActive = term.length > 0;
+    applyFiltering();
+  });
+
+  itemDateFilterStore.subscribe((options) => {
+    currentDateFilter = options;
+    applyFiltering();
+  });
+
+  sortStore.subscribe((options) => {
+    currentSortOptions = options;
     applyFiltering();
   });
 
@@ -63,9 +80,51 @@
     applyFiltering();
   });
 
+  // Function to apply date filters
+  function applyDateFilter(items: Item[]): Item[] {
+    if (
+      !currentDateFilter.isActive ||
+      (!currentDateFilter.startDate && !currentDateFilter.endDate)
+    ) {
+      // Return all items if no filter is active
+      return items;
+    }
+
+    return items.filter((item) => {
+      // Parse the dateFiled string to a Date object
+      const itemDate = new Date(item.date_found);
+
+      // Single date filter case (when only startDate is set)
+      if (currentDateFilter.startDate && !currentDateFilter.endDate) {
+        const filterDate = new Date(currentDateFilter.startDate);
+        return (
+          itemDate.getFullYear() === filterDate.getFullYear() &&
+          itemDate.getMonth() === filterDate.getMonth() &&
+          itemDate.getDate() === filterDate.getDate()
+        );
+      }
+
+      // Date range case
+      const startDate = currentDateFilter.startDate
+        ? new Date(currentDateFilter.startDate.setHours(0, 0, 0, 0))
+        : null;
+
+      const endDate = currentDateFilter.endDate
+        ? new Date(currentDateFilter.endDate.setHours(23, 59, 59, 999))
+        : null;
+
+      const isAfterStart = !startDate || itemDate >= startDate;
+      const isBeforeEnd = !endDate || itemDate <= endDate;
+
+      return isAfterStart && isBeforeEnd;
+    });
+  }
+
   function applyFiltering() {
     if (!currentFilters) return;
     let filtered = [...allItems];
+
+    filtered = applyDateFilter(allItems);
 
     if (currentFilters.status !== "All") {
       const statusKey = currentFilters.status
@@ -105,11 +164,26 @@
       );
     }
 
+    // Then apply sorting
+    filtered = [...filtered].sort((a: Item, b: Item) => {
+      const dateA = new Date(a.date_found).getTime();
+      const dateB = new Date(b.date_found).getTime();
+
+      const multiplier = currentSortOptions.sortOrder === "Ascending" ? 1 : -1;
+      return (dateA - dateB) * multiplier;
+    });
+
     filtered.sort((a, b) => Number(b.id) - Number(a.id));
     filteredItems = filtered;
+
+    isFilteredEmpty =
+      filteredItems.length === 0 &&
+      allItems.length > 0 &&
+      currentDateFilter.isActive &&
+      !isSearchActive;
   }
 
-  selectionStore.subscribe((state) => {
+  itemSelectionStore.subscribe((state) => {
     selectedIds = state.selectedIds;
     isAllSelected = state.isAllSelected;
   });
@@ -130,11 +204,11 @@
   });
 
   function handleSelectAll() {
-    selectionActions.toggleSelectAll(filteredItems.map((item) => item.id));
+    itemSelectionActions.toggleSelectAll(filteredItems.map((item) => item.id));
   }
 
   function handleSelectItem(id: string) {
-    selectionActions.toggleSelection(id);
+    itemSelectionActions.toggleSelection(id);
   }
 
   function formatCategoryKey(key: string): string {
@@ -217,8 +291,26 @@
       Retry
     </button>
   </div>
-{:else if allItems.length === 0}
-  <EmptyFallback type="items" />
+{:else if filteredItems.length === 0}
+  {#if isSearchActive}
+    <EmptyFallback
+      type="items"
+      message="No items match your search."
+      subMessage="Try using different keywords or clear the search."
+    />
+  {:else if isFilteredEmpty}
+    <EmptyFallback
+      type="items"
+      message="No results match your filter."
+      subMessage="Try adjusting or clearing the date range."
+    />
+  {:else}
+    <EmptyFallback
+      type="items"
+      message="No items at the moment."
+      subMessage="Looks like nobody has reported a lost item yet."
+    />
+  {/if}
 {:else}
   <Table hoverable class="w-full table-fixed overflow-auto">
     <TableHead>

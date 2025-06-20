@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   import { Button } from "flowbite-svelte";
   import {
     CreditCardSolid,
@@ -7,6 +7,8 @@
     ApiKeyOutline,
     ArchiveSolid,
   } from "flowbite-svelte-icons";
+  import { filterStore, categoryNameMap } from "../../../stores/filterStore";
+  import { push } from "svelte-spa-router";
 
   // Quick filters data
   const quickFilters = [
@@ -16,6 +18,14 @@
     { name: "Keys", icon: "key" },
     { name: "Misc", icon: "archive" },
   ];
+
+  function handleQuickFilter(name: string) {
+    filterStore.set({
+      status: "All",
+      category: categoryNameMap[name],
+    });
+    push("/items");
+  }
 </script>
 
 {#each quickFilters as filter}
@@ -23,6 +33,7 @@
     <Button
       color="red"
       class="bg-[#800000] hover:bg-[#600303] rounded-xl w-full flex items-center justify-center p-0"
+      on:click={() => handleQuickFilter(filter.name)}
     >
       {#if filter.icon === "card"}
         <CreditCardSolid class="w-12 h-12 my-4" />

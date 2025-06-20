@@ -32,9 +32,9 @@ function createDateFilterStore() {
   };
 }
 
-export const dateFilterStore = createDateFilterStore();
+export const claimantsDateFilterStore = createDateFilterStore();
 
-export const dateFilterActions = {
-  setDateRange: dateFilterStore.setDateRange,
-  clearDateFilter: dateFilterStore.clearDateFilter,
+export const claimantsDateFilterActions = {
+  setDateRange: claimantsDateFilterStore.setDateRange,
+  clearDateFilter: claimantsDateFilterStore.clearDateFilter,
 };
