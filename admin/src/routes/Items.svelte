@@ -7,17 +7,24 @@
   import Toggle from "../components/common/Toggle.svelte";
   import Indicator from "../components/common/Indicator.svelte";
   import { viewStore, type ViewType } from "../stores/viewStore";
-  import { selectionStore, selectionActions } from "../stores/selectionStore";
+  import {
+    itemSelectionStore,
+    itemSelectionActions,
+  } from "../stores/itemSelectionStore";
   import { itemDateFilterActions } from "../stores/itemDateFilterStore";
   import ItemsGrid from "../components/common/ItemsGrid.svelte";
   import { Button } from "flowbite-svelte";
   import { PlusOutline } from "flowbite-svelte-icons";
   import { refreshTrigger } from "../stores/itemStore";
-  import { onDestroy } from "svelte";
+  import { onMount, onDestroy } from "svelte";
 
   let currentView: ViewType;
   let selectedIds: Set<string>;
   let addItemModal = false;
+
+  onMount(() => {
+    itemSelectionActions.clearSelection();
+  });
 
   viewStore.set((sessionStorage.getItem("currentView") as ViewType) || "list");
 
@@ -26,12 +33,12 @@
     sessionStorage.setItem("currentView", value);
   });
 
-  selectionStore.subscribe((state) => {
+  itemSelectionStore.subscribe((state) => {
     selectedIds = state.selectedIds;
   });
 
   async function clearSelection() {
-    selectionActions.clearSelection();
+    itemSelectionActions.clearSelection();
     refreshTrigger.set(true);
   }
 

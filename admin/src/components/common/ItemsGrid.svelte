@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import ItemCard from "./ItemCard.svelte";
-  import { Checkbox, Spinner } from "flowbite-svelte";
+  import { Checkbox } from "flowbite-svelte";
   import {
     filterStore,
     type FilterOptions,
@@ -10,9 +10,9 @@
   } from "../../stores/filterStore";
   import { searchStore } from "../../stores/searchStore";
   import {
-    selectionStore,
-    selectionActions,
-  } from "../../stores/selectionStore";
+    itemSelectionStore,
+    itemSelectionActions,
+  } from "../../stores/itemSelectionStore";
   import {
     itemDateFilterStore,
     type DateFilterOptions,
@@ -170,7 +170,7 @@
       !isSearchActive;
   }
 
-  selectionStore.subscribe((state) => {
+  itemSelectionStore.subscribe((state) => {
     selectedIds = state.selectedIds;
     isAllSelected = state.isAllSelected;
   });
@@ -191,7 +191,7 @@
   });
 
   function handleSelectAll() {
-    selectionActions.toggleSelectAll(items.map((item) => item.id));
+    itemSelectionActions.toggleSelectAll(items.map((item) => item.id));
   }
 
   function handleCardDoubleClick(item: Item) {
@@ -343,7 +343,7 @@
         color="red"
         class="cursor-pointer"
       />
-      <span class="ml-2 text-sm text-gray-700">Select All</span>
+      <span class="ml-2 mt-1 text-sm text-gray-700">Select All</span>
     </div>
 
     <!-- Main content grid -->

@@ -18,9 +18,9 @@
     statusMap,
   } from "../../stores/filterStore";
   import {
-    selectionStore,
-    selectionActions,
-  } from "../../stores/selectionStore";
+    itemSelectionStore,
+    itemSelectionActions,
+  } from "../../stores/itemSelectionStore";
   import { sortStore, type SortOptions } from "../../stores/sortStore";
   import {
     itemDateFilterStore,
@@ -183,7 +183,7 @@
       !isSearchActive;
   }
 
-  selectionStore.subscribe((state) => {
+  itemSelectionStore.subscribe((state) => {
     selectedIds = state.selectedIds;
     isAllSelected = state.isAllSelected;
   });
@@ -204,11 +204,11 @@
   });
 
   function handleSelectAll() {
-    selectionActions.toggleSelectAll(filteredItems.map((item) => item.id));
+    itemSelectionActions.toggleSelectAll(filteredItems.map((item) => item.id));
   }
 
   function handleSelectItem(id: string) {
-    selectionActions.toggleSelection(id);
+    itemSelectionActions.toggleSelection(id);
   }
 
   function formatCategoryKey(key: string): string {
