@@ -23,9 +23,9 @@
   import { sortStore, type SortOptions } from "../../stores/sortStore";
   import { searchStore } from "../../stores/searchStore";
   import {
-    selectionStore,
-    selectionActions,
-  } from "../../stores/selectionStore";
+    claimantsSelectionStore,
+    claimantsSelectionActions,
+  } from "../../stores/claimantsSelectionStore";
   import {
     claimantsDateFilterStore,
     type DateFilterOptions,
@@ -69,7 +69,7 @@
     applyFiltersAndSorting();
   });
 
-  selectionStore.subscribe((state) => {
+  claimantsSelectionStore.subscribe((state) => {
     selectedIds = state.selectedIds;
     isAllSelected = state.isAllSelected;
   });
@@ -189,12 +189,12 @@
 
   // Handle select all checkbox
   function handleSelectAll() {
-    selectionActions.toggleSelectAll(claims.map((claim) => claim.id));
+    claimantsSelectionActions.toggleSelectAll(claims.map((claim) => claim.id));
   }
 
   // Handle individual item selection
   function handleSelectItem(id: string) {
-    selectionActions.toggleSelection(id);
+    claimantsSelectionActions.toggleSelection(id);
   }
 
   function handleDeletionComplete(event: DeleteCompleteEvent) {
@@ -208,7 +208,7 @@
 
     // Clear selection if needed
     if (deletedIds.length > 0) {
-      selectionActions.clearSelection();
+      claimantsSelectionActions.clearSelection();
     }
   }
 

@@ -7,25 +7,32 @@
   import Grid from "../components/common/Grid.svelte";
   import Indicator from "../components/common/Indicator.svelte";
   import { viewStore, type ViewType } from "../stores/viewStore";
-  import { selectionStore, selectionActions } from "../stores/selectionStore";
+  import {
+    claimantsSelectionStore,
+    claimantsSelectionActions,
+  } from "../stores/claimantsSelectionStore";
   import { claimantsDateFilterActions } from "../stores/claimantsDateFilterStore";
-  import { onDestroy } from "svelte";
+  import { onMount, onDestroy } from "svelte";
 
   // Subscribe to necessary stores
   let currentView: ViewType;
   let selectedIds: Set<string>;
 
+  onMount(() => {
+    claimantsSelectionActions.clearSelection();
+  });
+
   viewStore.subscribe((value) => {
     currentView = value;
   });
 
-  selectionStore.subscribe((state) => {
+  claimantsSelectionStore.subscribe((state) => {
     selectedIds = state.selectedIds;
   });
 
   // Function to handle selection actions
   function clearSelection() {
-    selectionActions.clearSelection();
+    claimantsSelectionActions.clearSelection();
   }
 
   // Clear filter when coming from a diff page

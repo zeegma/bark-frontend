@@ -13,9 +13,9 @@
   import { sortStore, type SortOptions } from "../../stores/sortStore";
   import { searchStore } from "../../stores/searchStore";
   import {
-    selectionStore,
-    selectionActions,
-  } from "../../stores/selectionStore";
+    claimantsSelectionStore,
+    claimantsSelectionActions,
+  } from "../../stores/claimantsSelectionStore";
   import {
     claimantsDateFilterStore,
     type DateFilterOptions,
@@ -59,7 +59,7 @@
     applyFiltersAndSorting();
   });
 
-  selectionStore.subscribe((state) => {
+  claimantsSelectionStore.subscribe((state) => {
     selectedIds = state.selectedIds;
     isAllSelected = state.isAllSelected;
   });
@@ -179,7 +179,7 @@
 
   // Handle select all function
   function handleSelectAll() {
-    selectionActions.toggleSelectAll(claims.map((claim) => claim.id));
+    claimantsSelectionActions.toggleSelectAll(claims.map((claim) => claim.id));
   }
 
   function handleCardDoubleClick(claim: ClaimItem) {
@@ -208,7 +208,7 @@
 
     // Clear selection if needed
     if (deletedIds.length > 0) {
-      selectionActions.clearSelection();
+      claimantsSelectionActions.clearSelection();
     }
   }
 
@@ -307,7 +307,7 @@
         color="red"
         class="cursor-pointer"
       />
-      <span class="ml-2 text-sm text-gray-700">Select All</span>
+      <span class="ml-2 mt-1 text-sm text-gray-700">Select All</span>
     </div>
 
     <!-- Main content grid -->
