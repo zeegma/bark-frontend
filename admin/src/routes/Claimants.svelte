@@ -8,6 +8,8 @@
   import Indicator from "../components/common/Indicator.svelte";
   import { viewStore, type ViewType } from "../stores/viewStore";
   import { selectionStore, selectionActions } from "../stores/selectionStore";
+  import { claimantsDateFilterActions } from "../stores/claimantsDateFilterStore";
+  import { onDestroy } from "svelte";
 
   // Subscribe to necessary stores
   let currentView: ViewType;
@@ -25,6 +27,11 @@
   function clearSelection() {
     selectionActions.clearSelection();
   }
+
+  // Clear filter when coming from a diff page
+  onDestroy(() => {
+    claimantsDateFilterActions.clearDateFilter();
+  });
 </script>
 
 <Layout title="Claimants">
@@ -33,7 +40,11 @@
     <div class="flex gap-4 mb-7">
       <SortDropdown />
       <div class="w-1/4">
-        <DatePicker ranged={true} />
+        <DatePicker
+          ranged={true}
+          setDateRange={claimantsDateFilterActions.setDateRange}
+          clearDateFilter={claimantsDateFilterActions.clearDateFilter}
+        />
       </div>
       <Toggle />
 
