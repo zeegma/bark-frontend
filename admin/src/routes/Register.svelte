@@ -73,7 +73,6 @@
     <div
       class="w-full md:w-2/5 flex flex-col items-center justify-center bg-red-900 text-white font-poppins p-4 relative"
     >
-      <header class="text-4xl font-bold mb-4">PUP-Bark</header>
       <!-- Registration Form -->
       <form
         class="bg-white shadow-xl rounded-2xl p-6 w-full max-w-md space-y-4"
@@ -188,23 +187,19 @@
           </Checkbox>
         </div>
 
-        <div class="mt-2 text-center">
-          <p class="text-sm text-gray-900">
-            Already have an account?
-            <A href="/" class="text-primary-900 hover:underline">Log In</A>
-          </p>
-        </div>
-
-        {#if errorMessage}
-          <p class="text-red-600 text-sm">{errorMessage}</p>
-        {/if}
-
         <Button
           type="submit"
           class="w-full bg-red-900 text-white hover:bg-red-700"
         >
           Submit
         </Button>
+
+        <div class="mt-2 text-center">
+          <p class="text-sm text-gray-900">
+            Already have an account?
+            <A href="/" class="text-primary-900 hover:underline">Log In</A>
+          </p>
+        </div>
       </form>
     </div>
   </div>
