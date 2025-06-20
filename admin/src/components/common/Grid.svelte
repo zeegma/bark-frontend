@@ -280,16 +280,19 @@
 {:else if claims.length === 0}
   {#if isSearchActive}
     <EmptyFallback
+      type="claimants"
       message="No claimants match your search."
       subMessage="Try using different keywords or clear the search."
     />
   {:else if isFilteredEmpty}
     <EmptyFallback
+      type="claimants"
       message="No results match your filter."
       subMessage="Try adjusting or clearing the date range."
     />
   {:else}
     <EmptyFallback
+      type="claimants"
       message="No claimants at the moment."
       subMessage="Looks like nobody has requested a claim yet."
     />
