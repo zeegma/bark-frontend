@@ -53,6 +53,14 @@ export const statusMap: Record<string, string> = {
   EXPIRED: "EX",
 };
 
+export const categoryNameMap: Record<string, CategoryFilter> = {
+  "IDs & Cards": "IDs & Cards",
+  Bags: "Bags & Backpacks",
+  Electronics: "Electronics",
+  Keys: "Keys",
+  Misc: "Miscellaneous",
+};
+
 export const reverseCategoryMap = Object.fromEntries(
   Object.entries(categoryMap).map(([key, val]) => [val, key]),
 );
