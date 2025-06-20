@@ -2,7 +2,8 @@
   import { CloseOutline } from "flowbite-svelte-icons";
   import DeleteModal from "../widgets/claimants/DeleteModal.svelte";
   import DeleteItem from "../widgets/items/DeleteItem.svelte";
-  import { selectionStore } from "../../stores/selectionStore";
+  import { claimantsSelectionStore } from "../../stores/claimantsSelectionStore";
+  import { itemSelectionStore } from "../../stores/itemSelectionStore";
 
   // For delete modal
   let deleteModal: boolean = false;
@@ -10,7 +11,11 @@
   let bulkDeleteIds: string[] = [];
   let selectedIds: Set<string>;
 
-  selectionStore.subscribe((state) => {
+  claimantsSelectionStore.subscribe((state) => {
+    selectedIds = state.selectedIds;
+  });
+
+  itemSelectionStore.subscribe((state) => {
     selectedIds = state.selectedIds;
   });
 
