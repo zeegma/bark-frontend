@@ -1,36 +1,51 @@
 <script lang="ts">
   import Layout from "../components/layout/Layout.svelte";
-  import AddItem from "../components/widgets/AddItem.svelte";
+  import AddItem from "../components/widgets/items/AddItem.svelte";
   import DatePicker from "../components/common/DatePicker.svelte";
   import ItemsTable from "../components/common/ItemsTable.svelte";
   import FilterDropdown from "../components/common/FilterDropdown.svelte";
   import Toggle from "../components/common/Toggle.svelte";
   import Indicator from "../components/common/Indicator.svelte";
   import { viewStore, type ViewType } from "../stores/viewStore";
-  import { selectionStore, selectionActions } from "../stores/selectionStore";
+  import {
+    itemSelectionStore,
+    itemSelectionActions,
+  } from "../stores/itemSelectionStore";
+  import { itemDateFilterActions } from "../stores/itemDateFilterStore";
   import ItemsGrid from "../components/common/ItemsGrid.svelte";
+  import { Button } from "flowbite-svelte";
+  import { PlusOutline } from "flowbite-svelte-icons";
+  import { refreshTrigger } from "../stores/itemStore";
+  import { onMount, onDestroy } from "svelte";
 
   let currentView: ViewType;
   let selectedIds: Set<string>;
+  let addItemModal = false;
+
+  onMount(() => {
+    itemSelectionActions.clearSelection();
+  });
+
+  viewStore.set((sessionStorage.getItem("currentView") as ViewType) || "list");
 
   viewStore.subscribe((value) => {
     currentView = value;
+    sessionStorage.setItem("currentView", value);
   });
 
-  selectionStore.subscribe((state) => {
+  itemSelectionStore.subscribe((state) => {
     selectedIds = state.selectedIds;
   });
 
-  // Function to handle selection actions
-  function clearSelection() {
-    selectionActions.clearSelection();
+  async function clearSelection() {
+    itemSelectionActions.clearSelection();
+    refreshTrigger.set(true);
   }
 
-  function deleteSelectedItems() {
-    // Wait for API imple of deletion, this one's temp code
-    console.log("Deleting items:", Array.from(selectedIds));
-    selectionActions.clearSelection();
-  }
+  // Clear filter when coming from a diff page
+  onDestroy(() => {
+    itemDateFilterActions.clearDateFilter();
+  });
 </script>
 
 <Layout title="Items">
@@ -39,7 +54,11 @@
       <div class="flex items-center gap-4 mb-7">
         <FilterDropdown />
         <div class="min-w-[300px]">
-          <DatePicker />
+          <DatePicker
+            ranged={true}
+            setDateRange={itemDateFilterActions.setDateRange}
+            clearDateFilter={itemDateFilterActions.clearDateFilter}
+          />
         </div>
         <div class="min-w-[96px]">
           <Toggle />
@@ -48,14 +67,19 @@
       <div class="flex flex-1 justify-end">
         {#if selectedIds.size > 0}
           <Indicator
+            type="items"
             selectedCount={selectedIds.size}
             onClear={clearSelection}
-            onDelete={deleteSelectedItems}
           />
         {/if}
       </div>
       <div class="ml-4">
-        <AddItem />
+        <Button
+          on:click={() => (addItemModal = true)}
+          class="h-[44px] bg-red-900 text-white px-4 py-2 flex items-center gap-2 rounded-lg hover:bg-red-950"
+        >
+          Add Item <PlusOutline />
+        </Button>
       </div>
     </div>
 
@@ -67,4 +91,6 @@
       {/if}
     </div>
   </div>
+
+  <AddItem bind:open={addItemModal} />
 </Layout>

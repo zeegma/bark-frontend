@@ -18,6 +18,7 @@
       bind:value={selectedTime}
       {disabled}
       required
+      step="60"
       on:change={handleTimeChange}
       class="border leading-none border-gray-300 text-gray-700 text-sm rounded-xl block w-full p-2.5 focus:ring-red-500 focus:ring-2 ${disabled
         ? 'opacity-50'

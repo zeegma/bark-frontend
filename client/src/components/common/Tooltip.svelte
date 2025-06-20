@@ -5,11 +5,20 @@
   export let position: "top" | "left" | "bottom" = "top";
 
   let showTooltip = false;
+
   function toggleTooltip() {
     showTooltip = !showTooltip;
   }
 
   function closeTooltip() {
+    showTooltip = false;
+  }
+
+  function handleMouseEnter() {
+    showTooltip = true;
+  }
+
+  function handleMouseLeave() {
     showTooltip = false;
   }
 </script>
@@ -21,6 +30,8 @@
   on:click={toggleTooltip}
   on:keydown={(e) =>
     e.key === "Enter" || e.key === " " ? toggleTooltip() : null}
+  on:mouseenter={handleMouseEnter}
+  on:mouseleave={handleMouseLeave}
   use:onClickOutside={closeTooltip}
 >
   <slot />

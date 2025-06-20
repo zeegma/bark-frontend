@@ -1,24 +1,49 @@
 <script lang="ts">
+  import { onDestroy } from "svelte";
   import { CloseOutline } from "flowbite-svelte-icons";
   import DeleteModal from "../widgets/claimants/DeleteModal.svelte";
-  import { selectionStore } from "../../stores/selectionStore";
+  import DeleteItem from "../widgets/items/DeleteItem.svelte";
+  import { claimantsSelectionStore } from "../../stores/claimantsSelectionStore";
+  import { itemSelectionStore } from "../../stores/itemSelectionStore";
 
   // For delete modal
   let deleteModal: boolean = false;
+  let deleteItemModal: boolean = false;
   let bulkDeleteIds: string[] = [];
   let selectedIds: Set<string>;
 
-  selectionStore.subscribe((state) => {
-    selectedIds = state.selectedIds;
+  let unsubscribe: () => void;
+
+  $: {
+    if (unsubscribe) unsubscribe();
+
+    if (type === "claimants") {
+      unsubscribe = claimantsSelectionStore.subscribe((state) => {
+        selectedIds = state.selectedIds;
+      });
+    } else {
+      unsubscribe = itemSelectionStore.subscribe((state) => {
+        selectedIds = state.selectedIds;
+      });
+    }
+  }
+
+  onDestroy(() => {
+    if (unsubscribe) unsubscribe();
   });
 
   // Props
   export let selectedCount: number = 0;
   export let onClear: () => void = () => {};
+  export let type: "claimants" | "items" = "claimants";
 
   function handleDelete() {
     bulkDeleteIds = Array.from(selectedIds);
-    deleteModal = true;
+    if (type === "items") {
+      deleteItemModal = true;
+    } else {
+      deleteModal = true;
+    }
   }
 </script>
 
@@ -42,4 +67,17 @@
     Delete
   </button>
 </div>
-<DeleteModal bind:open={deleteModal} claim={null} idsToDelete={bulkDeleteIds} />
+{#if type === "claimants"}
+  <DeleteModal
+    bind:open={deleteModal}
+    claim={null}
+    idsToDelete={bulkDeleteIds}
+  />
+{:else if type === "items"}
+  <DeleteItem
+    bind:open={deleteItemModal}
+    item={null}
+    idsToDelete={bulkDeleteIds}
+    onDelete={onClear}
+  />
+{/if}

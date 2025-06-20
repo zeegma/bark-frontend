@@ -3,12 +3,28 @@
   import { formatTime } from "../../lib/utils/timeFormatter";
   import Tooltip from "../common/Tooltip.svelte";
   export let items: any[];
+
+  interface Item {
+    name: string;
+    status: "UC" | "C" | string;
+  }
+
+  $: sortedItems = [...items].sort((a: Item, b: Item) => {
+    if (a.status === "UC" && b.status !== "UC") {
+      return -1;
+    }
+    if (a.status !== "UC" && b.status === "UC") {
+      return 1;
+    }
+
+    return a.name.localeCompare(b.name);
+  });
 </script>
 
 <section class=" border px-4 md:px-8 rounded-2xl border-stone-300">
   <table class="min-w-full table-auto border-separate border-spacing-y-4">
     <tbody>
-      {#each items as item (item.id)}
+      {#each sortedItems as item (item.id)}
         <tr class="bg-white border border-stone-500 rounded-xl">
           <!-- Icon, Name, and Description -->
           <td class="min-w-0 max-w-48 md:max-w-34 py-0 md:py-4">
@@ -37,7 +53,7 @@
           </td>
 
           <!-- Display Status -->
-          <td class="max-w-20 px-0 md:px-2 lg:px-6 text-center">
+          <td class="max-w-20 px-0 lg:px-6 text-center">
             <span
               class={`w-full px-2 py-3.5 lg:block hidden text-xs xl:text-base font-bold rounded-lg ${
                 item.status === "UC"
@@ -50,16 +66,16 @@
           </td>
 
           <!-- Date and Time Found-->
-          <td class="max-w-24 text-center">
+          <td class="max-w-20 text-center">
             <div
               class="md:block hidden px-2 py-4 text-center text-sm xl:text-base text-stone-700 font-medium"
             >
-              {item.date_found} @ {formatTime(item.time_found)}
+              {item.date_found} <br />@ {formatTime(item.time_found)}
             </div>
           </td>
 
           <!-- Last Seen -->
-          <td class="max-w-24 text-center">
+          <td class="max-w-24 pr-4 text-center">
             <div
               class="md:block hidden px-2 py-4 text-center text-sm xl:text-base text-stone-700 font-medium truncate"
             >
@@ -104,11 +120,11 @@
           </td>
 
           <!-- Action Button -->
-          <td class="max-w-16 md:max-w-16 text-end">
+          <td class="max-w-16 md:max-w-16 min-w-20 text-end">
             {#if item.status === "UC"}
               <a
                 href={`#/claim?id=${item.id}`}
-                class="w-full md:min-w-0 inline-block py-3 md:py-4 text-center text-white text-xs xl:text-base whitespace-nowrap rounded-lg bg-[#800000] hover:bg-[#A73D3D] font-medium transition duration-300 ease-in-out cursor-pointer"
+                class="w-full inline-block py-3 md:py-4 text-center text-white text-xs xl:text-base whitespace-nowrap rounded-lg bg-[#800000] hover:bg-[#A73D3D] font-medium transition duration-300 ease-in-out cursor-pointer"
               >
                 File Claim
               </a>

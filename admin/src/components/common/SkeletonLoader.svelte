@@ -1,5 +1,6 @@
 <script lang="ts">
   export let type: "table" | "grid" = "table";
+  export let view: "items" | "claimants" = "items";
   export let count: number = 5;
 </script>
 
@@ -33,7 +34,9 @@
 
     <!-- Grid skeleton -->
     <div
-      class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
+      class="grid {view === 'claimants'
+        ? 'grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4'
+        : 'grid-cols-3 gap-4 w-full'}"
     >
       {#each Array(count) as _, i}
         <div
@@ -46,7 +49,11 @@
           </div>
 
           <!-- Card image area -->
-          <div class="mx-3 h-32 bg-gray-200 rounded-lg"></div>
+          <div
+            class="mx-3 {view === 'claimants'
+              ? 'h-32'
+              : 'h-[180px]'} bg-gray-200 rounded-lg"
+          ></div>
 
           <!-- Card content -->
           <div class="p-3">
