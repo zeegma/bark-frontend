@@ -2,4 +2,5 @@ import { writable } from "svelte/store";
 
 export type ViewType = "list" | "grid";
 
-export const viewStore = writable<ViewType>("list");
+const storedView = sessionStorage.getItem("currentView") as ViewType | null;
+export const viewStore = writable<ViewType>(storedView || "list");

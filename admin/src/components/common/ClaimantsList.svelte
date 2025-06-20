@@ -1,56 +1,54 @@
 <script lang="ts">
   import { Button, Dropdown, DropdownItem } from "flowbite-svelte";
   import { ChevronDownOutline } from "flowbite-svelte-icons";
-  import { claimsData } from "../../lib/mockData";
   import { onMount } from "svelte";
+  import { fetchClaimants } from "../../lib/api";
+  import type { ClaimantResponse, Item } from "../../lib/types";
 
-  // id from the claimsData to be displayed in the dropdown
-  type Claimant = {
-    id: string;
-  };
+  export let selectedClaimant: number;
+  export let itemId: string;
+  let claimantOptions: ClaimantResponse[] = [];
 
-  export let selectedClaimant: string = "";
-  let claimantOptions: Claimant[] = [];
-
-  // TODO: Check if this is right
-  async function fetchClaimants(): Promise<Claimant[]> {
-    try {
-      const response = await fetch(""); // API
-      if (!response.ok) {
-        throw new Error(`Failed to fetch claimants: ${response.statusText}`);
-      }
-      return claimsData.map((claim) => ({ id: claim.id })); // Use and map claimsData from mockData for now
-    } catch (error) {
-      console.error(error);
-      return [];
-    }
-  }
-
-  function selectClaimant(claimant: Claimant) {
+  function selectClaimant(claimant: ClaimantResponse) {
     selectedClaimant = claimant.id;
   }
 
-  onMount(() => {
-    fetchClaimants().then((data) => {
-      claimantOptions = data;
-    });
+  onMount(async () => {
+    try {
+      // Fetch all claimants
+      const allClaimants = await fetchClaimants();
+      console.log("All claimants:", allClaimants);
+      // Filter claimants to only those who claimed the current item
+      claimantOptions = allClaimants.filter(
+        (claimant) =>
+          claimant.item_id === parseInt(itemId) ||
+          claimant.item_id.toString() === itemId,
+      );
+      console.log("Filtered claimants for item", itemId, ":", claimantOptions);
+    } catch (error) {
+      console.error(`Failed to load claimants for item #${itemId}:`, error);
+    }
   });
 </script>
 
 <div class="col-span-2">
   <div class="w-full relative">
     <Button
-      class="w-full bg-white border border-gray-300 text-[#1E1E1E] justify-between hover:bg-white hover:border-gray-300 focus:outline-none focus:ring-0"
+      class="w-full bg-white border border-gray-300 text-[#1E1E1E] justify-between hover:bg-white hover:border-gray-300 focus:border-black focus:ring-2 focus:ring-red-500 focus:outline-none"
     >
       {selectedClaimant || "Claimant"}
       <ChevronDownOutline class="w-6 h-6 ms-2 text-[#1E1E1E]" />
     </Button>
-    <Dropdown class="w-full">
-      {#each claimantOptions as claimant}
-        <DropdownItem on:click={() => selectClaimant(claimant)}>
-          {claimant.id}
-        </DropdownItem>
-      {/each}
+    <Dropdown class="w-full max-h-48 overflow-y-auto">
+      {#if claimantOptions.length > 0}
+        {#each claimantOptions as claimant}
+          <DropdownItem on:click={() => selectClaimant(claimant)}>
+            {claimant.id}
+          </DropdownItem>
+        {/each}
+      {:else}
+        <DropdownItem>No Claim</DropdownItem>
+      {/if}
     </Dropdown>
   </div>
 </div>

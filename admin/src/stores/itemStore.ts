@@ -1,67 +1,60 @@
 import { writable, get } from "svelte/store";
+import type { Item } from "../lib/types";
+import {
+  fetchItems,
+  addItem as addItemToDB,
+  updateItem as updateItemInDB,
+  deleteItem as deleteItemInDB,
+} from "../lib/api/items";
 
 export const itemsStore = createItemsStore();
 export const items = writable<Item[]>([]);
 export const currentItem = writable<Item | null>(null);
 export const showAddModal = writable(false);
 
-export type Item = {
-  id: string;
-  name: string;
-  status: string;
-  category: string;
-  claimant?: string;
-  description: string;
-  dateLost: Date;
-  timeLost: string;
-  lastKnownLocation: string;
-  image?: File | null | string;
-  imagePreview?: string | null;
-};
-
 function createItemsStore() {
-  const storedItems = JSON.parse(localStorage.getItem("items") || "[]");
-  const { subscribe, set, update } = writable<Item[]>(storedItems);
-
-  const saveToLocalStorage = (items: Item[]) => {
-    localStorage.setItem("items", JSON.stringify(items));
-  };
+  const { subscribe, set, update } = writable<Item[]>([]);
 
   return {
     subscribe,
-    addItem: (item: Item) =>
-      update((items) => {
-        const updated = [...items, item];
-        saveToLocalStorage(updated);
-        return updated;
-      }),
-    setItems: (newItems: Item[]) => {
-      saveToLocalStorage(newItems);
-      set(newItems);
+    loadItems: async () => {
+      const fetched = await fetchItems();
+      set(fetched);
     },
-    reset: () => {
-      saveToLocalStorage([]);
-      set([]);
+    addItem: async (item: Item) => {
+      const response = await addItemToDB(item);
+      if (response.ok) {
+        update((items) => [...items, item]);
+      } else {
+        console.error("Failed to add");
+      }
     },
-    getNextId: () => getNextHexId(get(items)), // Get next ID from the items store
-    updateItem: (updatedItem: Item) => {
-      update((items) => {
-        const index = items.findIndex((item) => item.id === updatedItem.id);
-        if (index !== -1) {
-          // Replace the old item with the updated one
-          items[index] = updatedItem;
-        }
-        saveToLocalStorage(items);
-        return items;
-      });
+    updateItem: async (updatedItem: Item) => {
+      const response = await updateItemInDB(updatedItem);
+      if (response.ok) {
+        update((items) =>
+          items.map((item) =>
+            item.id === updatedItem.id ? updatedItem : item,
+          ),
+        );
+      } else {
+        const errorText = await response.text();
+        console.error("Failed to edit/update:", errorText);
+      }
     },
-    deleteItem: (id: string) => {
-      update((items) => {
-        const filteredItems = items.filter((item) => item.id !== id);
-        saveToLocalStorage(filteredItems);
-        return filteredItems;
-      });
+    deleteItem: async (id: string) => {
+      const response = await deleteItemInDB(id);
+      if (response.ok) {
+        update((items) => items.filter((item) => item.id !== id));
+        return true;
+      } else {
+        console.error("Failed to delete");
+        return false;
+      }
     },
+    getNextId: () => getNextHexId(get(items)),
+    setItems: (newItems: Item[]) => set(newItems),
+    reset: () => set([]),
   };
 }
 
@@ -80,11 +73,19 @@ export const createNewItem = (nextId: string): Item => ({
   name: "",
   status: "",
   category: "",
-  claimant: "",
-  image: null,
+  accepted_claim: null,
+  accepted_claim_id: null,
+  photo_url: "",
   imagePreview: null,
   description: "",
-  dateLost: new Date(), // New Date as default for dateLost
-  timeLost: "",
-  lastKnownLocation: "",
+  date_found: "",
+  time_found: "",
+  location_found: "",
 });
+
+export const refreshTrigger = writable<boolean>(false);
+
+export function triggerRefresh() {
+  refreshTrigger.update((v) => !v);
+  console.log("Refresh triggered");
+}

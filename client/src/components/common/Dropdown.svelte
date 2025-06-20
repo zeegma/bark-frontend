@@ -22,17 +22,17 @@
   {#if !expanded}
     <button
       on:click={() => (showDropdown = !showDropdown)}
-      class={`flex items-center justify-between gap-2 h-[48px] px-4 ${fullWidth ? "w-full" : "w-58"} border border-stone-300 rounded-lg bg-white focus:border-[#9A4444] focus:border-2 hover:bg-stone-100 hover:border-stone-400 transition duration-300 ease-in-out cursor-pointer`}
+      class={`flex items-center justify-between gap-2 h-[48px] px-4 lg:min-w-48 min-w-0 border border-stone-300 rounded-lg bg-white focus:border-[#9A4444] focus:border-2 hover:bg-stone-100 hover:border-stone-400 transition duration-300 ease-in-out cursor-pointer`}
     >
       <div class="flex items-center gap-2">
-        <img src={icon} class="w-5 h-5" alt="Dropdown Icon" />
-        <span class="text-sm font-medium text-[#9A4444]">
+        <img src={icon} class="min-w-5 min-h-5" alt="Dropdown Icon" />
+        <span class="lg:block hidden text-sm font-medium text-[#9A4444] truncate">
           {selectedValue
             ? options.find((opt) => opt.value === selectedValue)?.label
             : label}
         </span>
       </div>
-      <div class="flex translate-x-2">
+      <div class="lg:block hidden translate-x-2">
         <svg
           width="24px"
           height="24px"

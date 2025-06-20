@@ -4,12 +4,27 @@
   import Tooltip from "../common/Tooltip.svelte";
   import timeIcon from "/icons/time-icon.svg";
   import locationIcon from "/icons/location-icon.svg";
-
   export let items: any[];
+
+  interface Item {
+    name: string;
+    status: "UC" | "C" | string;
+  }
+
+  $: sortedItems = [...items].sort((a: Item, b: Item) => {
+    if (a.status === "UC" && b.status !== "UC") {
+      return -1;
+    }
+    if (a.status !== "UC" && b.status === "UC") {
+      return 1;
+    }
+
+    return a.name.localeCompare(b.name);
+  });
 </script>
 
 <section class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-2 md:gap-4">
-  {#each items as item (item.id)}
+  {#each sortedItems as item (item.id)}
     <div
       class="p-3 md:p-4 lg:p-6 border border-stone-300 rounded-2xl bg-white hover:bg-stone-100 hover:border-stone-400 transition duration-300 ease-in-out"
     >
